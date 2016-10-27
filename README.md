@@ -1,4 +1,4 @@
-##swoole-jobs
+#swoole-jobs
 
 ##使用场景
 * web中较慢的逻辑，比如统计／email／短信
@@ -13,14 +13,14 @@
 
 
 ##设计文档
-* [架构图](https://github.com/kcloze/swoole-jobs/blob/master/jobs.png)
+![架构图](jobs.png)
 
 
 ##示例
 
 ```
 //启动多进程消化job
-php test/testJobs.php
+php test/testProcess.php
 
 //往队列添加job
 php test/testJobs.php
