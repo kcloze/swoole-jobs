@@ -48,7 +48,7 @@ class Jobs
                 echo "no work to do!\n";
             }
             echo "sleep one second!\n";
-            sleep(1);
+            sleep(2);
         }
 
     }

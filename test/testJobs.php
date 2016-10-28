@@ -23,6 +23,13 @@ for ($i = 0; $i < 10; $i++) {
     //$result = $queue->pop($jobName);
     //var_dump($result);
 }
+for ($i = 0; $i < 10; $i++) {
+    $data = ['jobAction' => 'errorAction', 'title' => 'kcloze', 'time' => time()];
+    $queue->push($jobName, $data);
+    echo "ok\n";
+    //$result = $queue->pop($jobName);
+    //var_dump($result);
+}
 $result = $queue->pop($jobName);
 var_dump($result);
 // for ($i = 0; $i < 100; $i++) {

@@ -29,7 +29,7 @@ class Process
         }
 
         $this->registSignal($this->workers);
-        \swoole_process::wait();
+        //\swoole_process::wait();
 
     }
     //独立进程消费队列
@@ -64,7 +64,7 @@ class Process
     //监控子进程
     public function registSignal($workers)
     {
-        \swoole_process::signal(SIGTERM, function ($signo) use (&$workers) {
+        \swoole_process::signal(SIGTERM, function ($signo) {
 
             $this->exitMaster("收到退出信号,退出主进程");
         });
