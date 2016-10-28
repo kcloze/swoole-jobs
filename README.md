@@ -4,10 +4,11 @@
 
 ##使用场景
 
-* web中较慢的逻辑，比如统计／email／短信
-* job任务并发数10000以内
+* web中较慢的逻辑，比如统计/email/短信/图片处理等
+* 单机job任务并发数10000以内，但可以多机器部署
 
-##设计文档
+##架构图
+
 ![架构图](jobs-archi.png)
 
 
@@ -15,7 +16,7 @@
 
 * 基于swoole的job调度组件
 * redis/rabbitmq/zeromq等任何一种做队列消息存储(目前只实现redis)
-* 利用swoole的process实现多进程管理，进程个数可配置
+* 利用swoole的process实现多进程管理，进程个数可配置，worker进程退出后会自动拉起
 * 支持topic特性，不同的job绑定不同的topic
 * 支持composer，可以跟任意框架集成
 
