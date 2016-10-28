@@ -5,17 +5,16 @@
 * web中较慢的逻辑，比如统计／email／短信
 * 通过配置控制worker进程数
 
-##目标
+##设计文档
+![架构图](jobs-archi.png)
+
+
+##特性
 * 基于swoole的job调度组件
 * redis/rabbitmq/zeromq等任何一种做队列消息存储
 * 利用swoole的process实现多进程管理
 * 支持topic特性，不同的job绑定不同的topic
 * 支持composer，可以跟任意框架集成
-
-
-
-##设计文档
-![架构图](jobs-archi.png)
 
 
 ##示例
