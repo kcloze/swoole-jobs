@@ -13,6 +13,7 @@ use Kcloze\Jobs\Jobs;
 class Process
 {
     private $reserveProcess;
+    private $workers;
     private $workNum = 5;
     private $config  = [];
 
@@ -26,6 +27,8 @@ class Process
         for ($i = 0; $i < $this->workNum; $i++) {
             $this->reserveQueue($i);
         }
+
+        $this->registSignal($this->workers);
         \swoole_process::wait();
 
     }
@@ -34,18 +37,17 @@ class Process
     {
         //$this->log('starting to run');
         $self = $this;
-        $pid  = getmypid();
-        file_put_contents($this->config['logPath'] . '/master.pid.log', $pid . "\n");
-        \swoole_set_process_name("job master " . $pid . " : reserve process");
-        $this->reserveProcess = new \swoole_process(function () use ($self, $workNum) {
+        $ppid = getmypid();
+        file_put_contents($this->config['logPath'] . '/master.pid.log', $ppid . "\n");
+        \swoole_set_process_name("job master " . $ppid . " : reserve process");
 
-            $self->init();
+        $reserveProcess = new \swoole_process(function () use ($self, $workNum) {
 
             //设置进程名字
             swoole_set_process_name("job " . $workNum . ": reserve process");
             try {
                 $job = new Jobs();
-                $job->run($this->config);
+                $job->run($self->config);
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
@@ -53,14 +55,43 @@ class Process
             echo "reserve process " . $workNum . " is working ...\n";
 
         });
-        $this->reserveProcess->start();
+        $pid                 = $reserveProcess->start();
+        $this->workers[$pid] = $reserveProcess;
         echo "reserve start...\n";
 
     }
 
-    private function init()
+    //监控子进程
+    public function registSignal($workers)
     {
-        //$this->conselApp = new Jobs();
+        \swoole_process::signal(SIGTERM, function ($signo) use (&$workers) {
+
+            $this->exitMaster("收到退出信号,退出主进程");
+        });
+        \swoole_process::signal(SIGCHLD, function ($signo) use (&$workers) {
+            while (1) {
+                $ret = \swoole_process::wait(false);
+                if ($ret) {
+                    $pid           = $ret['pid'];
+                    $child_process = $workers[$pid];
+                    //unset($workers[$pid]);
+                    echo "Worker Exit, kill_signal={$ret['signal']} PID=" . $pid . PHP_EOL;
+                    $new_pid           = $child_process->start();
+                    $workers[$new_pid] = $child_process;
+                    unset($workers[$pid]);
+                } else {
+                    break;
+                }
+            }
+        });
+
+    }
+
+    private function exitMaster()
+    {
+        @unlink($this->config['logPath'] . '/master.pid.log');
+        $this->log("Time: " . microtime(true) . "主进程退出" . "\n");
+        exit();
     }
 
     private function log($txt)
