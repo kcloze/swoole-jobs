@@ -23,13 +23,18 @@
 ```
 composer update
 
-//启动多进程消化job
-php test/testProcess.php
-
 //往队列添加job
 php test/testJobs.php
 
+
+chmod u+x server.sh
+//启动和关闭服务(mac下可能有问题)
+./server.sh start|stop
+
+
 ```
+![实例图](demo.png)
+
 
 
 ##压测

@@ -8,7 +8,7 @@ $config = [
     'logPath' => __DIR__ . '/../log',
 ];
 
-$queue = new Kcloze\Jobs\Redis($config);
+$queue = new Kcloze\Jobs\Redis($config['queue']);
 
 //jobs必须要存在helloAction方法，否则无效
 $jobName = 'MyJob';
@@ -16,14 +16,14 @@ $queue->addTopic($jobName);
 $topics = $queue->getTopics();
 var_dump($topics);
 
-for ($i = 0; $i < 10; $i++) {
+for ($i = 0; $i < 10000; $i++) {
     $data = ['jobAction' => 'helloAction', 'title' => 'kcloze', 'time' => time()];
     $queue->push($jobName, $data);
     echo "ok\n";
     //$result = $queue->pop($jobName);
     //var_dump($result);
 }
-for ($i = 0; $i < 10; $i++) {
+for ($i = 0; $i < 10000; $i++) {
     $data = ['jobAction' => 'errorAction', 'title' => 'kcloze', 'time' => time()];
     $queue->push($jobName, $data);
     echo "ok\n";

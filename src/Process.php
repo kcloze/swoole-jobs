@@ -17,7 +17,7 @@ class Process
     private $workNum = 5;
     private $config  = [];
 
-    //const LOG_PATH = '/data/';
+    const PROCESS_NAME_LOG = ': reserve process'; //shell脚本管理标示
 
     public function start($config)
     {
@@ -39,12 +39,12 @@ class Process
         $self = $this;
         $ppid = getmypid();
         file_put_contents($this->config['logPath'] . '/master.pid.log', $ppid . "\n");
-        \swoole_set_process_name("job master " . $ppid . " : reserve process");
+        \swoole_set_process_name("job master " . $ppid . $self::PROCESS_NAME_LOG);
 
         $reserveProcess = new \swoole_process(function () use ($self, $workNum) {
 
             //设置进程名字
-            swoole_set_process_name("job " . $workNum . ": reserve process");
+            swoole_set_process_name("job " . $workNum . $self::PROCESS_NAME_LOG);
             try {
                 $job = new Jobs();
                 $job->run($self->config);

@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ *抽象queue基础类，不同的队列存储都需要继承此类
  */
 namespace Kcloze\Jobs;
 

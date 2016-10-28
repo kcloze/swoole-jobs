@@ -19,7 +19,7 @@ class Redis extends Queue
     {
         $this->redis = new \Redis();
         try {
-            $this->redis->connect($config['queue']['host'], $config['queue']['port']);
+            $this->redis->connect($config['host'], $config['port']);
         } catch (Exception $e) {
             echo $e->getMessage() . "\n";
         }
