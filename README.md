@@ -1,7 +1,9 @@
 #swoole-jobs
+
 * 基于swoole的job调度组件
 
 ##使用场景
+
 * web中较慢的逻辑，比如统计／email／短信
 * job任务并发数10000以内
 
@@ -10,6 +12,7 @@
 
 
 ##特性
+
 * 基于swoole的job调度组件
 * redis/rabbitmq/zeromq等任何一种做队列消息存储(目前只实现redis)
 * 利用swoole的process实现多进程管理，进程个数可配置
@@ -28,7 +31,7 @@ php test/testJobs.php
 
 
 chmod u+x server.sh
-//启动和关闭服务(mac下可能有问题)
+//启动和关闭服务(目前mac下可能有问题)
 ./server.sh start|stop
 
 
@@ -38,9 +41,12 @@ chmod u+x server.sh
 
 
 ##压测
-*瓶颈:redis/rabbitmq队列存储本身和job执行速度
+
+* 瓶颈: redis/rabbitmq队列存储本身和job执行速度
 
 
 
 ##感谢
-* swoole
+
+* [swoole](http://www.swoole.com/) 
+

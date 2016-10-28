@@ -51,7 +51,7 @@ class Jobs
             } else {
                 $log->log("All no work to do!", 'info');
             }
-            $log->log("sleep two second!", 'info');
+            $log->log("sleep 100 ms!", 'info');
             $log->flush();
             usleep(100);
         }
