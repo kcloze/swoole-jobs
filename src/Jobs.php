@@ -2,44 +2,55 @@
 
 namespace Kcloze\Jobs;
 
-use Kcloze\Queue;
-
 class Jobs
 {
 
-    const MAX_POP = 100; //单个topic每次最多取多少次
+    const MAX_POP = 10; //单个topic每次最多取多少次
 
     public function run($config)
     {
-
-        $queue = new Queue($config);
+        $queue = new Redis($config);
         while (true) {
-            $topics = $queue->getTopics();
-            //遍历topic任务列表
-            foreach ($topics as $jobAction => $data) {
-                //每次最多取MAX_POP个任务执行
-                for ($i = 0; $i < self::MAX_POP; $i++) {
-                    $data = $queue->pop($jobAction);
-                    if (!empty($data) && method_exists($this, $jobAction . 'Action')) {
-                        $this->$jobAction . 'Action'($data);
-                    } else {
-                        echo "action not exists!\n";
-                    }
 
+            $topics = $queue->getTopics();
+            if ($topics) {
+
+                //遍历topic任务列表
+                foreach ($topics as $key => $jobName) {
+                    //每次最多取MAX_POP个任务执行
+                    for ($i = 0; $i < self::MAX_POP; $i++) {
+                        $data = $queue->pop($jobName);
+
+                        if (!empty($data) && isset($data['jobAction'])) {
+                            $jobName   = "Kcloze\MyJob\\" . ucfirst($jobName);
+                            $jobAction = $data['jobAction'];
+                            var_dump($jobName, $jobAction);
+                            if (method_exists($jobName, $jobAction)) {
+                                try {
+                                    $job = new $jobName();
+                                    $job->$jobAction($data);
+                                    var_dump($data);
+                                    echo ("one job has been done!\n");
+                                } catch (Exception $e) {
+                                    var_dump($e);
+                                }
+                            } else {
+                                echo ("action not find\n");
+                            }
+
+                        } else {
+                            break;
+                        }
+
+                    }
                 }
+            } else {
+                echo "no work to do!\n";
             }
+            echo "sleep one second!\n";
             sleep(1);
         }
 
     }
 
-    /**
-     * job action
-     * @param  [data] string
-     * @return [type]
-     */
-    public function helloAction($data)
-    {
-        echo "hello, world\n";
-    }
 }

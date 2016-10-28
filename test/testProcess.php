@@ -1,12 +1,13 @@
 <?php
 date_default_timezone_set('Asia/Shanghai');
-define('DS', DIRECTORY_SEPARATOR);
-define('APP_PATH', realpath(dirname(__FILE__)) . DS . '..' . DS);
 
-require_once APP_PATH . 'src/Jobs.php';
-require_once APP_PATH . 'src/Queue.php';
-require_once APP_PATH . 'src/Process.php';
+require __DIR__ . '/../vendor/autoload.php';
+
+$config = [
+    'queue'   => ['host' => '127.0.0.1', 'port' => 6379],
+    'logPath' => __DIR__ . '/../log',
+];
 
 //启动
 $process = new Kcloze\Jobs\Process();
-$process->start();
+$process->start($config);

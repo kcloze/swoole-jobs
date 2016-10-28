@@ -14,12 +14,14 @@ class Process
 {
     private $reserveProcess;
     private $workNum = 5;
+    private $config  = [];
 
     //const LOG_PATH = '/data/';
 
-    public function start()
+    public function start($config)
     {
-        \swoole_process::daemon();
+        //\swoole_process::daemon();
+        $this->config = $config;
         //开启多个进程消费队列
         for ($i = 0; $i < $this->workNum; $i++) {
             $this->reserveQueue($i);
@@ -33,7 +35,7 @@ class Process
         //$this->log('starting to run');
         $self = $this;
         $pid  = getmypid();
-        file_put_contents(APP_PATH . '/data/master.pid.log', $pid . "\n");
+        file_put_contents($this->config['logPath'] . '/master.pid.log', $pid . "\n");
         \swoole_set_process_name("job master " . $pid . " : reserve process");
         $this->reserveProcess = new \swoole_process(function () use ($self, $workNum) {
 
@@ -42,8 +44,8 @@ class Process
             //设置进程名字
             swoole_set_process_name("job " . $workNum . ": reserve process");
             try {
-                $job = Jobs();
-                $job->run();
+                $job = new Jobs();
+                $job->run($this->config);
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
@@ -63,7 +65,7 @@ class Process
 
     private function log($txt)
     {
-        file_put_contents(APP_PATH . '/data/worker.log', $txt . "\n", FILE_APPEND);
+        file_put_contents($this->config['logPath'] . '/worker.log', $txt . "\n", FILE_APPEND);
     }
 
 }
