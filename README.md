@@ -11,7 +11,7 @@
 
 ##特性
 * 基于swoole的job调度组件
-* redis/rabbitmq/zeromq等任何一种做队列消息存储
+* redis/rabbitmq/zeromq等任何一种做队列消息存储(目前只实现redis)
 * 利用swoole的process实现多进程管理，进程个数可配置
 * 支持topic特性，不同的job绑定不同的topic
 * 支持composer，可以跟任意框架集成
