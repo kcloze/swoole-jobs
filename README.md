@@ -3,7 +3,7 @@
 
 ##使用场景
 * web中较慢的逻辑，比如统计／email／短信
-* 通过配置控制worker进程数
+* job任务并发数10000以内
 
 ##设计文档
 ![架构图](jobs-archi.png)
@@ -12,7 +12,7 @@
 ##特性
 * 基于swoole的job调度组件
 * redis/rabbitmq/zeromq等任何一种做队列消息存储
-* 利用swoole的process实现多进程管理
+* 利用swoole的process实现多进程管理，进程个数可配置
 * 支持topic特性，不同的job绑定不同的topic
 * 支持composer，可以跟任意框架集成
 
@@ -33,7 +33,7 @@ php test/testJobs.php
 
 
 ##压测
-
+*瓶颈:redis/rabbitmq队列存储本身和job执行速度
 
 
 
