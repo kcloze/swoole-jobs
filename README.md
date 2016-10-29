@@ -17,6 +17,7 @@
 * 基于swoole的job调度组件
 * redis/rabbitmq/zeromq等任何一种做队列消息存储(目前只实现redis)
 * 利用swoole的process实现多进程管理，进程个数可配置，worker进程退出后会自动拉起
+* 子进程循环次数可配置，防止业务代码内存泄漏
 * 支持topic特性，不同的job绑定不同的topic
 * 支持composer，可以跟任意框架集成
 * 日志文件自动切割，默认最大100M，最多5个日志文件，防止日志刷满磁盘
@@ -60,5 +61,5 @@ chmod u+x server.sh
 ##联系
 
 qq群：141059677
- 
+
 
