@@ -27,7 +27,6 @@ class Process
         for ($i = 0; $i < $this->workNum; $i++) {
             $this->reserveQueue($i);
         }
-
         $this->registSignal($this->workers);
         //\Swoole\Process::wait();
 
@@ -35,14 +34,11 @@ class Process
     //独立进程消费队列
     public function reserveQueue($workNum)
     {
-        //$this->log('starting to run');
         $self = $this;
-        //$ppid = getmypid();
+        $ppid = getmypid();
         //file_put_contents($this->config['logPath'] . '/master.pid.log', $ppid . "\n");
         $this->setProcessName("job master " . $ppid . $self::PROCESS_NAME_LOG);
-
         $reserveProcess = new \Swoole\Process(function () use ($self, $workNum) {
-
             //设置进程名字
             $this->setProcessName("job " . $workNum . $self::PROCESS_NAME_LOG);
             try {
@@ -51,9 +47,7 @@ class Process
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
-
             echo "reserve process " . $workNum . " is working ...\n";
-
         });
         $pid                 = $reserveProcess->start();
         $this->workers[$pid] = $reserveProcess;
@@ -65,11 +59,10 @@ class Process
     public function registSignal($workers)
     {
         \Swoole\Process::signal(SIGTERM, function ($signo) {
-
             $this->exitMaster("收到退出信号,退出主进程");
         });
         \Swoole\Process::signal(SIGCHLD, function ($signo) use (&$workers) {
-            while (1) {
+            while (true) {
                 $ret = \Swoole\Process::wait(false);
                 if ($ret) {
                     $pid           = $ret['pid'];
@@ -98,7 +91,8 @@ class Process
      */
     private function setProcessName($name)
     {
-        if (function_exists("swoole_set_process_name")) {
+        //mac os不支持进程重命名
+        if (function_exists("swoole_set_process_name") && PHP_OS != 'Darwin') {
             swoole_set_process_name($name);
         }
 
