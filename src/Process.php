@@ -21,7 +21,7 @@ class Process
 
     public function start($config)
     {
-        //\swoole_process::daemon();
+        \Swoole\Process::daemon();
         $this->config = $config;
         //开启多个进程消费队列
         for ($i = 0; $i < $this->workNum; $i++) {
@@ -29,7 +29,7 @@ class Process
         }
 
         $this->registSignal($this->workers);
-        //\swoole_process::wait();
+        //\Swoole\Process::wait();
 
     }
     //独立进程消费队列
@@ -37,14 +37,14 @@ class Process
     {
         //$this->log('starting to run');
         $self = $this;
-        $ppid = getmypid();
-        file_put_contents($this->config['logPath'] . '/master.pid.log', $ppid . "\n");
-        \swoole_set_process_name("job master " . $ppid . $self::PROCESS_NAME_LOG);
+        //$ppid = getmypid();
+        //file_put_contents($this->config['logPath'] . '/master.pid.log', $ppid . "\n");
+        $this->setProcessName("job master " . $ppid . $self::PROCESS_NAME_LOG);
 
-        $reserveProcess = new \swoole_process(function () use ($self, $workNum) {
+        $reserveProcess = new \Swoole\Process(function () use ($self, $workNum) {
 
             //设置进程名字
-            swoole_set_process_name("job " . $workNum . $self::PROCESS_NAME_LOG);
+            $this->setProcessName("job " . $workNum . $self::PROCESS_NAME_LOG);
             try {
                 $job = new Jobs();
                 $job->run($self->config);
@@ -64,13 +64,13 @@ class Process
     //监控子进程
     public function registSignal($workers)
     {
-        \swoole_process::signal(SIGTERM, function ($signo) {
+        \Swoole\Process::signal(SIGTERM, function ($signo) {
 
             $this->exitMaster("收到退出信号,退出主进程");
         });
-        \swoole_process::signal(SIGCHLD, function ($signo) use (&$workers) {
+        \Swoole\Process::signal(SIGCHLD, function ($signo) use (&$workers) {
             while (1) {
-                $ret = \swoole_process::wait(false);
+                $ret = \Swoole\Process::wait(false);
                 if ($ret) {
                     $pid           = $ret['pid'];
                     $child_process = $workers[$pid];
@@ -92,6 +92,16 @@ class Process
         @unlink($this->config['logPath'] . '/master.pid.log');
         $this->log("Time: " . microtime(true) . "主进程退出" . "\n");
         exit();
+    }
+    /**
+     * 设置进程名
+     */
+    private function setProcessName($name)
+    {
+        if (function_exists("swoole_set_process_name")) {
+            swoole_set_process_name($name);
+        }
+
     }
 
     private function log($txt)

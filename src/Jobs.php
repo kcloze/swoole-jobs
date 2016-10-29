@@ -8,7 +8,7 @@ use Kcloze\Jobs\Redis;
 class Jobs
 {
 
-    const MAX_POP = 10; //单个topic每次最多取多少次
+    const MAX_POP = 100; //单个topic每次最多取多少次
 
     public function run($config)
     {
@@ -33,7 +33,7 @@ class Jobs
                                 try {
                                     $job = new $jobName();
                                     $job->$jobAction($data);
-                                    $log->log("one job has been done!", 'info');
+                                    $log->log("uuid: " . $data['uuid'] . " one job has been done!", 'trace', 'jobs');
                                 } catch (Exception $e) {
                                     $log->log($e->getMessage(), 'error');
                                 }
@@ -51,9 +51,9 @@ class Jobs
             } else {
                 $log->log("All no work to do!", 'info');
             }
-            $log->log("sleep 100 ms!", 'info');
+            $log->log("sleep 3 second!", 'info');
             $log->flush();
-            usleep(100);
+            sleep(3);
         }
 
     }

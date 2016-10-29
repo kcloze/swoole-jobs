@@ -26,7 +26,7 @@
 
 
 ```
-composer update
+composer install
 
 //往队列添加job
 php test/testJobs.php

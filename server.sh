@@ -1,11 +1,30 @@
 #!/bin/bash
 
-processMark=": reserve process";
+#启动脚本
+processFile="test/testProcess.php"
+
+
+#不同的系统，进程标识不同,主要是mac机器不支持进程重命名
+if [ "$(uname)" == "Darwin" ]; then
+    # Do something under Mac OS X platform
+    processMark=$processFile;
+        
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    # Do something under GNU/Linux platform
+    processMark=": reserve process";
+    
+elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
+    # Do something under Windows NT platform
+    printf "not support in windows \r\n"
+    exit
+fi
+
+
 
 function start(){
     echo 'starting swooler server...'
 
-    php test/testProcess.php  >> log/server.log 2>&1
+    php $processFile  >> log/server.log 2>&1
 
 
     printf $?

@@ -8,7 +8,7 @@ class MyJob extends Jobs
 
     public function helloAction($data)
     {
-        sleep(1);
+        usleep(5);
         echo "hello, world\n";
     }
 }

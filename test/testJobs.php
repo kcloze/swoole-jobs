@@ -16,24 +16,24 @@ $queue->addTopic($jobName);
 $topics = $queue->getTopics();
 var_dump($topics);
 
-for ($i = 0; $i < 10000; $i++) {
-    $data = ['jobAction' => 'helloAction', 'title' => 'kcloze', 'time' => time()];
+//uuid和jobAction必须得有
+for ($i = 0; $i < 1000; $i++) {
+    $uuid = $queue->uuid();
+    $data = ['uuid' => $uuid, 'jobAction' => 'helloAction', 'title' => 'kcloze', 'time' => time()];
     $queue->push($jobName, $data);
-    echo "ok\n";
+    echo $uuid . " ok\n";
     //$result = $queue->pop($jobName);
     //var_dump($result);
 }
-for ($i = 0; $i < 10000; $i++) {
-    $data = ['jobAction' => 'errorAction', 'title' => 'kcloze', 'time' => time()];
+for ($i = 0; $i < 1000; $i++) {
+    $uuid = $queue->uuid();
+    $data = ['uuid' => $uuid, 'jobAction' => 'errorAction', 'title' => 'kcloze', 'time' => time()];
     $queue->push($jobName, $data);
-    echo "ok\n";
+    echo $uuid . " ok\n";
     //$result = $queue->pop($jobName);
     //var_dump($result);
 }
-$result = $queue->pop($jobName);
-var_dump($result);
-// for ($i = 0; $i < 100; $i++) {
-//     $data = $queue->pop('hello');
-//     $jobs = new Jobs();
-//     $jobs->run('hello', $data);
+// for ($i = 0; $i < 1000; $i++) {
+//     $result = $queue->pop($jobName);
+//     var_dump($result);
 // }
