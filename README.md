@@ -33,12 +33,17 @@ php test/testJobs.php
 
 
 chmod u+x server.sh
-//启动和关闭服务(目前mac下可能有问题)
-./server.sh start|stop
+//启动和关闭服务
+./server.sh start|stop|restart
 
 
 ```
 ![实例图](demo.png)
+
+
+##注意事项
+
+* 如果嵌入自己的框架，需要像test/jobs目录的文件一样，继承Jobs基类
 
 
 
@@ -50,5 +55,10 @@ chmod u+x server.sh
 
 ##感谢
 
-* [swoole](http://www.swoole.com/) 
+* [swoole](http://www.swoole.com/)
+
+##联系
+
+qq群：141059677
+ 
 
