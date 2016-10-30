@@ -11,31 +11,31 @@ $config = [
 
 $queue = new Kcloze\Jobs\Redis($config['queue']);
 
-//jobs必须要存在helloAction方法，否则无效
+//jobs的topic需要在配置文件里面定义，并且一次性注册进去
 $queue->addTopics($config['topics']);
 $topics = $queue->getTopics();
 var_dump($topics);
 
 //uuid和jobAction必须得有
 for ($i = 0; $i < 1000; $i++) {
-    $uuid    = $queue->uuid();
-    $data    = ['uuid' => $uuid, 'jobAction' => 'helloAction', 'title' => 'kcloze', 'time' => time()];
-    $jobName = 'MyJob';
-    $queue->push($jobName, $data);
+    $uuid      = $queue->uuid();
+    $data      = ['uuid' => $uuid, 'jobAction' => 'helloAction', 'title' => 'kcloze', 'time' => time()];
+    $topicName = 'MyJob';
+    $queue->push($topicName, $data);
     echo $uuid . " ok\n";
-    //$result = $queue->pop($jobName);
+    //$result = $queue->pop($topicName);
     //var_dump($result);
 }
 for ($i = 0; $i < 1000; $i++) {
-    $uuid    = $queue->uuid();
-    $data    = ['uuid' => $uuid, 'jobAction' => 'errorAction', 'title' => 'kcloze', 'time' => time()];
-    $jobName = 'MyJob';
-    $queue->push($jobName, $data);
+    $uuid      = $queue->uuid();
+    $data      = ['uuid' => $uuid, 'jobAction' => 'errorAction', 'title' => 'kcloze', 'time' => time()];
+    $topicName = 'MyJob';
+    $queue->push($topicName, $data);
     echo $uuid . " ok\n";
-    //$result = $queue->pop($jobName);
+    //$result = $queue->pop($topicName);
     //var_dump($result);
 }
 // for ($i = 0; $i < 1000; $i++) {
-//     $result = $queue->pop($jobName);
+//     $result = $queue->pop($topicName);
 //     var_dump($result);
 // }
