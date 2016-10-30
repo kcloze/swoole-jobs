@@ -42,8 +42,8 @@ class Process
             //设置进程名字
             $this->setProcessName("job " . $workNum . $self::PROCESS_NAME_LOG);
             try {
-                $job = new Jobs();
-                $job->run($self->config);
+                $job = new Jobs($self->config);
+                $job->run();
             } catch (Exception $e) {
                 echo $e->getMessage();
             }

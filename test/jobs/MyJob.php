@@ -8,7 +8,7 @@ class MyJob
     {
         usleep(5);
         echo "hello, world\n";
-        $this->error();
+        //$this->error();
 
     }
 
