@@ -15,7 +15,7 @@ class Jobs
     public function run($config)
     {
         $queue = $this->getQueue($config['queue']);
-        $queue->addTopic($config['topics']);
+        $queue->addTopics($config['topics']);
         $log = new Logs($config['logPath']);
         //循环次数计数
         $req = 0;
@@ -30,6 +30,7 @@ class Jobs
                         $log->log(print_r($data, true), 'info');
                         if (!empty($data) && isset($data['jobAction'])) {
                             //注意如果嵌入自己的框架，可以修改这个路径
+                            $this->loadFramework();
                             $jobName   = "Kcloze\MyJob\\" . ucfirst($jobName);
                             $jobAction = $data['jobAction'];
                             $log->log(print_r([$jobName, $jobAction], true), 'info');
@@ -68,7 +69,7 @@ class Jobs
 
     }
 
-    private function getQueue($config)
+    protected function getQueue($config)
     {
         if (isset($config['type']) && $config['type'] == 'redis') {
             $queue = new Redis($config);
@@ -79,6 +80,18 @@ class Jobs
             $queue = null;
         }
         return $queue;
+    }
+
+    //可以在这里载入自己的框架代码
+    protected function loadFramework()
+    {
+        // defined('YII_DEBUG') or define('YII_DEBUG', true);
+        // defined('YII_ENV') or define('YII_ENV', 'dev');
+        // require __DIR__ . '/vendor/autoload.php';
+        // require __DIR__ . '/vendor/yiisoft/yii2/Yii.php';
+        // $config = require __DIR__ . '/config/console.php';
+        // $application = new yii\console\Application($config);
+        // $exitCode    = $application->run();
     }
 
 }

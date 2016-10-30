@@ -44,7 +44,7 @@ chmod u+x server.sh
 
 ##注意事项
 
-* 如果嵌入自己的框架，需要像test/jobs目录的文件一样，继承Jobs基类
+* 如果嵌入自己的框架，jobs类可以自己根据框架路径自由定义，详情看src/Jobs.php
 
 
 
