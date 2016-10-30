@@ -12,7 +12,7 @@ if [ "$(uname)" == "Darwin" ]; then
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     # Do something under GNU/Linux platform
     processMark=": reserve process";
-    
+
 elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
     # Do something under Windows NT platform
     printf "not support in windows \r\n"
@@ -56,6 +56,8 @@ function stop(){
 case $1 in 
     
     start )
+        stop
+        sleep 1
         start
     ;;
     stop)

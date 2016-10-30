@@ -10,7 +10,7 @@ class MyJob extends Jobs
     {
         usleep(5);
         echo "hello, world\n";
-        //$this->error();
+        $this->error();
 
     }
 
