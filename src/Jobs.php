@@ -15,7 +15,8 @@ class Jobs
     public function run($config)
     {
         $queue = $this->getQueue($config['queue']);
-        $log   = new Logs($config['logPath']);
+        $queue->addTopic($config['topics']);
+        $log = new Logs($config['logPath']);
         //循环次数计数
         $req = 0;
         while (true) {

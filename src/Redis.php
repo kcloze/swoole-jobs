@@ -11,7 +11,6 @@ use Kcloze\Jobs\Queue;
 
 class Redis extends Queue
 {
-    const TOPIC_LIST_NAME = 'topic_list';
 
     private $redis = null;
 
@@ -34,16 +33,6 @@ class Redis extends Queue
     {
         $result = $this->redis->lPop($key);
         return $result ? unserialize($result) : false;
-    }
-
-    public function addTopic($key)
-    {
-        return $this->redis->sAdd(self::TOPIC_LIST_NAME, $key);
-    }
-
-    public function getTopics()
-    {
-        return $this->redis->sMembers(self::TOPIC_LIST_NAME);
     }
 
 }

@@ -6,6 +6,7 @@ namespace Kcloze\Jobs;
 
 abstract class Queue
 {
+    public $topics = [];
 
     public function push($key, $value)
     {
@@ -15,12 +16,14 @@ abstract class Queue
     {
     }
 
-    public function addTopic($key)
+    public function addTopics(array $topics)
     {
+        $this->topics = $topics;
     }
 
     public function getTopics()
     {
+        return $this->topics;
     }
 
     public function uuid()
