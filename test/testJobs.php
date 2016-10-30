@@ -9,39 +9,42 @@ $config = [
     'topics'  => ['MyJob', 'MyJob2'],
 ];
 
-$queue = new Kcloze\Jobs\Redis($config['queue']);
+$jobs = new Kcloze\Jobs\Jobs($config);
+
+if (!$jobs->queue) {
+    die("queue object is null\n");
+}
 
 //jobs的topic需要在配置文件里面定义，并且一次性注册进去
-$queue->addTopics($config['topics']);
-$topics = $queue->getTopics();
+$topics = $jobs->queue->getTopics();
 var_dump($topics);
 
 //uuid和jobAction必须得有
 for ($i = 0; $i < 100; $i++) {
-    $uuid = $queue->uuid();
-    $data = [
+    $topicName = 'MyJob';
+    $uuid      = $jobs->queue->uuid();
+    $data      = [
         'uuid'  => $uuid, 'jobName' => $topicName, 'jobAction' => 'helloAction',
         'title' => 'kcloze', 'time' => time(),
     ];
-    $topicName = 'MyJob';
-    $queue->push($topicName, $data);
+    $jobs->queue->push($topicName, $data);
     echo $uuid . " ok\n";
-    //$result = $queue->pop($topicName);
+    //$result = $jobs->queue->pop($topicName);
     //var_dump($result);
 }
 for ($i = 0; $i < 100; $i++) {
-    $uuid = $queue->uuid();
-    $data = [
+    $topicName = 'MyJob';
+    $uuid      = $jobs->queue->uuid();
+    $data      = [
         'uuid'  => $uuid, 'jobName' => $topicName, 'jobAction' => 'errorAction',
         'title' => 'kcloze', 'time' => time(),
     ];
-    $topicName = 'MyJob';
-    $queue->push($topicName, $data);
+    $jobs->queue->push($topicName, $data);
     echo $uuid . " ok\n";
-    //$result = $queue->pop($topicName);
+    //$result = $jobs->queue->pop($topicName);
     //var_dump($result);
 }
 // for ($i = 0; $i < 1000; $i++) {
-//     $result = $queue->pop($topicName);
+//     $result = $jobs->queue->pop($topicName);
 //     var_dump($result);
 // }

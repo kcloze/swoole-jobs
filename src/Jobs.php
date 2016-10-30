@@ -12,8 +12,8 @@ class Jobs
     const MAX_POP     = 100; //单个topic每次最多取多少次
     const MAX_REQUEST = 10000; //每个子进程while循环里面最多循坏次数，防止内存泄漏
 
-    protected $logger = null;
-    protected $queue  = null;
+    public $logger = null;
+    public $queue  = null;
 
     public function __construct($config)
     {
@@ -67,7 +67,7 @@ class Jobs
 
     }
 
-    protected function getQueue($config)
+    public function getQueue($config)
     {
         if (isset($config['type']) && $config['type'] == 'redis') {
             $this->queue = new Redis($config);
@@ -76,6 +76,8 @@ class Jobs
         } else {
             echo "you must add queue config\n";
         }
+
+        return $this->queue;
 
     }
 
