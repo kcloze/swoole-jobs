@@ -34,7 +34,8 @@ class Rabbitmq extends Queue
             $this->channel = new \AMQPChannel($connection);
             //AMQPC Exchange is the publishing mechanism
             $this->exchange = new \AMQPExchange($channel);
-            $this->queue    = new AMQPQueue($channel);
+
+            $this->queue = new AMQPQueue($channel);
 
         } catch (Exception $e) {
             echo $e->getMessage() . "\n";
@@ -62,6 +63,8 @@ class Rabbitmq extends Queue
     public function addTopic($key)
     {
         //return $this->rabbitmq->sAdd(self::TOPIC_LIST_NAME, $key);
+        $this->exchange->setName($exchange_name);
+        $this->exchange->declareExchange();
     }
 
     public function getTopics()

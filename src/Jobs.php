@@ -3,6 +3,7 @@
 namespace Kcloze\Jobs;
 
 use Kcloze\Jobs\Logs;
+use Kcloze\Jobs\Rabbitmq;
 use Kcloze\Jobs\Redis;
 
 class Jobs
@@ -68,11 +69,12 @@ class Jobs
 
     private function getQueue($config)
     {
-        if (isset($config['name']) && $config['name'] == 'redis') {
+        if (isset($config['type']) && $config['type'] == 'redis') {
             $queue = new Redis($config);
-        } elseif (isset($config['name']) && $config['name'] == 'rabbitmq') {
+        } elseif (isset($config['type']) && $config['type'] == 'rabbitmq') {
             $queue = new Rabbitmq($config);
         } else {
+            echo "you must add queue config\n";
             $queue = null;
         }
         return $queue;

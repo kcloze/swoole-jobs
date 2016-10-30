@@ -4,7 +4,7 @@ date_default_timezone_set('Asia/Shanghai');
 require __DIR__ . '/../vendor/autoload.php';
 
 $config = [
-    'queue'   => ['host' => '127.0.0.1', 'port' => 6379],
+    'queue'   => ['type' => 'redis', 'host' => '127.0.0.1', 'port' => 6379],
     'logPath' => __DIR__ . '/../log',
 ];
 
