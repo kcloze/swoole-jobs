@@ -17,6 +17,7 @@ class Jobs
 
     public function __construct($config)
     {
+        $this->config = $config;
         $this->logger = new Logs($config['logPath']);
         $this->getQueue($config['queue']);
         $this->queue && $this->queue->addTopics($config['topics']);
@@ -24,7 +25,6 @@ class Jobs
     }
     public function run()
     {
-
         //循环次数计数
         $req = 0;
         while (true) {
@@ -39,16 +39,13 @@ class Jobs
                         if (!empty($data) && isset($data['jobAction'])) {
                             //$this->logger->log(print_r([$jobName, $jobAction], true), 'info');
                             $jobAction = $data['jobAction'];
-
                             //注意如果嵌入自己的框架，可以修改这个路径
                             //根据jobName，jobAction执行业务代码
                             $this->loadFramework($jobName, $jobAction, $data);
-
                         } else {
                             $this->logger->log($jobName . " no work to do!", 'info');
                             break;
                         }
-
                     }
                 }
             } else {
@@ -80,18 +77,18 @@ class Jobs
         return $this->queue;
 
     }
-
     //可以在这里载入自己的框架代码
-    protected function loadFramework($jobName, $jobAction, $data)
+    private function loadFramework($jobName, $jobAction, $data)
     {
-        // defined('YII_DEBUG') or define('YII_DEBUG', true);
-        // defined('YII_ENV') or define('YII_ENV', 'dev');
-        // require __DIR__ . '/vendor/autoload.php';
-        // require __DIR__ . '/vendor/yiisoft/yii2/Yii.php';
-        // $config = require __DIR__ . '/config/console.php';
-        // $application = new yii\console\Application($config);
-        // $exitCode    = $application->run();
-
+        if (isset($this->config['framework']) && $this->config['framework'] == 'yii2') {
+            $this->loadYii2Console($jobName, $jobAction, $data);
+        } else {
+            $this->loadTest($jobName, $jobAction, $data);
+        }
+    }
+    //载入本项目test实例
+    private function loadTest($jobName, $jobAction, $data)
+    {
         $jobName = "Kcloze\MyJob\\" . ucfirst($jobName);
         if (method_exists($jobName, $jobAction)) {
             try {
@@ -103,6 +100,22 @@ class Jobs
             }
         } else {
             $this->logger->log($jobAction . " action not find!", 'warning');
+        }
+    }
+
+    private function loadYii2Console($jobName, $jobAction, $data)
+    {
+        defined('YII_DEBUG') or define('YII_DEBUG', true);
+        defined('YII_ENV') or define('YII_ENV', 'dev');
+        require $this->config['rootPath'] . '/vendor/yiisoft/yii2/Yii.php';
+        $config      = require $this->config['rootPath'] . '/../config/console.php';
+        $application = new yii\console\Application($config);
+        $route       = $jobName . '/' . $jobAction;
+        $params      = $data;
+        try {
+            $exitCode = $application->runAction($route, $params);
+        } catch (Exception $e) {
+            $this->logger->log($e->getMessage(), 'error');
         }
     }
 
