@@ -11,7 +11,6 @@ use Kcloze\Jobs\Queue;
 
 class Rabbitmq extends Queue
 {
-    const TOPIC_LIST_NAME = 'topic_list';
 
     private $connection = null;
     private $channel    = null;
@@ -58,7 +57,7 @@ class Rabbitmq extends Queue
         $this->queue->declareQueue();
         $message = $this->queue->get(AMQP_AUTOACK);
         $result  = null;
-        if (is_object($message)) {
+        if ($message) {
             $result = $message->getBody();
         }
         return $result ? unserialize($result) : null;
