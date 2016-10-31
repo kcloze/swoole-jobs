@@ -21,7 +21,7 @@ class Process
 
     public function start($config)
     {
-        //\Swoole\Process::daemon();
+        \Swoole\Process::daemon();
         $this->config = $config;
         //开启多个进程消费队列
         for ($i = 0; $i < $this->workNum; $i++) {
