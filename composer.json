@@ -15,7 +15,6 @@
             "email": "pei.greet@qq.com"
         }
     ],
-    "minimum-stability": "dev",
     "autoload": {
     "psr-4": {
         "Kcloze\\Jobs\\": "src",
