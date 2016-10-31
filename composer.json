@@ -1,14 +1,14 @@
 {
     "name": "kcloze/swoole-jobs",
     "description": "基于swoole的job调度组件",
-    "type": "library",
-    "version": "v1.3.1",
+    "keywords": ["swoole", "job", "scheduler", "调度"],
+    "homepage": "https://github.com/kcloze/swoole-jobs",
+    "license": "MIT",
     "require": {
         "php": ">=5.4",
         "ext-swoole": ">=1.8.9",
         "ext-redis": "*"
     },
-    "license": "MIT",
     "authors": [
         {
             "name": "kcloze",
@@ -16,9 +16,9 @@
         }
     ],
     "autoload": {
-    "psr-4": {
-        "Kcloze\\Jobs\\": "src",
-        "Kcloze\\MyJob\\": "test\\jobs"
-    }
+        "psr-4": {
+            "Kcloze\\Jobs\\": "src",
+            "Kcloze\\MyJob\\": "test\\jobs"
+        }
     }
 }
