@@ -21,7 +21,7 @@ class Process
 
     public function start($config)
     {
-        \Swoole\Process::daemon();
+        //\Swoole\Process::daemon();
         $this->config = $config;
         //开启多个进程消费队列
         for ($i = 0; $i < $this->workNum; $i++) {
@@ -29,7 +29,6 @@ class Process
         }
         $this->registSignal($this->workers);
         //\Swoole\Process::wait();
-
     }
     //独立进程消费队列
     public function reserveQueue($workNum)
@@ -52,7 +51,6 @@ class Process
         $pid                 = $reserveProcess->start();
         $this->workers[$pid] = $reserveProcess;
         echo "reserve start...\n";
-
     }
 
     //监控子进程
@@ -77,7 +75,6 @@ class Process
                 }
             }
         });
-
     }
 
     private function exitMaster()
@@ -95,12 +92,10 @@ class Process
         if (function_exists("swoole_set_process_name") && PHP_OS != 'Darwin') {
             swoole_set_process_name($name);
         }
-
     }
 
     private function log($txt)
     {
         file_put_contents($this->config['logPath'] . '/worker.log', $txt . "\n", FILE_APPEND);
     }
-
 }

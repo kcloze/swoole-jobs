@@ -8,7 +8,6 @@ use Kcloze\Jobs\Redis;
 
 class Jobs
 {
-
     const MAX_POP     = 100; //单个topic每次最多取多少次
     const MAX_REQUEST = 10000; //每个子进程while循环里面最多循坏次数，防止内存泄漏
 
@@ -21,7 +20,6 @@ class Jobs
         $this->logger = new Logs($config['logPath']);
         $this->getQueue($config['queue']);
         $this->queue && $this->queue->addTopics($config['topics']);
-
     }
     public function run()
     {
@@ -61,7 +59,6 @@ class Jobs
                 break;
             }
         }
-
     }
 
     public function getQueue($config)
@@ -75,7 +72,6 @@ class Jobs
         }
 
         return $this->queue;
-
     }
     //可以在这里载入自己的框架代码
     private function loadFramework($jobName, $jobAction, $data)
@@ -105,11 +101,8 @@ class Jobs
 
     private function loadYii2Console($jobName, $jobAction, $data)
     {
-        defined('YII_DEBUG') or define('YII_DEBUG', true);
-        defined('YII_ENV') or define('YII_ENV', 'dev');
         require $this->config['rootPath'] . '/vendor/yiisoft/yii2/Yii.php';
-        $config      = require $this->config['rootPath'] . '/../config/console.php';
-        $application = new yii\console\Application($config);
+        $application = new yii\console\Application($this->config['config']);
         $route       = $jobName . '/' . $jobAction;
         $params      = $data;
         try {
@@ -118,5 +111,4 @@ class Jobs
             $this->logger->log($e->getMessage(), 'error');
         }
     }
-
 }
