@@ -73,24 +73,26 @@ class Jobs
 
         return $this->queue;
     }
-    //可以在这里载入自己的框架代码
+      //可以在这里载入自己的框架代码
     private function loadFramework($jobName, $jobAction, $data)
     {
         if (isset($this->config['framework']) && $this->config['framework'] == 'yii2') {
-            $this->loadYii2Console($jobName, $jobAction, $data);
+            $exitCode = $this->loadYii2Console($jobName, $jobAction, $data);
         } else {
-            $this->loadTest($jobName, $jobAction, $data);
+            $exitCode = $this->loadTest($jobName, $jobAction, $data);
         }
+        //记录log
+        $this->logger->log("uuid: " . $data['uuid'] . " one job has been done, exitCode: " . $exitCode, 'trace', 'jobs');
     }
     //载入本项目test实例
     private function loadTest($jobName, $jobAction, $data)
     {
-        $jobName = "Kcloze\MyJob\\" . ucfirst($jobName);
+        $exitCode = 0;
+        $jobName  = "\Kcloze\MyJob\\" . ucfirst($jobName);
         if (method_exists($jobName, $jobAction)) {
             try {
-                $job = new $jobName();
-                $job->$jobAction($data);
-                $this->logger->log("uuid: " . $data['uuid'] . " one job has been done!", 'trace', 'jobs');
+                $job      = new $jobName();
+                $exitCode = $job->$jobAction($data);
             } catch (Exception $e) {
                 $this->logger->log($e->getMessage(), 'error');
             }
@@ -101,14 +103,24 @@ class Jobs
 
     private function loadYii2Console($jobName, $jobAction, $data)
     {
-        require $this->config['rootPath'] . '/vendor/yiisoft/yii2/Yii.php';
-        $application = new yii\console\Application($this->config['config']);
-        $route       = $jobName . '/' . $jobAction;
-        $params      = $data;
+
+        //jobAction不要带上Action结尾
+        require_once $this->config['rootPath'] . '/vendor/yiisoft/yii2/Yii.php';
+        $application = new \yii\console\Application($this->config['config']);
+        $route       = strtolower($jobName) . '/' . $jobAction;
+        $params      = [$data];
+        $exitCode    = 0;
+        //var_dump("yii2 route: ", $route, $params);
         try {
+
+            // $route  = 'hello/index';
+            // $params = [['a' => ['sdfsdf']], ['b' => ['sdfsdf', 'sdfsdf']]];
+            // $exitCode = $application->runAction($route, $params);
             $exitCode = $application->runAction($route, $params);
         } catch (Exception $e) {
             $this->logger->log($e->getMessage(), 'error');
         }
+        unset($application);
+        return $exitCode;
     }
 }
