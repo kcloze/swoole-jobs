@@ -1,18 +1,18 @@
-#swoole-jobs
+# swoole-jobs
 
 * 基于swoole的job调度组件
 
-##使用场景
+## 使用场景
 
 * web中较慢的逻辑，比如统计/email/短信/图片处理等
 * 单机job任务并发数10000以内，但可以多机器部署
 
-##架构图
+## 架构图
 
 ![架构图](jobs-archi.png)
 
 
-##特性
+## 特性
 
 * 基于swoole的job调度组件
 * redis/rabbitmq/zeromq等任何一种做队列消息存储(目前只实现redis/rabbitmq)
@@ -23,7 +23,7 @@
 * 日志文件自动切割，默认最大100M，最多5个日志文件，防止日志刷满磁盘
 
 
-##示例
+## 示例
 
 
 ```
@@ -42,23 +42,23 @@ chmod u+x server.sh
 ![实例图](demo.png)
 
 
-##注意事项
+## 注意事项
 
 * 如果嵌入自己的框架，jobs类可以自己根据框架路径自由定义，详情看src/Jobs.php
 
 
 
-##压测
+## 压测
 
 * 瓶颈: redis/rabbitmq队列存储本身和job执行速度
 
 
 
-##感谢
+## 感谢
 
 * [swoole](http://www.swoole.com/)
 
-##联系
+## 联系
 
 qq群：141059677
 
