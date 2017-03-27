@@ -1,10 +1,13 @@
 <?php
 
-namespace Kcloze\Jobs;
+/*
+ * This file is part of PHP CS Fixer.
+ * (c) kcloze <pei.greet@qq.com>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
 
-use Kcloze\Jobs\Logs;
-use Kcloze\Jobs\Rabbitmq;
-use Kcloze\Jobs\Redis;
+namespace Kcloze\Jobs;
 
 class Jobs
 {
@@ -21,6 +24,7 @@ class Jobs
         $this->getQueue($config['queue']);
         $this->queue && $this->queue->addTopics($config['topics']);
     }
+
     public function run()
     {
         //循环次数计数
@@ -41,15 +45,15 @@ class Jobs
                             //根据jobName，jobAction执行业务代码
                             $this->loadFramework($jobName, $jobAction, $data);
                         } else {
-                            $this->logger->log($jobName . " no work to do!", 'info');
+                            $this->logger->log($jobName . ' no work to do!', 'info');
                             break;
                         }
                     }
                 }
             } else {
-                $this->logger->log("All no work to do!", 'info');
+                $this->logger->log('All no work to do!', 'info');
             }
-            $this->logger->log("sleep 1 second!", 'info');
+            $this->logger->log('sleep 1 second!', 'info');
             $this->logger->flush();
             sleep(1);
             $req++;
@@ -73,6 +77,7 @@ class Jobs
 
         return $this->queue;
     }
+
       //可以在这里载入自己的框架代码
     private function loadFramework($jobName, $jobAction, $data)
     {
@@ -82,8 +87,9 @@ class Jobs
             $exitCode = $this->loadTest($jobName, $jobAction, $data);
         }
         //记录log
-        $this->logger->log("uuid: " . $data['uuid'] . " one job has been done, exitCode: " . $exitCode, 'trace', 'jobs');
+        $this->logger->log('uuid: ' . $data['uuid'] . ' one job has been done, exitCode: ' . $exitCode, 'trace', 'jobs');
     }
+
     //载入本项目test实例
     private function loadTest($jobName, $jobAction, $data)
     {
@@ -97,7 +103,7 @@ class Jobs
                 $this->logger->log($e->getMessage(), 'error');
             }
         } else {
-            $this->logger->log($jobAction . " action not find!", 'warning');
+            $this->logger->log($jobAction . ' action not find!', 'warning');
         }
     }
 
@@ -121,6 +127,7 @@ class Jobs
             $this->logger->log($e->getMessage(), 'error');
         }
         unset($application);
+
         return $exitCode;
     }
 }

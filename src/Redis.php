@@ -1,17 +1,16 @@
 <?php
-/**
- *
- * redis做队列服务
- * 如果需要使用rabbitmq/zeromq等其他队列，可以继承queue类
+
+/*
+ * This file is part of PHP CS Fixer.
+ * (c) kcloze <pei.greet@qq.com>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
  */
 
 namespace Kcloze\Jobs;
 
-use Kcloze\Jobs\Queue;
-
 class Redis extends Queue
 {
-
     private $redis = null;
 
     public function __construct(array $config)
@@ -32,7 +31,7 @@ class Redis extends Queue
     public function pop($key)
     {
         $result = $this->redis->lPop($key);
+
         return $result ? unserialize($result) : false;
     }
-
 }

@@ -1,23 +1,21 @@
 <?php
 
-/**
- * Swoole process多进程类
- * @author Kcloze
- * @since 2016.10.20
- *
+/*
+ * This file is part of PHP CS Fixer.
+ * (c) kcloze <pei.greet@qq.com>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
  */
-namespace Kcloze\Jobs;
 
-use Kcloze\Jobs\Jobs;
+namespace Kcloze\Jobs;
 
 class Process
 {
+    const PROCESS_NAME_LOG = ': reserve process'; //shell脚本管理标示
     private $reserveProcess;
     private $workers;
     private $workNum = 5;
     private $config  = [];
-
-    const PROCESS_NAME_LOG = ': reserve process'; //shell脚本管理标示
 
     public function start($config)
     {
@@ -30,23 +28,24 @@ class Process
         $this->registSignal($this->workers);
         //\Swoole\Process::wait();
     }
+
     //独立进程消费队列
     public function reserveQueue($workNum)
     {
         $self = $this;
         $ppid = getmypid();
         //file_put_contents($this->config['logPath'] . '/master.pid.log', $ppid . "\n");
-        $this->setProcessName("job master " . $ppid . $self::PROCESS_NAME_LOG);
+        $this->setProcessName('job master ' . $ppid . $self::PROCESS_NAME_LOG);
         $reserveProcess = new \Swoole\Process(function () use ($self, $workNum) {
             //设置进程名字
-            $this->setProcessName("job " . $workNum . $self::PROCESS_NAME_LOG);
+            $this->setProcessName('job ' . $workNum . $self::PROCESS_NAME_LOG);
             try {
                 $job = new Jobs($self->config);
                 $job->run();
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
-            echo "reserve process " . $workNum . " is working ...\n";
+            echo 'reserve process ' . $workNum . " is working ...\n";
         });
         $pid                 = $reserveProcess->start();
         $this->workers[$pid] = $reserveProcess;
@@ -57,7 +56,7 @@ class Process
     public function registSignal($workers)
     {
         \Swoole\Process::signal(SIGTERM, function ($signo) {
-            $this->exitMaster("收到退出信号,退出主进程");
+            $this->exitMaster('收到退出信号,退出主进程');
         });
         \Swoole\Process::signal(SIGCHLD, function ($signo) use (&$workers) {
             while (true) {
@@ -80,16 +79,18 @@ class Process
     private function exitMaster()
     {
         @unlink($this->config['logPath'] . '/master.pid.log');
-        $this->log("Time: " . microtime(true) . "主进程退出" . "\n");
+        $this->log('Time: ' . microtime(true) . '主进程退出' . "\n");
         exit();
     }
+
     /**
-     * 设置进程名
+     * 设置进程名.
+     * @param mixed $name
      */
     private function setProcessName($name)
     {
         //mac os不支持进程重命名
-        if (function_exists("swoole_set_process_name") && PHP_OS != 'Darwin') {
+        if (function_exists('swoole_set_process_name') && PHP_OS != 'Darwin') {
             swoole_set_process_name($name);
         }
     }

@@ -1,17 +1,16 @@
 <?php
-/**
- *
- * rabbitmq做队列服务
- * 如果需要使用rabbitmq/zeromq等其他队列，可以继承queue类
+
+/*
+ * This file is part of PHP CS Fixer.
+ * (c) kcloze <pei.greet@qq.com>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
  */
 
 namespace Kcloze\Jobs;
 
-use Kcloze\Jobs\Queue;
-
 class Rabbitmq extends Queue
 {
-
     private $connection = null;
     private $channel    = null;
     private $exchange   = null;
@@ -35,7 +34,6 @@ class Rabbitmq extends Queue
             //AMQPC Exchange is the publishing mechanism
             $this->exchange = new \AMQPExchange($this->channel);
             $this->queue    = new \AMQPQueue($this->channel);
-
         } catch (Exception $e) {
             echo $e->getMessage() . "\n";
         }
@@ -47,6 +45,7 @@ class Rabbitmq extends Queue
         $this->queue->setFlags(AMQP_DURABLE);
         $this->queue->declareQueue();
         $result = $this->exchange->publish(serialize($value), $key);
+
         return $result;
     }
 
@@ -60,7 +59,7 @@ class Rabbitmq extends Queue
         if ($message) {
             $result = $message->getBody();
         }
+
         return $result ? unserialize($result) : null;
     }
-
 }

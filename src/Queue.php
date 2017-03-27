@@ -1,7 +1,12 @@
 <?php
-/**
- *抽象queue基础类，不同的队列存储都需要继承此类
+
+/*
+ * This file is part of PHP CS Fixer.
+ * (c) kcloze <pei.greet@qq.com>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
  */
+
 namespace Kcloze\Jobs;
 
 abstract class Queue
@@ -32,7 +37,7 @@ abstract class Queue
         $hashStr = substr(str_shuffle(str_repeat('abcdefghijklmnopqrstuvwxyz0123456789', $len)), 0, $len);
 
         $uuid = md5(uniqid($hashStr, true) . microtime(true) . mt_rand(0, 1000));
+
         return $uuid;
     }
-
 }
