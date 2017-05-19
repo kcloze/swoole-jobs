@@ -19,14 +19,13 @@ class Process
 
     public function start($config)
     {
-        //\Swoole\Process::daemon();
+        \Swoole\Process::daemon();
         $this->config = $config;
         //开启多个进程消费队列
         for ($i = 0; $i < $this->workNum; $i++) {
             $this->reserveQueue($i);
         }
         $this->registSignal($this->workers);
-        //\Swoole\Process::wait();
     }
 
     //独立进程消费队列
@@ -34,7 +33,7 @@ class Process
     {
         $self = $this;
         $ppid = getmypid();
-        //file_put_contents($this->config['logPath'] . '/master.pid.log', $ppid . "\n");
+        file_put_contents($this->config['logPath'] . '/master.pid', $ppid . "\n");
         $this->setProcessName('job master ' . $ppid . $self::PROCESS_NAME_LOG);
         $reserveProcess = new \Swoole\Process(function () use ($self, $workNum) {
             //设置进程名字
@@ -85,6 +84,7 @@ class Process
 
     /**
      * 设置进程名.
+     *
      * @param mixed $name
      */
     private function setProcessName($name)

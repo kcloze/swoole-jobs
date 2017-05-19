@@ -23,24 +23,48 @@
 * 日志文件自动切割，默认最大100M，最多5个日志文件，防止日志刷满磁盘
 
 
-## 示例
+## 安装
 
 
 ```
+git clone https://github.com/kcloze/swoole-jobs.git
+cd swoole-jobs
 composer install
 
 //往队列添加job
 php test/testJobs.php
 
+```
+## 服务管理
+### 启动和关闭服务,有两种方式:
 
+#### 1. shell脚本(主进程挂了之后,需要手动启动)
+```
 chmod u+x server.sh
-//启动和关闭服务
 ./server.sh start|stop|restart
+```
+#### 2. 使用systemd管理(故障重启、开机自启动)
 
 
 ```
+1. 修改 systemd/swoole-jobs.service
+2. sudo systemctl --system daemon-reload
+3. 服务管理
+#启动服务
+sudo systemctl start echo.service
+#reload服务
+sudo systemctl reload echo.service
+#关闭服务
+sudo systemctl stop echo.service
+```
+
+
 ![实例图](demo.png)
 
+
+
+## change log
+* 增加使用systemd管理swoole服务,实现故障重启、开机自启动等功能
 
 ## 注意事项
 
@@ -61,5 +85,8 @@ chmod u+x server.sh
 ## 联系
 
 qq群：141059677
+
+
+
 
 

@@ -20,5 +20,10 @@
             "Kcloze\\Jobs\\": "src",
             "Kcloze\\MyJob\\": "test\\jobs"
         }
+    },
+    "packagist": {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
     }
+    
 }
