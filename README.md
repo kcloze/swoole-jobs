@@ -52,11 +52,11 @@ chmod u+x server.sh
 3. sudo systemctl --system daemon-reload
 4. 服务管理
 #启动服务
-sudo systemctl start echo.service
+sudo systemctl start swoole-jobs.service
 #reload服务
-sudo systemctl reload echo.service
+sudo systemctl reload swoole-jobs.service
 #关闭服务
-sudo systemctl stop echo.service
+sudo systemctl stop swoole-jobs.service
 ```
 
 
