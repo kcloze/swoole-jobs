@@ -44,12 +44,13 @@ chmod u+x server.sh
 ./server.sh start|stop|restart
 ```
 #### 2. 使用systemd管理(故障重启、开机自启动)
-
+![更多systemd介绍](https://www.swoole.com/wiki/page/699.html)
 
 ```
-1. 修改 systemd/swoole-jobs.service
-2. sudo systemctl --system daemon-reload
-3. 服务管理
+1. 根据自己项目路径,修改 systemd/swoole-jobs.service
+2. sudo cp -f systemd/swoole-jobs.service /etc/systemd/system/
+3. sudo systemctl --system daemon-reload
+4. 服务管理
 #启动服务
 sudo systemctl start echo.service
 #reload服务
