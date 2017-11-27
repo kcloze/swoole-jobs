@@ -74,8 +74,8 @@ class Logs
     /**
      * [write 根据日志类型写到不同的日志文件].
      *
-     * @return [type] [description]
-     * @param  mixed  $logsAll
+     * @param $logsAll
+     * @throws \Exception
      */
     public function write($logsAll)
     {
@@ -93,7 +93,7 @@ class Logs
             $fileName = $this->logPath . '/' . $key . '.log';
 
             if (($fp = @fopen($fileName, 'a')) === false) {
-                throw new Exception("Unable to append to log file: {$fileName}");
+                throw new \Exception("Unable to append to log file: {$fileName}");
             }
             @flock($fp, LOCK_EX);
 

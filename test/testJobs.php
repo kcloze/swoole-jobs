@@ -11,25 +11,19 @@ date_default_timezone_set('Asia/Shanghai');
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$config = [
-    'queue'  => [
-        'type' => 'redis',
-        'host' => '127.0.0.1',
-        'port' => 6379,
-    ],
-    // 'queue'   => [
-    //     'type'     => 'rabbitmq',
-    //     'host'     => '192.168.9.24',
-    //     'vhost'    => 'php',
-    //     'login'    => 'test',
-    //     'password' => 'test',
-    //     'port'     => '5672',
-    // ],
-    'logPath' => __DIR__ . '/../log',
-    'topics'  => ['MyJob', 'MyJob2'],
-];
+$redis = new \Redis();
+$redis->connect('127.0.0.1', 6379);
+//$redis->auth('xxx');
+//$redis->select(1); //尽量不要和缓存使用同一个 db, 方便管理
+$redisTopicQueue = new \Kcloze\Jobs\RedisTopicQueue($redis);
 
-$jobs = new Kcloze\Jobs\Jobs($config);
+$logPath = __DIR__. '/..log'; // 日志路径
+$log = new \Kcloze\Jobs\Logs($logPath);
+
+$jobConfig = [
+    'topics'   => ['MyJob', 'MyJob2'], // topics, 默认值 []
+];
+$jobs = new \Kcloze\Jobs\Jobs($redisTopicQueue, $log, $jobConfig);
 
 if (!$jobs->queue) {
     die("queue object is null\n");
@@ -39,32 +33,38 @@ if (!$jobs->queue) {
 $topics = $jobs->queue->getTopics();
 var_dump($topics);
 
-//uuid和jobAction必须得有
 for ($i = 0; $i < 100; $i++) {
-    $topicName = 'MyJob';
-    $uuid      = $jobs->queue->uuid();
-    $data      = [
-        'uuid'   => $uuid, 'jobName' => $topicName, 'jobAction' => 'helloAction',
-        'params' => [
-            'title' => 'kcloze', 'time' => time(),
-        ],
+    // 根据自定义的 $jobs->load() 方法, 自定义数据格式
+    $data = [
+        'topic'      => 'MyJob',
+        'job_class'  => 'MyJob',
+        'job_method' => 'test1',
+        'job_param'  => [['title' => 'kcloze', 'time' => time()]],
     ];
-    $jobs->queue->push($topicName, $data);
-    echo $uuid . " ok\n";
+    $jobs->queue->push($data['topic'], $data);
     //$result = $jobs->queue->pop($topicName);
     //var_dump($result);
 }
 for ($i = 0; $i < 100; $i++) {
-    $topicName = 'MyJob';
-    $uuid      = $jobs->queue->uuid();
-    $data      = [
-        'uuid'   => $uuid, 'jobName' => $topicName, 'jobAction' => 'errorAction',
-        'params' => [
-            'title' => 'kcloze', 'time' => time(),
-        ],
+    // 根据自定义的 $jobs->load() 方法, 自定义数据格式
+    $data = [
+        'topic'      => 'MyJob',
+        'job_class'  => 'MyJob',
+        'job_method' => 'test2',
+        'job_param'  => [['title' => 'kcloze', 'time' => time()]],
     ];
-    $jobs->queue->push($topicName, $data);
-    echo $uuid . " ok\n";
+    $jobs->queue->push($data['topic'], $data);
+    //$result = $jobs->queue->pop($topicName);
+    //var_dump($result);
+}
+for ($i = 0; $i < 100; $i++) {
+    $data = [
+        'topic'      => 'MyJob',
+        'job_class'  => 'MyJob',
+        'job_method' => 'testError',
+        'job_param'  => [['title' => 'kcloze', 'time' => time()]],
+    ];
+    $jobs->queue->push($data['topic'], $data);
     //$result = $jobs->queue->pop($topicName);
     //var_dump($result);
 }

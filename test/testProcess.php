@@ -11,28 +11,24 @@ date_default_timezone_set('Asia/Shanghai');
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$config = [
-    'queue'  => [
-        'type'       => 'redis',
-        'host'       => '127.0.0.1',
-        'port'       => 6379,
-    ],
-    // 'queue'    => [
-    //     'type'     => 'rabbitmq',
-    //     'host'     => '192.168.9.24',
-    //     'vhost'    => 'php',
-    //     'login'    => 'test',
-    //     'password' => 'test',
-    //     'port'     => '5672',
-    // ],
-    'rootPath' => __DIR__ . '/..',
-    'logPath'  => __DIR__ . '/../log',
-    'topics'   => ['MyJob', 'MyJob2'],
+$redis = new \Redis();
+$redis->connect('127.0.0.1', 6379);
+//$redis->auth('xxx');
+//$redis->select(1); //尽量不要和缓存使用同一个 db, 方便管理
+$redisTopicQueue = new \Kcloze\Jobs\RedisTopicQueue($redis);
 
-    //'framework' => 'yii2',
+$logPath = __DIR__. '/..log'; // 日志路径
+$log = new \Kcloze\Jobs\Logs($logPath);
 
+$jobConfig = [
+    'topics'   => ['MyJob', 'MyJob2'], // topics, 默认值 []
 ];
+$jobs = new \Kcloze\Jobs\Jobs($redisTopicQueue, $log, $jobConfig);
 
 //启动
 $process = new Kcloze\Jobs\Process();
-$process->start($config);
+$processConfig = [
+    'worker_num' => 5, // 工作进程数, 默认值 5
+    'process_name' => 'swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
+];
+$process->start($jobs, $processConfig);

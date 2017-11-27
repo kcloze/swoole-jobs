@@ -11,16 +11,32 @@ namespace Kcloze\Jobs;
 
 class Process
 {
-    const PROCESS_NAME_LOG = ': reserve process'; //shell脚本管理标示
-    private $reserveProcess;
+    const PROCESS_NAME_LOG = ': reserve process'; // shell 脚本管理标示
     private $workers;
     private $workNum = 5;
-    private $config  = [];
+    private $config = [];
+    public $processName = 'swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
+    public $jobs = null;
 
-    public function start($config)
+    public function start(Jobs $jobs, $config)
     {
         \Swoole\Process::daemon();
+
+        $this->jobs = $jobs;
+
         $this->config = $config;
+        if (!empty($config['process_name'])) {
+            $this->processName = $config['process_name'];
+        }
+
+        $ppid = getmypid();
+        /**
+         * master.pid 文件记录 master 进程 pid, 方便之后进程管理
+         * 请管理好次文件位置, 使用 systemd 管理进程时会用到此文件
+         */
+        file_put_contents('/master.pid', $ppid . "\n");
+        $this->setProcessName('job master ' . $ppid . $this->processName);
+
         //开启多个进程消费队列
         for ($i = 0; $i < $this->workNum; $i++) {
             $this->reserveQueue($i);
@@ -32,21 +48,17 @@ class Process
     public function reserveQueue($workNum)
     {
         $self = $this;
-        $ppid = getmypid();
-        file_put_contents($this->config['logPath'] . '/master.pid', $ppid . "\n");
-        $this->setProcessName('job master ' . $ppid . $self::PROCESS_NAME_LOG);
         $reserveProcess = new \Swoole\Process(function () use ($self, $workNum) {
             //设置进程名字
-            $this->setProcessName('job ' . $workNum . $self::PROCESS_NAME_LOG);
+            $this->setProcessName('job ' . $workNum . $self->processName);
             try {
-                $job = new Jobs($self->config);
-                $job->run();
-            } catch (Exception $e) {
+                $self->jobs->run();
+            } catch (\Exception $e) {
                 echo $e->getMessage();
             }
             echo 'reserve process ' . $workNum . " is working ...\n";
         });
-        $pid                 = $reserveProcess->start();
+        $pid = $reserveProcess->start();
         $this->workers[$pid] = $reserveProcess;
         echo "reserve start...\n";
     }
@@ -55,17 +67,20 @@ class Process
     public function registSignal($workers)
     {
         \Swoole\Process::signal(SIGTERM, function ($signo) {
-            $this->exitMaster('收到退出信号,退出主进程');
+            $this->exitMaster();
         });
         \Swoole\Process::signal(SIGCHLD, function ($signo) use (&$workers) {
             while (true) {
                 $ret = \Swoole\Process::wait(false);
                 if ($ret) {
-                    $pid           = $ret['pid'];
+                    $pid = $ret['pid'];
+                    /**
+                     * @var \Swoole\Process $child_process
+                     */
                     $child_process = $workers[$pid];
                     //unset($workers[$pid]);
                     echo "Worker Exit, kill_signal={$ret['signal']} PID=" . $pid . PHP_EOL;
-                    $new_pid           = $child_process->start();
+                    $new_pid = $child_process->start();
                     $workers[$new_pid] = $child_process;
                     unset($workers[$pid]);
                 } else {
@@ -77,7 +92,7 @@ class Process
 
     private function exitMaster()
     {
-        @unlink($this->config['logPath'] . '/master.pid.log');
+//        @unlink('/master.pid.log'); //可以不删, 下次启动会自动重置
         $this->log('Time: ' . microtime(true) . '主进程退出' . "\n");
         exit();
     }
@@ -97,6 +112,6 @@ class Process
 
     private function log($txt)
     {
-        file_put_contents($this->config['logPath'] . '/worker.log', $txt . "\n", FILE_APPEND);
+        file_put_contents($this->config['log_path'] . '/worker.log', $txt . "\n", FILE_APPEND);
     }
 }
