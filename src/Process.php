@@ -15,9 +15,10 @@ class Process
     public $jobs           = null;
     private $workers;
     private $ppid;
-    private $workNum = 5;
-    private $config  = [];
-    private $pidFile = '/master.pid';
+    private $workNum  = 5;
+    private $config   = [];
+    private $pidFile  = '/master.pid';
+    private $status   ='running'; //主进程状态
 
     public function start(Jobs $jobs, $config)
     {
@@ -85,12 +86,15 @@ class Process
             while (true) {
                 $ret = \Swoole\Process::wait(false);
                 if ($ret) {
-                    $pid = $ret['pid'];
-                    $child_process = $workers[$pid];
-                    echo "Worker Exit, kill_signal={$ret['signal']} PID=" . $pid . PHP_EOL;
-                    $new_pid = $child_process->start();
-                    $workers[$new_pid] = $child_process;
-                    unset($workers[$pid]);
+                    //主进程状态为running才需要拉起子进程
+                    if ($this->status == 'running') {
+                        $pid           = $ret['pid'];
+                        $child_process = $workers[$pid];
+                        echo "Worker Exit, kill_signal={$ret['signal']} PID=" . $pid . PHP_EOL;
+                        $new_pid           = $child_process->start();
+                        $workers[$new_pid] = $child_process;
+                        unset($workers[$pid]);
+                    }
                 } else {
                     break;
                 }
@@ -102,6 +106,8 @@ class Process
     {
         @unlink($this->pidFile);
         $this->log('Time: ' . microtime(true) . '主进程' . $this->ppid . '退出' . PHP_EOL);
+        //修改主进程状态为stop
+        $this->status   ='stop';
         foreach ($this->workers as $pid => $worker) {
             //平滑退出，用exit；强制退出用kill
             \Swoole\Process::kill($pid);
@@ -109,6 +115,7 @@ class Process
             $this->log('主进程收到退出信号,[' . $pid . ']子进程跟着退出');
             $this->log('Worker count: ' . count($this->workers));
         }
+        sleep(1);
         exit();
     }
 
