@@ -77,15 +77,25 @@ sudo systemctl stop swoole-jobs.service
 
 ## change log
 
-* 增加使用systemd管理swoole服务,实现故障重启、开机自启动等功能
+### 2017-11-28 16:52:42 
+* topics支持根据key值排序，队列根据这个排序优先消费
+* 优化启动流程，让PHP进程自身管理，移除服务管理脚本
+* 重构代码，优化结构
+
+
 
 ### 2017-11-28 00:27:42 
+
 > by [daydaygo](http://github.com/daydaygo)
 
 - 优化 TopicQueue 实现: `TopicQueueInterface -> BaseTopicQueue -> XxxTopicQueue`
 - 优化 job run() 方式, 增加类静态方法实现, 并实现多参数输入
 - 使用依赖注入方式进行解耦, 比如 `Jobs` 类依赖 `BaseTopicQueue` 抽象类, 不和具体的 `TopicQueue` 实现耦合; 比如配置的解耦, `Jobs` 类只用关系自己业务相关的配置, 不用耦合其他配置
 - 添加 php 进行服务管理
+
+### 2017-5-19
+
+* 增加使用systemd管理swoole服务,实现故障重启、开机自启动等功能
 
 ## 注意事项
 

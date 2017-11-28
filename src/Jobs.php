@@ -36,6 +36,8 @@ class Jobs
         $req = 0;
         while (true) {
             $topics = $this->queue->getTopics();
+            $this->logger->log('topics: ' . json_encode($topics));
+
             if ($topics) {
                 //遍历topic任务列表
                 foreach ($topics as $key => $topic) {

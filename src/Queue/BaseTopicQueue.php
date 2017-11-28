@@ -9,7 +9,10 @@ abstract class BaseTopicQueue implements TopicQueueInterface
 
     public function getTopics()
     {
-        return $this->topics;
+        //根据key大到小排序，并保持索引关系
+        arsort($this->topics);
+
+        return array_values($this->topics);
     }
 
     public function setTopics(array $topics)

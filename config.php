@@ -8,7 +8,10 @@ return $config = [
     'processName'  => ':swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
     //job任务相关
     'job'         => [
-        'topics'  => ['MyJob', 'MyJob2'],
+        'topics'  => [
+            //key值越大，优先消费
+            23=> 'MyJob', 86=>'MyJob2',
+        ],
         'queue'   => [
             'type' => 'redis',
             'host' => '127.0.0.1',
