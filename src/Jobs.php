@@ -27,10 +27,6 @@ class Jobs
         $this->queue = $queue;
         $this->queue->setTopics($config['topics'] ?? []);
 
-        /*
-         * $log 简单初始化
-         * $log = new Logs($logPath);
-         */
         $this->logger = $log;
     }
 

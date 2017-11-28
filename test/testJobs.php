@@ -13,21 +13,12 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Kcloze\Jobs\Jobs;
 use Kcloze\Jobs\Logs;
-use Kcloze\Jobs\Queue\RedisTopicQueue;
 
-$redis = new Redis();
-$redis->connect('127.0.0.1', 6379);
-//$redis->auth('xxx');
-//$redis->select(1); //尽量不要和缓存使用同一个 db, 方便管理
-$redisTopicQueue = new RedisTopicQueue($redis);
+$config = require_once __DIR__ . '/../config.php';
 
-$logPath = __DIR__ . '/../log'; // 日志路径
-$log     = new Logs($logPath);
-
-$jobConfig = [
-    'topics'   => ['MyJob', 'MyJob2'], // topics, 默认值 []
-];
-$jobs = new Jobs($redisTopicQueue, $log, $jobConfig);
+$queue   =  Queue::getQueue($config['job']['queue']);
+$log     = new Logs($config['logPath']);
+$jobs    = new Jobs($queue, $log, $config['job']);
 
 if (!$jobs->queue) {
     die("queue object is null\n");

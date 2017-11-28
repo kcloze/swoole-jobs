@@ -33,7 +33,8 @@ $jobs = new Jobs($redisTopicQueue, $log, $jobConfig);
 //启动
 $process       = new Process();
 $processConfig = [
-    'worker_num'   => 5, // 工作进程数, 默认值 5
-    'process_name' => 'swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
+    'pidPath'      => $logPath,
+    'workerNum'    => 5, // 工作进程数, 默认值 5
+    'processName'  => ':swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
 ];
 $process->start($jobs, $processConfig);

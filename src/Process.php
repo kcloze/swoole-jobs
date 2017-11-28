@@ -11,24 +11,29 @@ namespace Kcloze\Jobs;
 
 class Process
 {
-    const PROCESS_NAME_LOG = ': reserve process'; // shell 脚本管理标示
-    public $processName    = 'swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
+    public $processName    = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
     public $jobs           = null;
     private $workers;
     private $workNum = 5;
     private $config  = [];
-    private $pidFile = '';
+    private $pidFile = '/master.pid';
 
     public function start(Jobs $jobs, $config)
     {
         \Swoole\Process::daemon();
 
         $this->jobs    = $jobs;
-        $this->pidFile = __DIR__ . '/master.pid';
-
+        if (isset($config['pidPath']) && !empty($config['pidPath'])) {
+            $this->pidFile=$config['pidPath'] . $this->pidFile;
+        } else {
+            $this->pidFile=__DIR__ . $this->pidFile;
+        }
         $this->config = $config;
-        if (!empty($config['process_name'])) {
-            $this->processName = $config['process_name'];
+        if (isset($config['processName']) && !empty($config['processName'])) {
+            $this->processName = $config['processName'];
+        }
+        if (isset($config['workNum']) && $config['workNum'] > 0) {
+            $this->workNum = $config['workNum'];
         }
 
         /*
@@ -119,6 +124,6 @@ class Process
 
     private function log($txt)
     {
-        file_put_contents($this->config['log_path'] . '/worker.log', $txt . "\n", FILE_APPEND);
+        file_put_contents($this->config['logPath'] . '/worker.log', $txt . "\n", FILE_APPEND);
     }
 }

@@ -17,26 +17,8 @@ class RabbitmqTopicQueue extends BaseTopicQueue
      *
      * @param array $AMQPQueue
      */
-    public function __construct(array $AMQPQueue)
+    public function __construct(\AMQPQueue $AMQPQueue)
     {
-        /*
-         * AMQPQueue 的简单初始化方式
-         *
-         * try {
-         * $conn = new \AMQPConnection();
-         * $conn->setHost($host);
-         * $conn->setLogin($login);
-         * $conn->setPassword($pwd);
-         * $conn->setVhost($vHost);
-         * $conn->connect();
-         * $channel = new \AMQPChannel($conn);
-         * $exchange = new \AMQPExchange($channel);
-         * $queue = new \AMQPQueue($exchange);
-         * //    return ['queue' => $queue, 'exchange' => $exchange];
-         * } catch (\Exception $e) {
-         * echo $e->getMessage();
-         * }
-         */
         $this->queue = $AMQPQueue;
     }
 
