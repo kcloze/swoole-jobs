@@ -26,9 +26,21 @@ class Logs
     private $logs        = [];
     private $logCount    = 0;
 
-    public function __construct($logPath)
+    private static $instance=null;
+
+    public function __construct($logPath='')
     {
-        $this->logPath = $logPath;
+        $this->logPath = empty($logPath) ? $logPath : APP_PATH . '/log';
+    }
+
+    public static function getLogger($logPath='')
+    {
+        if (isset(self::$instance) && self::$instance !== null) {
+            return self::$instance;
+        }
+        self::$instance=new self($logPath);
+
+        return self::$instance;
     }
 
     public function formatLogMessage($message, $level, $category, $time)

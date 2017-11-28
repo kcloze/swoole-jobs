@@ -22,14 +22,13 @@ class Process
     public function start(Jobs $jobs, $config)
     {
         \Swoole\Process::daemon();
-
+        $this->config  = $config;
         $this->jobs    = $jobs;
         if (isset($config['pidPath']) && !empty($config['pidPath'])) {
             $this->pidFile=$config['pidPath'] . $this->pidFile;
         } else {
-            $this->pidFile=__DIR__ . $this->pidFile;
+            $this->pidFile=APP_PATH . '/log/' . $this->pidFile;
         }
-        $this->config = $config;
         if (isset($config['processName']) && !empty($config['processName'])) {
             $this->processName = $config['processName'];
         }

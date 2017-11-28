@@ -20,14 +20,12 @@ class Jobs
     public $queue  = null;
     public $config = [];
 
-    public function __construct(BaseTopicQueue $queue, Logs $log, $config = [])
+    public function __construct(BaseTopicQueue $queue, $config = [])
     {
         $this->config = $config; // 配置可能之后还会用到
-
-        $this->queue = $queue;
-        $this->queue->setTopics($config['topics'] ?? []);
-
-        $this->logger = $log;
+        $this->queue  = $queue;
+        $this->queue->setTopics($config['job']['topics'] ?? []);
+        $this->logger = Logs::getLogger($config['logPath'] ?? []);
     }
 
     public function run()

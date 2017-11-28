@@ -12,14 +12,12 @@ date_default_timezone_set('Asia/Shanghai');
 require __DIR__ . '/../vendor/autoload.php';
 
 use Kcloze\Jobs\Jobs;
-use Kcloze\Jobs\Logs;
 use Kcloze\Jobs\Queue\Queue;
 
 $config = require_once __DIR__ . '/../config.php';
 
 $queue   =  Queue::getQueue($config['job']['queue']);
-$log     = new Logs($config['logPath']);
-$jobs    = new Jobs($queue, $log, $config['job']);
+$jobs    = new Jobs($queue, $config);
 
 if (!$jobs->queue) {
     die("queue object is null\n");

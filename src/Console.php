@@ -19,7 +19,7 @@ class Console
     public function __construct($config)
     {
         $this->config = $config;
-        $this->logger = new Logs($config['logPath']);
+        $this->logger = Logs::getLogger($config['logPath'] ?? []);
     }
 
     public function run()
@@ -30,7 +30,7 @@ class Console
     public function start()
     {
         $queue  =  Queue::getQueue($this->config['job']['queue']);
-        $jobs   = new Jobs($queue, $this->logger, $this->config['job']);
+        $jobs   = new Jobs($queue, $this->config);
         //启动
         $process = new Process();
         $process->start($jobs, $this->config);
