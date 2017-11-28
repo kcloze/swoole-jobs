@@ -11,14 +11,19 @@ namespace Kcloze\MyJob;
 
 class MyJob
 {
-    public function helloAction($data)
+    public static function test1($title, $time)
     {
         usleep(5);
-        echo "hello, world\n";
-        //$this->error();
+        echo "test1| title: $title \t time: $time \n";
     }
 
-    private function error()
+    public function test2($title, $time)
+    {
+        usleep(5);
+        echo "test2| title: $title \t time: $time \n";
+    }
+
+    private function testError()
     {
         //随机故意构造错误，验证子进程推出情况
         $i = mt_rand(0, 5);
@@ -27,7 +32,7 @@ class MyJob
             try {
                 $this->methodNoFind();
                 new Abc();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 var_dump($e->getMessage());
             }
         }

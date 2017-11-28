@@ -6,7 +6,7 @@ After=syslog.target
 [Service]
 Type=forking
 PIDFile=/media/kcloze/8685937c-af42-4319-aa9b-bb123ccd18ba/data/www/kcloze/swoole-jobs/log/master.pid
-ExecStart=/usr/bin/php7.0 /media/kcloze/8685937c-af42-4319-aa9b-bb123ccd18ba/data/www/kcloze/swoole-jobs/test/testProcess.php >> /media/kcloze/8685937c-af42-4319-aa9b-bb123ccd18ba/data/www/kcloze/swoole-jobs/log/server.log 2>&1
+ExecStart=/usr/bin/php7.0 /media/kcloze/8685937c-af42-4319-aa9b-bb123ccd18ba/data/www/kcloze/swoole-jobs/run.php start >> /media/kcloze/8685937c-af42-4319-aa9b-bb123ccd18ba/data/www/kcloze/swoole-jobs/log/server.log 2>&1
 ExecStop=/bin/kill $MAINPID
 ExecReload=/bin/kill -USR1 $MAINPID
 Restart=always

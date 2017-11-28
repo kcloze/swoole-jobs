@@ -11,16 +11,45 @@ namespace Kcloze\Jobs;
 
 class Process
 {
-    const PROCESS_NAME_LOG = ': reserve process'; //shell脚本管理标示
-    private $reserveProcess;
+    public $processName    = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
+    public $jobs           = null;
     private $workers;
+    private $ppid;
     private $workNum = 5;
     private $config  = [];
+    private $pidFile = '/master.pid';
 
-    public function start($config)
+    public function start(Jobs $jobs, $config)
     {
         \Swoole\Process::daemon();
+
+        $this->jobs    = $jobs;
+        if (isset($config['pidPath']) && !empty($config['pidPath'])) {
+            $this->pidFile=$config['pidPath'] . $this->pidFile;
+        } else {
+            $this->pidFile=__DIR__ . $this->pidFile;
+        }
         $this->config = $config;
+        if (isset($config['processName']) && !empty($config['processName'])) {
+            $this->processName = $config['processName'];
+        }
+        if (isset($config['workNum']) && $config['workNum'] > 0) {
+            $this->workNum = $config['workNum'];
+        }
+
+        /*
+         * master.pid 文件记录 master 进程 pid, 方便之后进程管理
+         * 请管理好此文件位置, 使用 systemd 管理进程时会用到此文件
+         */
+
+        if (file_exists($this->pidFile)) {
+            echo '已有进程运行中,请先结束或重启' . PHP_EOL;
+            die();
+        }
+        $this->ppid = getmypid();
+        file_put_contents($this->pidFile, $this->ppid . PHP_EOL);
+        $this->setProcessName('job master ' . $this->ppid . $this->processName);
+
         //开启多个进程消费队列
         for ($i = 0; $i < $this->workNum; $i++) {
             $this->reserveQueue($i);
@@ -31,17 +60,13 @@ class Process
     //独立进程消费队列
     public function reserveQueue($workNum)
     {
-        $self = $this;
-        $ppid = getmypid();
-        file_put_contents($this->config['logPath'] . '/master.pid', $ppid . "\n");
-        $this->setProcessName('job master ' . $ppid . $self::PROCESS_NAME_LOG);
+        $self           = $this;
         $reserveProcess = new \Swoole\Process(function () use ($self, $workNum) {
             //设置进程名字
-            $this->setProcessName('job ' . $workNum . $self::PROCESS_NAME_LOG);
+            $this->setProcessName('job ' . $workNum . $self->processName);
             try {
-                $job = new Jobs($self->config);
-                $job->run();
-            } catch (Exception $e) {
+                $self->jobs->run();
+            } catch (\Exception $e) {
                 echo $e->getMessage();
             }
             echo 'reserve process ' . $workNum . " is working ...\n";
@@ -52,20 +77,19 @@ class Process
     }
 
     //监控子进程
-    public function registSignal($workers)
+    public function registSignal(&$workers)
     {
         \Swoole\Process::signal(SIGTERM, function ($signo) {
-            $this->exitMaster('收到退出信号,退出主进程');
+            $this->exitMaster();
         });
         \Swoole\Process::signal(SIGCHLD, function ($signo) use (&$workers) {
             while (true) {
                 $ret = \Swoole\Process::wait(false);
                 if ($ret) {
-                    $pid           = $ret['pid'];
+                    $pid = $ret['pid'];
                     $child_process = $workers[$pid];
-                    //unset($workers[$pid]);
                     echo "Worker Exit, kill_signal={$ret['signal']} PID=" . $pid . PHP_EOL;
-                    $new_pid           = $child_process->start();
+                    $new_pid = $child_process->start();
                     $workers[$new_pid] = $child_process;
                     unset($workers[$pid]);
                 } else {
@@ -77,8 +101,15 @@ class Process
 
     private function exitMaster()
     {
-        @unlink($this->config['logPath'] . '/master.pid.log');
-        $this->log('Time: ' . microtime(true) . '主进程退出' . "\n");
+        @unlink($this->pidFile);
+        $this->log('Time: ' . microtime(true) . '主进程' . $this->ppid . '退出' . PHP_EOL);
+        foreach ($this->workers as $pid => $worker) {
+            //平滑退出，用exit；强制退出用kill
+            \Swoole\Process::kill($pid);
+            unset($this->workers[$pid]);
+            $this->log('主进程收到退出信号,[' . $pid . ']子进程跟着退出');
+            $this->log('Worker count: ' . count($this->workers));
+        }
         exit();
     }
 

@@ -9,20 +9,25 @@
 
 namespace Kcloze\Jobs;
 
+use Kcloze\Jobs\Queue\BaseTopicQueue;
+
 class Jobs
 {
-    const MAX_POP     = 100; //单个topic每次最多取多少次
-    const MAX_REQUEST = 10000; //每个子进程while循环里面最多循坏次数，防止内存泄漏
+    const MAX_POP     = 100; // 单个topic每次最多取多少次
+    const MAX_REQUEST = 10000; // 每个子进程while循环里面最多循坏次数，防止内存泄漏
 
     public $logger = null;
     public $queue  = null;
+    public $config = [];
 
-    public function __construct($config)
+    public function __construct(BaseTopicQueue $queue, Logs $log, $config = [])
     {
-        $this->config = $config;
-        $this->logger = new Logs($config['logPath']);
-        $this->getQueue($config['queue']);
-        $this->queue && $this->queue->addTopics($config['topics']);
+        $this->config = $config; // 配置可能之后还会用到
+
+        $this->queue = $queue;
+        $this->queue->setTopics($config['topics'] ?? []);
+
+        $this->logger = $log;
     }
 
     public function run()
@@ -31,21 +36,20 @@ class Jobs
         $req = 0;
         while (true) {
             $topics = $this->queue->getTopics();
+            $this->logger->log('topics: ' . json_encode($topics));
+
             if ($topics) {
                 //遍历topic任务列表
-                foreach ($topics as $key => $jobName) {
+                foreach ($topics as $key => $topic) {
                     //每次最多取MAX_POP个任务执行
                     for ($i = 0; $i < self::MAX_POP; $i++) {
-                        $data = $this->queue->pop($jobName);
+                        $data = $this->queue->pop($topic);
                         $this->logger->log(print_r($data, true), 'info');
-                        if (!empty($data) && isset($data['jobAction'])) {
-                            //$this->logger->log(print_r([$jobName, $jobAction], true), 'info');
-                            $jobAction = $data['jobAction'];
-                            //注意如果嵌入自己的框架，可以修改这个路径
-                            //根据jobName，jobAction执行业务代码
-                            $this->loadFramework($jobName, $jobAction, $data);
+                        if (!empty($data)) {
+                            // 根据自己的业务需求改写此方法
+                            $this->load($data);
                         } else {
-                            $this->logger->log($jobName . ' no work to do!', 'info');
+                            $this->logger->log($topic . ' no work to do!', 'info');
                             break;
                         }
                     }
@@ -65,55 +69,19 @@ class Jobs
         }
     }
 
-    public function getQueue($config)
+    // 重写这个方法实现业务逻辑
+    private function load($data)
     {
-        if (isset($config['type']) && $config['type'] == 'redis') {
-            $this->queue = new Redis($config);
-        } elseif (isset($config['type']) && $config['type'] == 'rabbitmq') {
-            $this->queue = new Rabbitmq($config);
-        } else {
-            echo "you must add queue config\n";
-        }
-
-        return $this->queue;
+        // 下面三种方式
     }
 
-      //可以在这里载入自己的框架代码
-    private function loadFramework($jobName, $jobAction, $data)
+    // 方式一: 载入自己的框架, 这里使用 yii2 为例
+    private function loadYii2Console($data)
     {
-        if (isset($this->config['framework']) && $this->config['framework'] == 'yii2') {
-            $exitCode = $this->loadYii2Console($jobName, $jobAction, $data);
-        } else {
-            $exitCode = $this->loadTest($jobName, $jobAction, $data);
-        }
-        //记录log
-        $this->logger->log('uuid: ' . $data['uuid'] . ' one job has been done, exitCode: ' . $exitCode, 'trace', 'jobs');
-    }
-
-    //载入本项目test实例
-    private function loadTest($jobName, $jobAction, $data)
-    {
-        $exitCode = 0;
-        $jobName  = "\Kcloze\MyJob\\" . ucfirst($jobName);
-        if (method_exists($jobName, $jobAction)) {
-            try {
-                $job      = new $jobName();
-                $exitCode = $job->$jobAction($data);
-            } catch (Exception $e) {
-                $this->logger->log($e->getMessage(), 'error');
-            }
-        } else {
-            $this->logger->log($jobAction . ' action not find!', 'warning');
-        }
-    }
-
-    private function loadYii2Console($jobName, $jobAction, $data)
-    {
-
         //jobAction不要带上Action结尾
-        require_once $this->config['rootPath'] . '/vendor/yiisoft/yii2/Yii.php';
+//        require_once $this->config['rootPath'] . '/vendor/yiisoft/yii2/Yii.php'; // 推荐在 composer.json 中管理依赖
         $application = new \yii\console\Application($this->config['config']);
-        $route       = strtolower($jobName) . '/' . $jobAction;
+        $route       = strtolower($data['job_class']) . '/' . $data['job_method'];
         $params      = [$data];
         $exitCode    = 0;
         //var_dump("yii2 route: ", $route, $params);
@@ -123,11 +91,34 @@ class Jobs
             // $params = [['a' => ['sdfsdf']], ['b' => ['sdfsdf', 'sdfsdf']]];
             // $exitCode = $application->runAction($route, $params);
             $exitCode = $application->runAction($route, $params);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->log($e->getMessage(), 'error');
         }
         unset($application);
 
         return $exitCode;
+    }
+
+    // 方式二: 使用类静态方法, 推荐, 静态方法性能更好, 依赖更好管理; 本项目提供的示例
+    private function loadTest1($data)
+    {
+        $jobMethod = $data['job_method'];
+        try {
+            $exitCode = $data['job_class']::$jobMethod(...$data['job_param']); // ... 语法实现多参数输入
+        } catch (\Exception $e) {
+            $this->logger->log($e->getMessage(), 'error');
+        }
+    }
+
+    // 方式三: 使用类方法, 本项目提供的示例
+    private function loadTest2($data)
+    {
+        try {
+            $job       = new $data['job_class']();
+            $jobMethod = $data['job_method'];
+            $exitCode  = $job->$jobMethod(...$data['job_param']);
+        } catch (\Exception $e) {
+            $this->logger->log($e->getMessage(), 'error');
+        }
     }
 }

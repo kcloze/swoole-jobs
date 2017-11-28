@@ -11,19 +11,20 @@ namespace Kcloze\Jobs;
 
 class Logs
 {
-    const LEVEL_TRACE    = 'trace';
-    const LEVEL_WARNING  = 'warning';
-    const LEVEL_ERROR    = 'error';
-    const LEVEL_INFO     = 'info';
-    const LEVEL_PROFILE  = 'profile';
-    const MAX_LOGS       = 10000;
-    public $rotateByCopy = true;
-    public $maxLogFiles  = 5;
-    public $maxFileSize  = 100; // in MB
+    const LEVEL_TRACE     = 'trace';
+    const LEVEL_WARNING   = 'warning';
+    const LEVEL_ERROR     = 'error';
+    const LEVEL_INFO      = 'info';
+    const LEVEL_PROFILE   = 'profile';
+    const MAX_LOGS        = 10000;
+    public $rotateByCopy  = true;
+    public $maxLogFiles   = 5;
+    public $maxFileSize   = 100; // in MB
+
+    private $logPath      = '';
     //单个类型log
     private $logs        = [];
     private $logCount    = 0;
-    private $logPath     = '';
 
     public function __construct($logPath)
     {
@@ -74,8 +75,9 @@ class Logs
     /**
      * [write 根据日志类型写到不同的日志文件].
      *
-     * @return [type] [description]
-     * @param  mixed  $logsAll
+     * @param $logsAll
+     *
+     * @throws \Exception
      */
     public function write($logsAll)
     {
@@ -93,7 +95,7 @@ class Logs
             $fileName = $this->logPath . '/' . $key . '.log';
 
             if (($fp = @fopen($fileName, 'a')) === false) {
-                throw new Exception("Unable to append to log file: {$fileName}");
+                throw new \Exception("Unable to append to log file: {$fileName}");
             }
             @flock($fp, LOCK_EX);
 
@@ -111,6 +113,7 @@ class Logs
 
     /**
      * Rotates log files.
+     *
      * @param mixed $file
      */
     protected function rotateFiles($file)
