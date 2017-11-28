@@ -12,29 +12,36 @@ namespace Kcloze\Jobs;
 class Process
 {
     const PROCESS_NAME_LOG = ': reserve process'; // shell 脚本管理标示
+    public $processName    = 'swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
+    public $jobs           = null;
     private $workers;
     private $workNum = 5;
-    private $config = [];
-    public $processName = 'swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
-    public $jobs = null;
+    private $config  = [];
+    private $pidFile = '';
 
     public function start(Jobs $jobs, $config)
     {
         \Swoole\Process::daemon();
 
-        $this->jobs = $jobs;
+        $this->jobs    = $jobs;
+        $this->pidFile = __DIR__ . '/master.pid';
 
         $this->config = $config;
         if (!empty($config['process_name'])) {
             $this->processName = $config['process_name'];
         }
 
-        $ppid = getmypid();
-        /**
+        /*
          * master.pid 文件记录 master 进程 pid, 方便之后进程管理
-         * 请管理好次文件位置, 使用 systemd 管理进程时会用到此文件
+         * 请管理好此文件位置, 使用 systemd 管理进程时会用到此文件
          */
-        file_put_contents('/master.pid', $ppid . "\n");
+
+        if (file_exists($this->pidFile)) {
+            echo '已有进程运行中,请先结束或重启' . PHP_EOL;
+            die();
+        }
+        $ppid = getmypid();
+        file_put_contents($this->pidFile, $ppid . PHP_EOL);
         $this->setProcessName('job master ' . $ppid . $this->processName);
 
         //开启多个进程消费队列
@@ -47,7 +54,7 @@ class Process
     //独立进程消费队列
     public function reserveQueue($workNum)
     {
-        $self = $this;
+        $self           = $this;
         $reserveProcess = new \Swoole\Process(function () use ($self, $workNum) {
             //设置进程名字
             $this->setProcessName('job ' . $workNum . $self->processName);
@@ -58,7 +65,7 @@ class Process
             }
             echo 'reserve process ' . $workNum . " is working ...\n";
         });
-        $pid = $reserveProcess->start();
+        $pid                 = $reserveProcess->start();
         $this->workers[$pid] = $reserveProcess;
         echo "reserve start...\n";
     }
@@ -75,7 +82,7 @@ class Process
                 if ($ret) {
                     $pid = $ret['pid'];
                     /**
-                     * @var \Swoole\Process $child_process
+                     * @var \Swoole\Process
                      */
                     $child_process = $workers[$pid];
                     //unset($workers[$pid]);
@@ -92,7 +99,7 @@ class Process
 
     private function exitMaster()
     {
-//        @unlink('/master.pid.log'); //可以不删, 下次启动会自动重置
+        @unlink($this->pidFile);
         $this->log('Time: ' . microtime(true) . '主进程退出' . "\n");
         exit();
     }

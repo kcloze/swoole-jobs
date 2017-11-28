@@ -7,19 +7,19 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Kcloze\Jobs;
+namespace Kcloze\Jobs\Queue;
 
 class RedisTopicQueue extends BaseTopicQueue
 {
     /**
      * RedisTopicQueue constructor.
-     * 使用依赖注入的方式
+     * 使用依赖注入的方式.
      *
      * @param \Redis $redis
      */
     public function __construct(\Redis $redis)
     {
-        /**
+        /*
          * $redis 的简单初始化方法
          * try {
          * $redis = new \Redis();

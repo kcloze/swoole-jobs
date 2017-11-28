@@ -1,6 +1,6 @@
 <?php
 
-namespace Kcloze\Jobs;
+namespace Kcloze\Jobs\Queue;
 
 interface TopicQueueInterface
 {
@@ -22,6 +22,7 @@ interface TopicQueueInterface
 
     /**
      * @param $topic
+     *
      * @return mixed
      */
     public function pop($topic);

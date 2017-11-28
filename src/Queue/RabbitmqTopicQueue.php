@@ -7,19 +7,19 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Kcloze\Jobs;
+namespace Kcloze\Jobs\Queue;
 
 class RabbitmqTopicQueue extends BaseTopicQueue
 {
     /**
      * RabbitmqTopicQueue constructor.
-     * 使用依赖注入的方式
+     * 使用依赖注入的方式.
      *
      * @param array $AMQPQueue
      */
     public function __construct(array $AMQPQueue)
     {
-        /**
+        /*
          * AMQPQueue 的简单初始化方式
          *
          * try {
@@ -50,7 +50,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
 
         /* @var \AMQPExchange $exchange */
         $exchange = $this->queue['exchange'];
-        $result = $exchange->publish(serialize($value), $topic);
+        $result   = $exchange->publish(serialize($value), $topic);
 
         return $result;
     }
@@ -63,7 +63,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         $queue->setFlags(AMQP_DURABLE);
         $queue->declareQueue();
         $message = $queue->get(AMQP_AUTOACK);
-        $result = null;
+        $result  = null;
         if ($message) {
             $result = $message->getBody();
         }

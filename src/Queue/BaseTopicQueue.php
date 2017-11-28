@@ -1,13 +1,11 @@
 <?php
 
-
-namespace Kcloze\Jobs;
-
+namespace Kcloze\Jobs\Queue;
 
 abstract class BaseTopicQueue implements TopicQueueInterface
 {
     public $topics = [];
-    public $queue = null;
+    public $queue  = null;
 
     public function getTopics()
     {
@@ -21,11 +19,9 @@ abstract class BaseTopicQueue implements TopicQueueInterface
 
     public function push($topic, $value)
     {
-
     }
 
     public function pop($topic)
     {
-
     }
 }

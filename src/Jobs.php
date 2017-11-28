@@ -9,13 +9,15 @@
 
 namespace Kcloze\Jobs;
 
+use Kcloze\Jobs\Queue\BaseTopicQueue;
+
 class Jobs
 {
-    const MAX_POP = 100; // 单个topic每次最多取多少次
+    const MAX_POP     = 100; // 单个topic每次最多取多少次
     const MAX_REQUEST = 10000; // 每个子进程while循环里面最多循坏次数，防止内存泄漏
 
     public $logger = null;
-    public $queue = null;
+    public $queue  = null;
     public $config = [];
 
     public function __construct(BaseTopicQueue $queue, Logs $log, $config = [])
@@ -25,7 +27,7 @@ class Jobs
         $this->queue = $queue;
         $this->queue->setTopics($config['topics'] ?? []);
 
-        /**
+        /*
          * $log 简单初始化
          * $log = new Logs($logPath);
          */
@@ -81,9 +83,9 @@ class Jobs
         //jobAction不要带上Action结尾
 //        require_once $this->config['rootPath'] . '/vendor/yiisoft/yii2/Yii.php'; // 推荐在 composer.json 中管理依赖
         $application = new \yii\console\Application($this->config['config']);
-        $route = strtolower($data['job_class']) . '/' . $data['job_method'];
-        $params = [$data];
-        $exitCode = 0;
+        $route       = strtolower($data['job_class']) . '/' . $data['job_method'];
+        $params      = [$data];
+        $exitCode    = 0;
         //var_dump("yii2 route: ", $route, $params);
         try {
 
@@ -95,6 +97,7 @@ class Jobs
             $this->logger->log($e->getMessage(), 'error');
         }
         unset($application);
+
         return $exitCode;
     }
 
@@ -113,9 +116,9 @@ class Jobs
     private function loadTest2($data)
     {
         try {
-            $job = new $data['job_class']();
+            $job       = new $data['job_class']();
             $jobMethod = $data['job_method'];
-            $exitCode = $job->$jobMethod(...$data['job_param']);
+            $exitCode  = $job->$jobMethod(...$data['job_param']);
         } catch (\Exception $e) {
             $this->logger->log($e->getMessage(), 'error');
         }
