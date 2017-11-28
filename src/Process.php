@@ -2,7 +2,7 @@
 
 /*
  * This file is part of PHP CS Fixer.
- * (c) kcloze <pei.greet@qq.com>
+ *  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
@@ -22,7 +22,6 @@ class Process
 
     public function start(Jobs $jobs, $config)
     {
-        \Swoole\Process::daemon();
         $this->config  = $config;
         $this->jobs    = $jobs;
         if (isset($config['pidPath']) && !empty($config['pidPath'])) {
@@ -41,11 +40,11 @@ class Process
          * master.pid 文件记录 master 进程 pid, 方便之后进程管理
          * 请管理好此文件位置, 使用 systemd 管理进程时会用到此文件
          */
-
         if (file_exists($this->pidFile)) {
             echo '已有进程运行中,请先结束或重启' . PHP_EOL;
             die();
         }
+        \Swoole\Process::daemon();
         $this->ppid = getmypid();
         file_put_contents($this->pidFile, $this->ppid . PHP_EOL);
         $this->setProcessName('job master ' . $this->ppid . $this->processName);

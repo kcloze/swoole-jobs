@@ -2,7 +2,7 @@
 
 /*
  * This file is part of PHP CS Fixer.
- * (c) kcloze <pei.greet@qq.com>
+ *  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
@@ -57,6 +57,8 @@ class Console
                 exit('service is not running' . PHP_EOL);
             }
             if (function_exists('posix_kill')) {
+                //macOS 只接受SIGUSR1信号
+                $signal=(PHP_OS == 'Darwin') ? SIGUSR1 : $signal;
                 $return=@posix_kill($ppid, $signal);
                 if ($return) {
                     $this->logger->log('[pid: ' . $ppid . '] has been stopped success');
