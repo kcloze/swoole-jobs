@@ -17,7 +17,7 @@ class Process
     private $ppid;
     private $workNum  = 5;
     private $config   = [];
-    private $pidFile  = '/master.pid';
+    private $pidFile  = '';
     private $status   ='running'; //主进程状态
 
     public function start(Jobs $jobs, $config)
@@ -26,9 +26,9 @@ class Process
         $this->config  = $config;
         $this->jobs    = $jobs;
         if (isset($config['pidPath']) && !empty($config['pidPath'])) {
-            $this->pidFile=$config['pidPath'] . $this->pidFile;
+            $this->pidFile=$config['pidPath'] . '/master.pid';
         } else {
-            $this->pidFile=APP_PATH . '/log/' . $this->pidFile;
+            $this->pidFile=APP_PATH . '/master.pid';
         }
         if (isset($config['processName']) && !empty($config['processName'])) {
             $this->processName = $config['processName'];
