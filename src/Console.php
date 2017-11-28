@@ -57,7 +57,7 @@ class Console
                 exit('service is not running' . PHP_EOL);
             }
             if (function_exists('posix_kill')) {
-                $return=posix_kill($ppid, $signal);
+                $return=@posix_kill($ppid, $signal);
                 if ($return) {
                     $this->logger->log('[pid: ' . $ppid . '] has been stopped success');
                 } else {

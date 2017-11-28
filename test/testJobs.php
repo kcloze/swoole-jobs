@@ -13,6 +13,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Kcloze\Jobs\Jobs;
 use Kcloze\Jobs\Logs;
+use Kcloze\Jobs\Queue\Queue;
 
 $config = require_once __DIR__ . '/../config.php';
 

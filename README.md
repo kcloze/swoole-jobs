@@ -31,24 +31,30 @@ git clone https://github.com/kcloze/swoole-jobs.git
 cd swoole-jobs
 composer install
 
-//往队列添加job
-php test/testJobs.php
+```
+## 运行
 
 ```
+1.修改配置config.php
+
+2.启动服务
+php ./run.php start|stop|restart
+
+3.往队列推送任务
+php ./test/testJobs.php
+
+```
+
 ## 服务管理
-### 启动和关闭服务,有三种方式:
+### 启动和关闭服务,有两种方式:
 
-#### 1. shell脚本(主进程挂了之后,需要手动启动)
+#### 1. php脚本(主进程挂了之后,需要手动启动)
 ```
-chmod u+x server.sh
-./server.sh start|stop|restart
+./run.php start|stop|restart
+
 ```
 
-#### 2. php脚本, 思路和 shell 脚本一样
-
-`server.php`
-
-#### 3. 使用systemd管理(故障重启、开机自启动)
+#### 2. 使用systemd管理(故障重启、开机自启动)
 [更多systemd介绍](https://www.swoole.com/wiki/page/699.html)
 
 ```
