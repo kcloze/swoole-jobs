@@ -19,6 +19,9 @@
         "psr-4": {
             "Kcloze\\Jobs\\": "src"
         }
-    }
+    },
+    "bin": [
+        "yii"
+    ]
     
 }

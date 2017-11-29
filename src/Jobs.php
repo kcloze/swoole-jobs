@@ -18,12 +18,6 @@ class Jobs
     const MAX_POP     = 100; // 单个topic每次最多取多少次
     const MAX_REQUEST = 10000; // 每个子进程while循环里面最多循坏次数，防止内存泄漏
 
-    /*job
-    'topic'      => 'MyJob',
-    'jobClass'   => 'MyJob',
-    'jobMethod'  => 'test1',
-    'jobParams'  => [['title' => 'kcloze', 'time' => time()]],
-    */
     public $logger  = null;
     public $queue   = null;
     public $usleep  = 10;
