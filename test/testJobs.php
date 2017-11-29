@@ -31,11 +31,12 @@ if (!$jobs->queue) {
 $topics = $jobs->queue->getTopics();
 var_dump($topics);
 
+//往topic为MyJob的任务增加执行job
 for ($i = 0; $i < 100; $i++) {
     // 根据自定义的 $jobs->load() 方法, 自定义数据格式
     $data = [
         'topic'      => 'MyJob',
-        'jobClass'   => 'MyJob',
+        'jobClass'   => 'Kcloze\Jobs\Jobs\MyJob',
         'jobMethod'  => 'test1',
         'jobParams'  => [['title' => 'kcloze', 'time' => time()]],
     ];
@@ -45,7 +46,7 @@ for ($i = 0; $i < 100; $i++) {
     // 根据自定义的 $jobs->load() 方法, 自定义数据格式
     $data = [
         'topic'       => 'MyJob',
-        'jobClass'    => 'MyJob',
+        'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob',
         'jobMethod'   => 'test2',
         'jobParams'   => [['title' => 'kcloze', 'time' => time()]],
     ];
@@ -54,7 +55,39 @@ for ($i = 0; $i < 100; $i++) {
 for ($i = 0; $i < 100; $i++) {
     $data = [
         'topic'       => 'MyJob',
-        'jobClass'    => 'MyJob',
+        'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob',
+        'jobMethod'   => 'testError',
+        'jobParams'   => [['title' => 'kcloze', 'time' => time()]],
+    ];
+    $jobs->queue->push($data['topic'], $data);
+}
+
+//往topic为MyJob2的任务增加执行job
+
+for ($i = 0; $i < 100; $i++) {
+    // 根据自定义的 $jobs->load() 方法, 自定义数据格式
+    $data = [
+        'topic'      => 'MyJob2',
+        'jobClass'   => 'Kcloze\Jobs\Jobs\MyJob2',
+        'jobMethod'  => 'test1',
+        'jobParams'  => [['title' => 'kcloze', 'time' => time()]],
+    ];
+    $jobs->queue->push($data['topic'], $data);
+}
+for ($i = 0; $i < 100; $i++) {
+    // 根据自定义的 $jobs->load() 方法, 自定义数据格式
+    $data = [
+        'topic'       => 'MyJob2',
+        'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
+        'jobMethod'   => 'test2',
+        'jobParams'   => [['title' => 'kcloze', 'time' => time()]],
+    ];
+    $jobs->queue->push($data['topic'], $data);
+}
+for ($i = 0; $i < 100; $i++) {
+    $data = [
+        'topic'       => 'MyJob2',
+        'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
         'jobMethod'   => 'testError',
         'jobParams'   => [['title' => 'kcloze', 'time' => time()]],
     ];

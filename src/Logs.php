@@ -136,7 +136,7 @@ class Logs
         for ($i = $this->maxLogFiles; $i >= 0; --$i) {
             // $i == 0 is the original log file
             $rotateFile = $file . ($i === 0 ? '' : '.' . $i);
-            var_dump($rotateFile);
+            //var_dump($rotateFile);
             if (is_file($rotateFile)) {
                 // suppress errors because it's possible multiple processes enter into this section
                 if ($i === $this->maxLogFiles) {

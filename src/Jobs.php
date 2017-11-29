@@ -9,7 +9,6 @@
 
 namespace Kcloze\Jobs;
 
-use Kcloze\Jobs\Action\BaseAction;
 use Kcloze\Jobs\Queue\BaseTopicQueue;
 
 class Jobs
@@ -28,7 +27,7 @@ class Jobs
     public $usleep  = 10;
     public $config  = [];
 
-    public function __construct(BaseTopicQueue $queue, BaseAction $baseAction=null)
+    public function __construct(BaseTopicQueue $queue)
     {
         $this->config  = Config::getConfig(); //读取配置文件
         $this->queue   = $queue;
@@ -54,7 +53,8 @@ class Jobs
                         $this->logger->log(print_r($data, true), 'info');
                         if (!empty($data)) {
                             // 根据自己的业务需求改写此方法
-                            $jobObject=$this->loadObject($data);
+                            $jobObject   =$this->loadObject($data);
+                            $baseAction  =  Queue::loadAction();
                             $baseAction->start($jobObject);
                         } else {
                             $this->logger->log($topic . ' no work to do!', 'info');

@@ -11,7 +11,7 @@ return $config = [
     'job'         => [
         'topics'  => [
             //key值越大，优先消费
-            23=> 'MyJob', 86=>'MyJob2',
+            23=> 'MyJob', 86=>'MyJob2', 8=>'MyJob3',
         ],
         'queue'   => [
             'type' => 'redis',

@@ -17,8 +17,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Kcloze\\Jobs\\": "src",
-            "Kcloze\\MyJob\\": "test\\jobs"
+            "Kcloze\\Jobs\\": "src"
         }
     },
     "packagist": {

@@ -31,8 +31,7 @@ class Console
     public function start()
     {
         $queue   =  Queue::getQueue();
-        $action  =  Queue::loadAction();
-        $jobs    = new Jobs($queue, $action);
+        $jobs    = new Jobs($queue);
         //启动
         $process = new Process($jobs);
         $process->start();
