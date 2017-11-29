@@ -5,7 +5,7 @@
     "homepage": "https://github.com/kcloze/swoole-jobs",
     "license": "MIT",
     "require": {
-        "php": ">=5.4",
+        "php": ">=7.0",
         "ext-swoole": ">=1.8.9",
         "ext-redis": "*"
     },
@@ -19,10 +19,6 @@
         "psr-4": {
             "Kcloze\\Jobs\\": "src"
         }
-    },
-    "packagist": {
-            "type": "composer",
-            "url": "https://packagist.phpcomposer.com"
     }
     
 }
