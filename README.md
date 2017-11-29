@@ -2,17 +2,17 @@
 
 * 基于swoole的job调度组件
 
-## 使用场景
+## 1. 使用场景
 
 * web中较慢的逻辑，比如统计/email/短信/图片处理等
 * 单机job任务并发数10000以内，但可以多机器部署
 
-## 架构图
+## 2. 架构图
 
 ![架构图](jobs-archi.png)
 
 
-## 特性
+## 3. 特性
 
 * 基于swoole的job调度组件；
 * redis/rabbitmq/zeromq等任何一种做队列消息存储(目前只实现redis/rabbitmq)；
@@ -23,7 +23,7 @@
 * 日志文件自动切割，默认最大100M，最多5个日志文件，防止日志刷满磁盘；
 
 
-## 安装
+## 4. 安装
 
 
 ```
@@ -32,7 +32,7 @@ cd swoole-jobs
 composer install
 
 ```
-## 运行
+## 5. 运行
 
 ```
 1.修改配置config.php
@@ -45,16 +45,16 @@ php ./test/testJobs.php
 
 ```
 
-## 服务管理
+## 6. 服务管理
 ### 启动和关闭服务,有两种方式:
 
-#### 1. php脚本(主进程挂了之后,需要手动启动)
+#### 6.1 php脚本(主进程挂了之后,需要手动启动)
 ```
 ./run.php start|stop|restart
 
 ```
 
-#### 2. 使用systemd管理(故障重启、开机自启动)
+#### 6.2 使用systemd管理(故障重启、开机自启动)
 [更多systemd介绍](https://www.swoole.com/wiki/page/699.html)
 
 ```
@@ -75,21 +75,21 @@ sudo systemctl stop swoole-jobs.service
 
 
 
-## change log
+## 7. change log
 
-### 2017-11-29
+#### 2017-11-29
 * 重构自身和第三方框架装载类实现，降低耦合性；
 * 支持Yii和Phalcon主流框架
 
 
-### 2017-11-28 16:52:42 
+#### 2017-11-28 16:52:42 
 * topics支持根据key值排序，队列根据这个排序优先消费；
 * 优化启动流程，让PHP进程自身管理，移除服务管理脚本；
 * 重构代码，优化结构；
 
 
 
-### 2017-11-28 00:27:42 
+#### 2017-11-28 00:27:42 
 
 > by [daydaygo](http://github.com/daydaygo)
 
@@ -98,27 +98,27 @@ sudo systemctl stop swoole-jobs.service
 - 使用依赖注入方式进行解耦, 比如 `Jobs` 类依赖 `BaseTopicQueue` 抽象类, 不和具体的 `TopicQueue` 实现耦合; 比如配置的解耦, `Jobs` 类只用关系自己业务相关的配置, 不用耦合其他配置
 - 添加 php 进行服务管理
 
-### 2017-5-19
+#### 2017-5-19
 
 * 增加使用systemd管理swoole服务,实现故障重启、开机自启动等功能
 
-## 注意事项
+## 8. 注意事项
 
 * 如果嵌入自己的框架，jobs类可以自己根据框架路径自由定义，详情看src/Jobs.php
 
 
 
-## 压测
+## 9. 压测
 
 * 瓶颈: redis/rabbitmq队列存储本身和job执行速度
 
 
 
-## 感谢
+## 10. 感谢
 
 * [swoole](http://www.swoole.com/)
 
-## 联系
+## 11. 联系
 
 qq群：141059677
 
