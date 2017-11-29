@@ -15,11 +15,11 @@ class RabbitmqTopicQueue extends BaseTopicQueue
      * RabbitmqTopicQueue constructor.
      * 使用依赖注入的方式.
      *
-     * @param array $AMQPQueue
+     * @param array $queue
      */
-    public function __construct(\AMQPQueue $AMQPQueue)
+    public function __construct(array $queue)
     {
-        $this->queue = $AMQPQueue;
+        $this->queue = $queue;
     }
 
     public function push($topic, $value)
