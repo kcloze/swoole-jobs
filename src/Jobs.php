@@ -9,6 +9,8 @@
 
 namespace Kcloze\Jobs;
 
+use Kcloze\Jobs\Action\SwooleJobsAction;
+use Kcloze\Jobs\Action\YiiAction;
 use Kcloze\Jobs\Queue\BaseTopicQueue;
 
 class Jobs
@@ -53,8 +55,8 @@ class Jobs
                         $this->logger->log(print_r($data, true), 'info');
                         if (!empty($data)) {
                             // 根据自己的业务需求改写此方法
-                            $jobObject   =$this->loadObject($data);
-                            $baseAction  =  Queue::loadAction();
+                            $jobObject   =  $this->loadObject($data);
+                            $baseAction  =  $this->loadFrameworkAction();
                             $baseAction->start($jobObject);
                         } else {
                             $this->logger->log($topic . ' no work to do!', 'info');
@@ -75,6 +77,20 @@ class Jobs
                 break;
             }
         }
+    }
+
+    //根据配置装入不同的框架
+    private function loadFrameworkAction()
+    {
+        if (isset($this->config['framework']['type']) && $this->config['framework']['type'] == 'yii') {
+            //Yii框架命令行任务
+            $action = new YiiAction();
+        } else {
+            //swoole-jobs自带jobs
+            $action = new SwooleJobsAction();
+        }
+
+        return $action;
     }
 
     //实例化job对象

@@ -2,6 +2,10 @@
 
 namespace Kcloze\Jobs\Action;
 
+use Kcloze\Jobs\Config;
+use Kcloze\Jobs\JobObject;
+use Kcloze\Jobs\Logs;
+
 class SwooleJobsAction extends BaseAction
 {
     private $logger=null;
@@ -13,12 +17,13 @@ class SwooleJobsAction extends BaseAction
 
     public function start(JobObject $jobData)
     {
+        $this->init();
         $jobClass =$jobData->jobClass;
         $jobMethod=$jobData->jobMethod;
         $jobParams=$jobData->jobParams;
         try {
             $obj      =new $jobClass();
-            if (is_object($obj) && method_exists($obj, $jobParams)) {
+            if (is_object($obj) && method_exists($obj, $jobMethod)) {
                 $obj->$jobMethod($jobParams);
             } else {
                 $this->logger->log('Action obj not find: ' . json_encode($jobData), 'error');

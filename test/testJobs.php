@@ -38,7 +38,7 @@ for ($i = 0; $i < 100; $i++) {
         'topic'      => 'MyJob',
         'jobClass'   => 'Kcloze\Jobs\Jobs\MyJob',
         'jobMethod'  => 'test1',
-        'jobParams'  => [['title' => 'kcloze', 'time' => time()]],
+        'jobParams'  => ['title' => 'kcloze', 'time' => time()],
     ];
     $jobs->queue->push($data['topic'], $data);
 }
@@ -48,7 +48,7 @@ for ($i = 0; $i < 100; $i++) {
         'topic'       => 'MyJob',
         'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob',
         'jobMethod'   => 'test2',
-        'jobParams'   => [['title' => 'kcloze', 'time' => time()]],
+        'jobParams'   => ['title' => 'kcloze', 'time' => time()],
     ];
     $jobs->queue->push($data['topic'], $data);
 }
@@ -57,7 +57,7 @@ for ($i = 0; $i < 100; $i++) {
         'topic'       => 'MyJob',
         'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob',
         'jobMethod'   => 'testError',
-        'jobParams'   => [['title' => 'kcloze', 'time' => time()]],
+        'jobParams'   => ['title' => 'kcloze', 'time' => time()],
     ];
     $jobs->queue->push($data['topic'], $data);
 }
@@ -70,7 +70,7 @@ for ($i = 0; $i < 100; $i++) {
         'topic'      => 'MyJob2',
         'jobClass'   => 'Kcloze\Jobs\Jobs\MyJob2',
         'jobMethod'  => 'test1',
-        'jobParams'  => [['title' => 'kcloze', 'time' => time()]],
+        'jobParams'  => ['title' => 'kcloze', 'time' => time()],
     ];
     $jobs->queue->push($data['topic'], $data);
 }
@@ -80,7 +80,7 @@ for ($i = 0; $i < 100; $i++) {
         'topic'       => 'MyJob2',
         'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
         'jobMethod'   => 'test2',
-        'jobParams'   => [['title' => 'kcloze', 'time' => time()]],
+        'jobParams'   => ['title' => 'kcloze', 'time' => time()],
     ];
     $jobs->queue->push($data['topic'], $data);
 }

@@ -2,8 +2,6 @@
 
 namespace Kcloze\Jobs\Queue;
 
-use Kcloze\Jobs\Action\DemoAction;
-use Kcloze\Jobs\Action\YiiAction;
 use Kcloze\Jobs\Config;
 
 class Queue
@@ -44,17 +42,5 @@ class Queue
         }
 
         return self::$connection;
-    }
-
-    public static function loadAction()
-    {
-        $config=Config::getConfig();
-        if (isset($config['framework']['type']) && $config['framework']['type'] == 'yii') {
-            $action = new YiiAction();
-        } else {
-            $action = new DemoAction();
-        }
-
-        return $action;
     }
 }

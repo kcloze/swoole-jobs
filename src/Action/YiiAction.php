@@ -2,7 +2,9 @@
 
 namespace Kcloze\Jobs\Action;
 
+use Kcloze\Jobs\Config;
 use Kcloze\Jobs\JobObject;
+use Kcloze\Jobs\Logs;
 use yii\console\Application;
 
 class YiiAction extends BaseAction
@@ -16,6 +18,8 @@ class YiiAction extends BaseAction
 
     public function start(JobObject $JobObject)
     {
+        $this->init();
+
         $application         = new Application(Config::getConfig()['framework']['config'] ?? []);
         $route               = strtolower($JobObject->jobClass) . '/' . $JobObject->jobMethod;
         $params              = $JobObject->jobParams;

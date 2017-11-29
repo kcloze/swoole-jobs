@@ -4,19 +4,19 @@ namespace Kcloze\Jobs\Jobs;
 
 class MyJob2
 {
-    public static function test1($title, $time)
+    public static function test1(array $params)
     {
         usleep(5);
-        echo "test1| title: $title \t time: $time \n";
+        echo 'test1| title: ' . $params['title'] . ' time: ' . $params['time'];
     }
 
-    public function test2($title, $time)
+    public function test2(array $params)
     {
         usleep(5);
-        echo "test2| title: $title \t time: $time \n";
+        echo 'test2| title: ' . $params['title'] . ' time: ' . $params['time'];
     }
 
-    private function testError()
+    public function testError()
     {
         //随机故意构造错误，验证子进程推出情况
         $i = mt_rand(0, 5);

@@ -2,6 +2,8 @@
 
 namespace Kcloze\Jobs\Action;
 
+use Kcloze\Jobs\JobObject;
+
 interface ActionInterface
 {
     public function init();

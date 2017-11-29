@@ -2,6 +2,8 @@
 
 namespace Kcloze\Jobs\Action;
 
+use Kcloze\Jobs\JobObject;
+
 abstract class BaseAction
 {
     public function init()
