@@ -18,8 +18,9 @@ class Console
 
     public function __construct($config)
     {
-        $this->config = $config;
-        $this->logger = Logs::getLogger($config['logPath'] ?? []);
+        Config::setConfig($config);
+        $this->config = Config::getConfig();
+        $this->logger = Logs::getLogger(Config::getConfig()['logPath'] ?? []);
     }
 
     public function run()
@@ -29,11 +30,12 @@ class Console
 
     public function start()
     {
-        $queue  =  Queue::getQueue($this->config['job']['queue']);
-        $jobs   = new Jobs($queue, $this->config);
+        $queue   =  Queue::getQueue();
+        $action  =  Queue::loadAction();
+        $jobs    = new Jobs($queue, $action);
         //启动
-        $process = new Process();
-        $process->start($jobs, $this->config);
+        $process = new Process($jobs);
+        $process->start();
     }
 
     /**
@@ -58,7 +60,7 @@ class Console
             }
             if (function_exists('posix_kill')) {
                 //macOS 只接受SIGUSR1信号
-                $signal=(PHP_OS == 'Darwin') ? SIGUSR1 : $signal;
+                $signal=(PHP_OS == 'Darwin') ? SIGKILL : $signal;
                 $return=@posix_kill($ppid, $signal);
                 if ($return) {
                     $this->logger->log('[pid: ' . $ppid . '] has been stopped success');

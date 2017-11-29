@@ -7,17 +7,21 @@
  * with this source code in the file LICENSE.
  */
 
+ define('APP_PATH', __DIR__ . '/..');
+
 date_default_timezone_set('Asia/Shanghai');
 
-require __DIR__ . '/../vendor/autoload.php';
+require APP_PATH . '/vendor/autoload.php';
 
+use Kcloze\Jobs\Config;
 use Kcloze\Jobs\Jobs;
 use Kcloze\Jobs\Queue\Queue;
 
-$config = require_once __DIR__ . '/../config.php';
+$config = require_once APP_PATH . '/config.php';
+Config::setConfig($config);
 
-$queue   =  Queue::getQueue($config['job']['queue']);
-$jobs    = new Jobs($queue, $config);
+$queue   =  Queue::getQueue();
+$jobs    = new Jobs($queue);
 
 if (!$jobs->queue) {
     die("queue object is null\n");
@@ -31,39 +35,28 @@ for ($i = 0; $i < 100; $i++) {
     // 根据自定义的 $jobs->load() 方法, 自定义数据格式
     $data = [
         'topic'      => 'MyJob',
-        'job_class'  => 'MyJob',
-        'job_method' => 'test1',
-        'job_param'  => [['title' => 'kcloze', 'time' => time()]],
+        'jobClass'   => 'MyJob',
+        'jobMethod'  => 'test1',
+        'jobParams'  => [['title' => 'kcloze', 'time' => time()]],
     ];
     $jobs->queue->push($data['topic'], $data);
-    //$result = $jobs->queue->pop($topicName);
-    //var_dump($result);
 }
 for ($i = 0; $i < 100; $i++) {
     // 根据自定义的 $jobs->load() 方法, 自定义数据格式
     $data = [
-        'topic'      => 'MyJob',
-        'job_class'  => 'MyJob',
-        'job_method' => 'test2',
-        'job_param'  => [['title' => 'kcloze', 'time' => time()]],
+        'topic'       => 'MyJob',
+        'jobClass'    => 'MyJob',
+        'jobMethod'   => 'test2',
+        'jobParams'   => [['title' => 'kcloze', 'time' => time()]],
     ];
     $jobs->queue->push($data['topic'], $data);
-    //$result = $jobs->queue->pop($topicName);
-    //var_dump($result);
 }
 for ($i = 0; $i < 100; $i++) {
     $data = [
-        'topic'      => 'MyJob',
-        'job_class'  => 'MyJob',
-        'job_method' => 'testError',
-        'job_param'  => [['title' => 'kcloze', 'time' => time()]],
+        'topic'       => 'MyJob',
+        'jobClass'    => 'MyJob',
+        'jobMethod'   => 'testError',
+        'jobParams'   => [['title' => 'kcloze', 'time' => time()]],
     ];
     $jobs->queue->push($data['topic'], $data);
-    //$result = $jobs->queue->pop($topicName);
-    //var_dump($result);
 }
-// for ($i = 0; $i < 200; $i++) {
-//     $topicName = 'MyJob';
-//     $result    = $jobs->queue->pop($topicName);
-//     var_dump($result);
-// }

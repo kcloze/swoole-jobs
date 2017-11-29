@@ -2,17 +2,21 @@
 
 namespace Kcloze\Jobs\Queue;
 
+use Kcloze\Jobs\Action\DemoAction;
+use Kcloze\Jobs\Action\YiiAction;
+use Kcloze\Jobs\Config;
+
 class Queue
 {
     protected static $connection=null;
 
-    public static function getQueue($config)
+    public static function getQueue()
     {
-        //拿队列相关配置
-        //$config=$this->config['job']['queue'];
         if (isset(self::$connection) && self::$connection !== null) {
             return self::$connection;
         }
+        //job相关配置
+        $config=Config::getConfig()['job']['queue'] ?? [];
 
         if (isset($config['type']) && $config['type'] == 'redis') {
             $redis                  = new \Redis();
@@ -40,5 +44,17 @@ class Queue
         }
 
         return self::$connection;
+    }
+
+    public static function loadAction()
+    {
+        $config=Config::getConfig();
+        if (isset($config['framework']['type']) && $config['framework']['type'] == 'yii') {
+            $action = new YiiAction();
+        } else {
+            $action = new DemoAction();
+        }
+
+        return $action;
     }
 }

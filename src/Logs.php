@@ -11,15 +11,18 @@ namespace Kcloze\Jobs;
 
 class Logs
 {
-    const LEVEL_TRACE     = 'trace';
-    const LEVEL_WARNING   = 'warning';
-    const LEVEL_ERROR     = 'error';
-    const LEVEL_INFO      = 'info';
-    const LEVEL_PROFILE   = 'profile';
-    const MAX_LOGS        = 10000;
-    public $rotateByCopy  = true;
-    public $maxLogFiles   = 5;
-    public $maxFileSize   = 100; // in MB
+    const LEVEL_TRACE          = 'trace';
+    const LEVEL_WARNING        = 'warning';
+    const LEVEL_ERROR          = 'error';
+    const LEVEL_INFO           = 'info';
+    const LEVEL_PROFILE        = 'profile';
+    const MAX_LOGS             = 10000;
+    //log保存文件名
+    const LOG_SAVE_FILE_APP    = 'application';
+    const LOG_SAVE_FILE_WORKER = 'worker';
+    public $rotateByCopy       = true;
+    public $maxLogFiles        = 5;
+    public $maxFileSize        = 100; // in MB
 
     private $logPath      = '';
     //单个类型log
@@ -48,7 +51,7 @@ class Logs
         return @date('Y/m/d H:i:s', $time) . " [$level] [$category] $message\n";
     }
 
-    public function log($message, $level = 'info', $category = 'application', $flush = false)
+    public function log($message, $level = 'info', $category = self::LOG_SAVE_FILE_APP, $flush = false)
     {
         $this->logs[$category][] = [$message, $level, $category, microtime(true)];
         $this->logCount++;
@@ -59,7 +62,7 @@ class Logs
 
     public function processLogs()
     {
-        $logsAll['application'] = '[runing time]: ' . microtime(true) . "\n";
+        $logsAll[self::LOG_SAVE_FILE_APP] = '[runing time]: ' . microtime(true) . "\n";
         foreach ((array) $this->logs as $key => $logs) {
             $logsAll[$key] = '';
             foreach ((array) $logs as $log) {

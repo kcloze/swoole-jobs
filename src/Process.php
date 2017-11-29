@@ -20,22 +20,23 @@ class Process
     private $pidFile  = '';
     private $status   ='running'; //主进程状态
 
-    public function start(Jobs $jobs, $config)
+    public function __construct(Jobs $jobs)
     {
-        $this->config  = $config;
+        $this->config  =  Config::getConfig();
+        $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
         $this->jobs    = $jobs;
-        if (isset($config['pidPath']) && !empty($config['pidPath'])) {
-            $this->pidFile=$config['pidPath'] . '/master.pid';
+
+        if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
+            $this->pidFile=$this->config['pidPath'] . '/master.pid';
         } else {
             $this->pidFile=APP_PATH . '/master.pid';
         }
-        if (isset($config['processName']) && !empty($config['processName'])) {
-            $this->processName = $config['processName'];
+        if (isset($this->config['processName']) && !empty($this->config['processName'])) {
+            $this->processName = $this->config['processName'];
         }
-        if (isset($config['workNum']) && $config['workNum'] > 0) {
-            $this->workNum = $config['workNum'];
+        if (isset($this->config['workNum']) && $this->config['workNum'] > 0) {
+            $this->workNum = $this->config['workNum'];
         }
-
         /*
          * master.pid 文件记录 master 进程 pid, 方便之后进程管理
          * 请管理好此文件位置, 使用 systemd 管理进程时会用到此文件
@@ -48,7 +49,10 @@ class Process
         $this->ppid = getmypid();
         file_put_contents($this->pidFile, $this->ppid . PHP_EOL);
         $this->setProcessName('job master ' . $this->ppid . $this->processName);
+    }
 
+    public function start()
+    {
         //开启多个进程消费队列
         for ($i = 0; $i < $this->workNum; $i++) {
             $this->reserveQueue($i);
@@ -66,13 +70,13 @@ class Process
             try {
                 $self->jobs->run();
             } catch (\Exception $e) {
-                echo $e->getMessage();
+                $this->logger->log($e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
             }
-            echo 'reserve process ' . $workNum . " is working ...\n";
+            $this->logger->log('worker id: ' . $workNum . ' is done!!!' . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
         });
         $pid                 = $reserveProcess->start();
         $this->workers[$pid] = $reserveProcess;
-        echo "reserve start...\n";
+        $this->logger->log('worker id: ' . $workNum . ' pid: ' . $pid . ' is start...' . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
     }
 
     //监控子进程
@@ -85,15 +89,15 @@ class Process
             while (true) {
                 $ret = \Swoole\Process::wait(false);
                 if ($ret) {
+                    $pid           = $ret['pid'];
+                    $child_process = $workers[$pid];
                     //主进程状态为running才需要拉起子进程
                     if ($this->status == 'running') {
-                        $pid           = $ret['pid'];
-                        $child_process = $workers[$pid];
-                        echo "Worker Exit, kill_signal={$ret['signal']} PID=" . $pid . PHP_EOL;
                         $new_pid           = $child_process->start();
                         $workers[$new_pid] = $child_process;
-                        unset($workers[$pid]);
                     }
+                    unset($workers[$pid]);
+                    $this->logger->log("Worker Exit, kill_signal={$ret['signal']} PID=" . $pid . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
                 } else {
                     break;
                 }
@@ -104,15 +108,15 @@ class Process
     private function exitMaster()
     {
         @unlink($this->pidFile);
-        $this->log('Time: ' . microtime(true) . '主进程' . $this->ppid . '退出' . PHP_EOL);
+        $this->logger->log('Time: ' . microtime(true) . '主进程' . $this->ppid . '退出' . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
         //修改主进程状态为stop
         $this->status   ='stop';
         foreach ($this->workers as $pid => $worker) {
             //平滑退出，用exit；强制退出用kill
             \Swoole\Process::kill($pid);
             unset($this->workers[$pid]);
-            $this->log('主进程收到退出信号,[' . $pid . ']子进程跟着退出');
-            $this->log('Worker count: ' . count($this->workers));
+            $this->logger->log('主进程收到退出信号,[' . $pid . ']子进程跟着退出', 'info', Logs::LOG_SAVE_FILE_WORKER);
+            $this->logger->log('Worker count: ' . count($this->workers), 'info', Logs::LOG_SAVE_FILE_WORKER);
         }
         sleep(1);
         exit();
@@ -129,10 +133,5 @@ class Process
         if (function_exists('swoole_set_process_name') && PHP_OS != 'Darwin') {
             swoole_set_process_name($name);
         }
-    }
-
-    private function log($txt)
-    {
-        file_put_contents($this->config['logPath'] . '/worker.log', $txt . "\n", FILE_APPEND);
     }
 }
