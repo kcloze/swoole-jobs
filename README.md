@@ -38,7 +38,7 @@ composer install
 1.修改配置config.php
 
 2.启动服务
-php ./run.php start|stop|restart
+php ./swoole-jobs.php start|stop|restart
 
 3.往队列推送任务
 php ./test/testJobs.php
@@ -50,7 +50,7 @@ php ./test/testJobs.php
 
 #### 6.1 php脚本(主进程挂了之后,需要手动启动)
 ```
-./run.php start|stop|restart
+./swoole-jobs.php start|stop|restart
 
 ```
 
