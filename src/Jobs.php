@@ -9,8 +9,6 @@
 
 namespace Kcloze\Jobs;
 
-use Kcloze\Jobs\Action\SwooleJobsAction;
-use Kcloze\Jobs\Action\YiiAction;
 use Kcloze\Jobs\Queue\BaseTopicQueue;
 
 class Jobs
@@ -78,10 +76,15 @@ class Jobs
     {
         if (isset($this->config['framework']['type']) && $this->config['framework']['type'] == 'yii') {
             //Yii框架命令行任务
-            $action = new YiiAction();
+            $classFramework=$this->config['framework']['class'] ?? '\Kcloze\Jobs\Action\YiiAction';
         } else {
             //swoole-jobs自带jobs
-            $action = new SwooleJobsAction();
+            $classFramework=$this->config['framework']['class'] ?? '\Kcloze\Jobs\Action\SwooleJobsAction';
+        }
+        try {
+            $action = new $classFramework();
+        } catch (\Exception $e) {
+            echo $e->getMessage();
         }
 
         return $action;

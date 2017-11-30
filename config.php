@@ -26,5 +26,12 @@ return $config = [
             'port' => 6379,
         ],
    ],
+   //框架类型及装载类
+   'framework' => [
+       'type' => 'swoole-jobs',
+       //可以自定义，但是该类必须继承\Kcloze\Jobs\Action\BaseAction
+       'class'=> 'Kcloze\Jobs\Action\SwooleJobsAction',
+
+   ],
 
 ];

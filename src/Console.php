@@ -60,8 +60,8 @@ class Console
                 exit('service is not running' . PHP_EOL);
             }
             if (function_exists('posix_kill')) {
-                //macOS 只接受SIGUSR1信号
-                //$signal=(PHP_OS == 'Darwin') ? SIGKILL : $signal;
+                //macOS 只接受SIGKILL信号,不用于生产环境
+                $signal=(PHP_OS == 'Darwin') ? SIGKILL : $signal;
                 $return=@posix_kill($ppid, $signal);
                 if ($return) {
                     $this->logger->log('[pid: ' . $ppid . '] has been stopped success');
