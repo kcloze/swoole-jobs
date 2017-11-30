@@ -44,8 +44,10 @@ class Console
      *
      * @param [type] $signal
      */
-    public function stop($signal=SIGTERM)
+    public function stop($signal=SIGUSR1)
     {
+        $this->logger->log(($signal == SIGUSR1) ? 'smooth to exit...' : 'force to exit...');
+
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             $masterPidFile=$this->config['pidPath'] . '/master.pid';
         } else {
@@ -59,7 +61,7 @@ class Console
             }
             if (function_exists('posix_kill')) {
                 //macOS 只接受SIGUSR1信号
-                $signal=(PHP_OS == 'Darwin') ? SIGKILL : $signal;
+                //$signal=(PHP_OS == 'Darwin') ? SIGKILL : $signal;
                 $return=@posix_kill($ppid, $signal);
                 if ($return) {
                     $this->logger->log('[pid: ' . $ppid . '] has been stopped success');
@@ -78,17 +80,14 @@ class Console
     public function restart()
     {
         $this->logger->log('restarting...');
-        $this->stop();
+        $this->exit();
         sleep(3);
         $this->start();
     }
 
-    public function reload()
+    public function exit()
     {
-        $this->logger->log('reload...');
-        $this->stop(SIGUSR1);
-        sleep(3);
-        $this->start();
+        $this->stop(SIGTERM);
     }
 
     public function getOpt()
@@ -105,6 +104,9 @@ class Console
                 break;
             case 'stop':
                 $this->stop();
+                break;
+            case 'exit':
+                $this->exit();
                 break;
             case 'restart':
                 $this->restart();
@@ -123,11 +125,11 @@ class Console
     {
         $msg=<<<'EOF'
 NAME
-      run.php - manage swoole-bot
+      php swoole-jobs - manage swoole-jobs
 
 SYNOPSIS
-      run.php command [options]
-          Manage swoole-bot daemons.
+      php swoole-jobs command [options]
+          Manage swoole-jobs daemons.
 
 
 WORKFLOWS
@@ -138,17 +140,17 @@ WORKFLOWS
 
 
       restart
-      Stop, then start the standard daemon loadout.
+      Stop, then start swoole-jobs master and workers.
 
       start
-      Start the standard configured collection of Phabricator daemons. This
-      is appropriate for most installs. Use phd launch to customize which
-      daemons are launched.
-
+      Start swoole-jobs master and workers.
 
       stop
-      Stop all running daemons, or specific daemons identified by PIDs. Use
-      run.php status to find PIDs.
+      Wait all running workers smooth exit, please check swoole-jobs status for a while.
+
+      exit
+      Kill all running workers and master PIDs.
+
 
 EOF;
         echo $msg;

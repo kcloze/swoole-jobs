@@ -17,7 +17,7 @@
 * 基于swoole的job调度组件；
 * redis/rabbitmq/zeromq等任何一种做队列消息存储(目前只实现redis/rabbitmq)；
 * 利用swoole的process实现多进程管理，进程个数可配置，worker进程退出后会自动拉起；
-* 子进程循环次数可配置，防止业务代码内存泄漏；
+* 子进程循环次数可配置，防止业务代码内存泄漏；默认stop命令会等待子进程平滑退出；
 * 支持topic特性，不同的job绑定不同的topic；支持优先队列，根据topic顺序消费；
 * 支持composer，可以跟任意框架集成；
 * 日志文件自动切割，默认最大100M，最多5个日志文件，防止日志刷满磁盘；
@@ -38,7 +38,7 @@ composer install
 1.修改配置config.php
 
 2.启动服务
-php ./swoole-jobs.php start|stop|restart
+php ./swoole-jobs.php start|stop|exit|restart
 
 3.往队列推送任务
 php ./test/testJobs.php
@@ -50,7 +50,7 @@ php ./test/testJobs.php
 
 #### 6.1 php脚本(主进程挂了之后,需要手动启动)
 ```
-./swoole-jobs.php start|stop|restart
+./swoole-jobs.php start|stop|exit|restart
 
 ```
 
@@ -76,6 +76,10 @@ sudo systemctl stop swoole-jobs.service
 
 
 ## 7. change log
+
+#### 2017-11-30
+* 增加exit启动参数，默认stop等待子进程平滑退出
+
 
 #### 2017-11-29
 * 重构自身和第三方框架装载类实现，降低耦合性；

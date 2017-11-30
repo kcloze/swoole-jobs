@@ -51,7 +51,7 @@ class Logs
         return @date('Y/m/d H:i:s', $time) . " [$level] [$category] $message\n";
     }
 
-    public function log($message, $level = 'info', $category = self::LOG_SAVE_FILE_APP, $flush = false)
+    public function log($message, $level = 'info', $category = self::LOG_SAVE_FILE_APP, $flush = true)
     {
         $this->logs[$category][] = [$message, $level, $category, microtime(true)];
         $this->logCount++;
