@@ -34,6 +34,7 @@ composer install
 ```
 ## 5. 运行
 
+### 5.1 示范
 ```
 1.修改配置config.php
 
@@ -45,6 +46,39 @@ php ./test/testJobs.php
 
 ```
 
+### 5.2 启动参数说明
+```
+NAME
+      php swoole-jobs - manage swoole-jobs
+
+SYNOPSIS
+      php swoole-jobs command [options]
+          Manage swoole-jobs daemons.
+
+
+WORKFLOWS
+
+
+      help [command]
+      Show this help, or workflow help for command.
+
+
+      restart
+      Stop, then start swoole-jobs master and workers.
+
+      start
+      Start swoole-jobs master and workers.
+
+      stop
+      Wait all running workers smooth exit, please check swoole-jobs status for a while.
+
+      exit
+      Kill all running workers and master PIDs.
+
+
+```
+
+
 ## 6. 服务管理
 ### 启动和关闭服务,有两种方式:
 
@@ -53,6 +87,8 @@ php ./test/testJobs.php
 ./swoole-jobs.php start|stop|exit|restart
 
 ```
+
+
 
 #### 6.2 使用systemd管理(故障重启、开机自启动)
 [更多systemd介绍](https://www.swoole.com/wiki/page/699.html)
