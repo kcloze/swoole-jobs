@@ -33,7 +33,7 @@ class Logs
 
     public function __construct($logPath='')
     {
-        $this->logPath = empty($logPath) ? $logPath : APP_PATH . '/log';
+        $this->logPath = !empty($logPath) ? $logPath : APP_PATH . '/log';
     }
 
     public static function getLogger($logPath='')
