@@ -62,8 +62,7 @@ class Console
             if (function_exists('posix_kill')) {
                 //macOS 只接受SIGKILL信号,不用于生产环境
                 $signal=(PHP_OS == 'Darwin') ? SIGKILL : $signal;
-                $return=@posix_kill($ppid, $signal);
-                if ($return) {
+                if (@\Swoole\Process::kill($ppid, $signal)) {
                     $this->logger->log('[pid: ' . $ppid . '] has been stopped success');
                 } else {
                     $this->logger->log('[pid: ' . $ppid . '] has been stopped fail');

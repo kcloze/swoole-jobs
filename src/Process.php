@@ -44,12 +44,11 @@ class Process
          */
         if (file_exists($this->pidFile)) {
             $pid    =file_get_contents($this->pidFile);
-            $running=@posix_kill($pid, 0);
-            if (posix_get_last_error() == 1) {
-                $running=true;
+            if ($pid && @\Swoole\Process::kill($pid, 0)) {
+                die('已有进程运行中,请先结束或重启' . PHP_EOL);
             }
-            $running && die('已有进程运行中,请先结束或重启' . PHP_EOL);
         }
+
         \Swoole\Process::daemon();
         $this->ppid = getmypid();
         file_put_contents($this->pidFile, $this->ppid . PHP_EOL);
