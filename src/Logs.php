@@ -62,7 +62,7 @@ class Logs
 
     public function processLogs()
     {
-        $logsAll[self::LOG_SAVE_FILE_APP] = '[runing time]: ' . microtime(true) . "\n";
+        $logsAll=[];
         foreach ((array) $this->logs as $key => $logs) {
             $logsAll[$key] = '';
             foreach ((array) $logs as $log) {
