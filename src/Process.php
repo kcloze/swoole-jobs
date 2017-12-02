@@ -51,7 +51,7 @@ class Process
 
         \Swoole\Process::daemon();
         $this->ppid = getmypid();
-        file_put_contents($this->pidFile, $this->ppid . PHP_EOL);
+        file_put_contents($this->pidFile, $this->ppid);
         $this->setProcessName('job master ' . $this->ppid . $this->processName);
     }
 

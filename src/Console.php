@@ -59,7 +59,7 @@ class Console
             if (empty($ppid)) {
                 exit('service is not running' . PHP_EOL);
             }
-            //macOS 只接受SIGKILL信号,不用于生产环境
+            //macOS 只接受SIGKILL信号,kill之后进程居然直接崩溃类...,还好生产环境也不会用macOS吧
             $signal=(PHP_OS == 'Darwin') ? SIGKILL : $signal;
             if (@\Swoole\Process::kill($ppid, $signal)) {
                 $this->logger->log('[pid: ' . $ppid . '] has been stopped success');
