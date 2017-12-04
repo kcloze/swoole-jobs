@@ -15,6 +15,7 @@ class Process
 {
     public $processName      = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
     public $jobs             = null;
+
     private $workers;
     private $ppid;
     private $config   = [];
@@ -62,11 +63,13 @@ class Process
 
         if ($topics) {
             //遍历topic任务列表
+            $j=0;
             foreach ((array) $topics as  $topic) {
-                if (isset($topic['workNum']) && isset($topic['name'])) {
+                if (isset($topic['workerNum']) && isset($topic['name'])) {
                     //每个topic开启多个进程消费队列
-                    for ($i = 0; $i < $topic['workNum']; $i++) {
-                        $this->reserveQueue($i, $topic['name']);
+                    for ($i = 0; $i < $topic['workerNum']; $i++) {
+                        $this->reserveQueue($j, $topic['name']);
+                        $j++;
                     }
                 }
             }
@@ -76,22 +79,22 @@ class Process
     }
 
     //独立进程消费队列
-    public function reserveQueue($workNum, $topic)
+    public function reserveQueue($num, $topic)
     {
-        //$self           = $this;
-        $reserveProcess = new \Swoole\Process(function () use ($workNum, $topic) {
+        $self           = $this;
+        $reserveProcess = new \Swoole\Process(function () use ($self, $num, $topic) {
             //设置进程名字
-            $this->setProcessName('job ' . $workNum . $self->processName);
+            $self->setProcessName('job ' . $num . ' ' . $topic . ' ' . $self->processName);
             try {
-                $this->jobs->run($topic);
+                $self->jobs->run($topic);
             } catch (\Exception $e) {
-                $this->logger->log($e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
+                $self->logger->log($e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
             }
-            $this->logger->log('worker id: ' . $workNum . ' is done!!!' . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
+            $self->logger->log('worker id: ' . $num . ' is done!!!' . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
         });
         $pid                 = $reserveProcess->start();
         $this->workers[$pid] = $reserveProcess;
-        $this->logger->log('worker id: ' . $workNum . ' pid: ' . $pid . ' is start...' . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
+        $this->logger->log('worker id: ' . $num . ' pid: ' . $pid . ' is start...' . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
     }
 
     //注册信号
@@ -144,12 +147,14 @@ class Process
     {
         //修改主进程状态为stop
         $this->status   ='stop';
-        foreach ($this->workers as $pid => $worker) {
-            //强制杀workers子进程
+        if ($this->workers) {
+            foreach ($this->workers as $pid => $worker) {
+                //强制杀workers子进程
             \Swoole\Process::kill($pid);
-            unset($this->workers[$pid]);
-            $this->logger->log('主进程收到退出信号,[' . $pid . ']子进程跟着退出', 'info', Logs::LOG_SAVE_FILE_WORKER);
-            $this->logger->log('Worker count: ' . count($this->workers), 'info', Logs::LOG_SAVE_FILE_WORKER);
+                unset($this->workers[$pid]);
+                $this->logger->log('主进程收到退出信号,[' . $pid . ']子进程跟着退出', 'info', Logs::LOG_SAVE_FILE_WORKER);
+                $this->logger->log('Worker count: ' . count($this->workers), 'info', Logs::LOG_SAVE_FILE_WORKER);
+            }
         }
         $this->exitMaster();
     }

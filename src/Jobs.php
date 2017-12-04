@@ -14,7 +14,7 @@ use Kcloze\Jobs\Queue\BaseTopicQueue;
 class Jobs
 {
     const MAX_POP     = 100; // 单个topic每次最多取多少次
-    const MAX_REQUEST = 100; // 每个子进程while循环里面最多循坏次数，防止内存泄漏
+    const MAX_REQUEST = 1000; // 每个子进程while循环里面最多循坏次数，防止内存泄漏
 
     public $logger  = null;
     public $queue   = null;
