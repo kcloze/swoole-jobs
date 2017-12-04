@@ -113,6 +113,9 @@ sudo systemctl stop swoole-jobs.service
 
 ## 7. change log
 
+#### 2017-12-4
+* 子进程启动模式变更：单独给每个topic启动对应数量的子进程，杜绝不同topic之间相互影响
+
 #### 2017-11-30
 * 增加exit启动参数，默认stop等待子进程平滑退出
 
