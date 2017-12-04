@@ -9,22 +9,24 @@
 
 namespace Kcloze\Jobs;
 
+use Kcloze\Jobs\Queue\BaseTopicQueue;
+
 class Process
 {
-    public $processName    = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
-    public $jobs           = null;
+    public $processName      = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
+    public $jobs             = null;
     private $workers;
     private $ppid;
-    private $workNum  = 5;
     private $config   = [];
     private $pidFile  = '';
     private $status   ='running'; //主进程状态
 
-    public function __construct(Jobs $jobs)
+    public function __construct(Jobs $jobs, BaseTopicQueue $queue)
     {
         $this->config  =  Config::getConfig();
         $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
         $this->jobs    = $jobs;
+        $this->queue   = $queue;
 
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             $this->pidFile=$this->config['pidPath'] . '/master.pid';
@@ -34,9 +36,7 @@ class Process
         if (isset($this->config['processName']) && !empty($this->config['processName'])) {
             $this->processName = $this->config['processName'];
         }
-        if (isset($this->config['workNum']) && $this->config['workNum'] > 0) {
-            $this->workNum = $this->config['workNum'];
-        }
+
         /*
          * master.pid 文件记录 master 进程 pid, 方便之后进程管理
          * 请管理好此文件位置, 使用 systemd 管理进程时会用到此文件
@@ -57,22 +57,33 @@ class Process
 
     public function start()
     {
-        //开启多个进程消费队列
-        for ($i = 0; $i < $this->workNum; $i++) {
-            $this->reserveQueue($i);
+        $topics = $this->queue->getTopics();
+        $this->logger->log('topics: ' . json_encode($topics));
+
+        if ($topics) {
+            //遍历topic任务列表
+            foreach ((array) $topics as  $topic) {
+                if (isset($topic['workNum']) && isset($topic['name'])) {
+                    //每个topic开启多个进程消费队列
+                    for ($i = 0; $i < $topic['workNum']; $i++) {
+                        $this->reserveQueue($i, $topic['name']);
+                    }
+                }
+            }
         }
+
         $this->registSignal($this->workers);
     }
 
     //独立进程消费队列
-    public function reserveQueue($workNum)
+    public function reserveQueue($workNum, $topic)
     {
-        $self           = $this;
-        $reserveProcess = new \Swoole\Process(function () use ($self, $workNum) {
+        //$self           = $this;
+        $reserveProcess = new \Swoole\Process(function () use ($workNum, $topic) {
             //设置进程名字
             $this->setProcessName('job ' . $workNum . $self->processName);
             try {
-                $self->jobs->run();
+                $this->jobs->run($topic);
             } catch (\Exception $e) {
                 $this->logger->log($e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
             }

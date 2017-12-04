@@ -34,4 +34,8 @@ abstract class BaseTopicQueue implements TopicQueueInterface
     public function pop($topic)
     {
     }
+
+    public function len($topic)
+    {
+    }
 }

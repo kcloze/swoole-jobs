@@ -52,4 +52,13 @@ class RabbitmqTopicQueue extends BaseTopicQueue
 
         return $result ? unserialize($result) : null;
     }
+
+    public function len($topic)
+    {
+        $queue = $this->queue['queue'];
+        $queue->setName($topic);
+        $queue->setFlags(AMQP_DURABLE);
+
+        return $queue->declareQueue();
+    }
 }

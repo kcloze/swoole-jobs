@@ -33,4 +33,11 @@ interface TopicQueueInterface
      * @return mixed
      */
     public function pop($topic);
+
+    /**
+     * @param $topic
+     *
+     * @return int
+     */
+    public function len($topic);
 }

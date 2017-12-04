@@ -31,9 +31,11 @@ class Console
     public function start()
     {
         $queue   =  Queue::getQueue();
+        $queue->setTopics($this->config['job']['topics'] ?? []);
+
         $jobs    = new Jobs($queue);
         //启动
-        $process = new Process($jobs);
+        $process = new Process($jobs, $queue);
         $process->start();
     }
 
