@@ -160,7 +160,7 @@ class Process
                         //队列堆积达到一定数据，拉起一次性子进程
                         $this->reserveQueue($this->workerNum, $topic['name'], 'unRestart');
                     }
-                    $this->logger->log('topic len: ' . $len, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                    $this->logger->log('topic ' . $topic . ' len: ' . $len, 'info', Logs::LOG_SAVE_FILE_WORKER);
                 }
             }
         });
