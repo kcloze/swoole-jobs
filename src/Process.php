@@ -17,6 +17,8 @@ class Process
     public $jobs             = null;
 
     private $workers;
+    private $workerNum  =0;
+    private $workersType=[];
     private $ppid;
     private $config   = [];
     private $pidFile  = '';
@@ -63,42 +65,48 @@ class Process
 
         if ($topics) {
             //遍历topic任务列表
-            $j=0;
             foreach ((array) $topics as  $topic) {
                 if (isset($topic['workerNum']) && isset($topic['name'])) {
                     //每个topic开启多个进程消费队列
                     for ($i = 0; $i < $topic['workerNum']; $i++) {
-                        $this->reserveQueue($j, $topic['name']);
-                        $j++;
+                        $this->reserveQueue($this->workerNum, $topic['name'], 'isRestart');
                     }
                 }
             }
         }
 
-        $this->registSignal($this->workers);
+        $this->registSignal();
+        $this->registTimer();
     }
 
-    //独立进程消费队列
-    public function reserveQueue($num, $topic)
+    /**
+     * fork子进程消费队列.
+     *
+     * @param [type] $num   子进程编号
+     * @param [type] $topic topic名称
+     * @param string $type  是否会重启 canRestart|unRestart
+     */
+    public function reserveQueue($num, $topic, $type='canRestart')
     {
-        $self           = $this;
-        $reserveProcess = new \Swoole\Process(function () use ($self, $num, $topic) {
+        $reserveProcess = new \Swoole\Process(function () use ($num, $topic, $type) {
             //设置进程名字
-            $self->setProcessName('job ' . $num . ' ' . $topic . ' ' . $self->processName);
+            $this->setProcessName('job ' . $num . ' ' . $topic . ' ' . $this->processName);
             try {
-                $self->jobs->run($topic);
+                $this->jobs->run($topic);
             } catch (\Exception $e) {
-                $self->logger->log($e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
+                $this->logger->log($e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
             }
-            $self->logger->log('worker id: ' . $num . ' is done!!!' . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
+            $this->logger->log('worker id: ' . $num . ' is done!!!' . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
         });
-        $pid                 = $reserveProcess->start();
-        $this->workers[$pid] = $reserveProcess;
-        $this->logger->log('worker id: ' . $num . ' pid: ' . $pid . ' is start...' . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
+        $pid                                = $reserveProcess->start();
+        $this->workers[$pid]                = $reserveProcess;
+        $this->workersType[$pid]            = $type;
+        $this->workerNum++;
+        $this->logger->log($type . ' worker id: ' . $num . ' pid: ' . $pid . ' is start...' . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
     }
 
     //注册信号
-    public function registSignal(&$workers)
+    public function registSignal()
     {
         \Swoole\Process::signal(SIGTERM, function ($signo) {
             $this->killWorkersAndExitMaster();
@@ -109,28 +117,50 @@ class Process
         \Swoole\Process::signal(SIGUSR1, function ($signo) {
             $this->waitWorkers();
         });
-        \Swoole\Process::signal(SIGCHLD, function ($signo) use (&$workers) {
+        \Swoole\Process::signal(SIGCHLD, function ($signo) {
             while (true) {
                 $ret = \Swoole\Process::wait(false);
                 if ($ret) {
                     $pid           = $ret['pid'];
-                    $child_process = $workers[$pid];
+                    $child_process = $this->workers[$pid];
+
                     //主进程状态为running才需要拉起子进程
-                    if ($this->status == 'running') {
+                    if ($this->status == 'running' && $this->workersType[$pid] == 'canRestart') {
                         $new_pid           = $child_process->start();
+                        $this->workers[$new_pid] = $child_process;
+                        $this->workersType[$new_pid] = 'canRestart';
+                        $this->workerNum++;
                         $this->logger->log("Worker Restart, kill_signal={$ret['signal']} PID=" . $new_pid . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
-                        $workers[$new_pid] = $child_process;
                     }
                     $this->logger->log("Worker Exit, kill_signal={$ret['signal']} PID=" . $pid . PHP_EOL, 'info', Logs::LOG_SAVE_FILE_WORKER);
-                    unset($workers[$pid]);
-                    $this->logger->log('Worker count: ' . count($workers), 'info', Logs::LOG_SAVE_FILE_WORKER);
-                    //如果$workers为空，且主进程状态为wait，说明所有子进程安全退出，这个时候主进程退出
-                    if (empty($workers) && $this->status == 'wait') {
+                    unset($this->workers[$pid], $this->workersType[$pid]);
+                    $this->workerNum--;
+                    $this->logger->log('Worker count: ' . count($this->workers) . '==' . $this->workerNum, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                    //如果$this->workers为空，且主进程状态为wait，说明所有子进程安全退出，这个时候主进程退出
+                    if (empty($this->workers) && $this->status == 'wait') {
                         $this->logger->log('主进程收到所有信号子进程的退出信号，子进程安全退出完成', 'info', Logs::LOG_SAVE_FILE_WORKER);
                         $this->exitMaster();
                     }
                 } else {
                     break;
+                }
+            }
+        });
+    }
+
+    public function registTimer()
+    {
+        \Swoole\Timer::tick(2000, function ($timerId) {
+            $topics = $this->queue->getTopics();
+            if ($topics) {
+                //遍历topic任务列表
+                foreach ((array) $topics as  $topic) {
+                    $len=$this->queue->len($topic['name']);
+                    if ($len >= 100) {
+                        //队列堆积达到一定数据，拉起一次性子进程
+                        $this->reserveQueue($this->workerNum, $topic['name'], 'unRestart');
+                    }
+                    $this->logger->log('topic len: ' . $len, 'info', Logs::LOG_SAVE_FILE_WORKER);
                 }
             }
         });
