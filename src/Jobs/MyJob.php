@@ -13,13 +13,13 @@ class MyJob
 {
     public static function test1(array $params)
     {
-        usleep(5);
+        sleep(2);
         echo 'test1| title: ' . $params['title'] . ' time: ' . $params['time'];
     }
 
     public function test2(array $params)
     {
-        usleep(5);
+        sleep(3);
         echo 'test2| title: ' . $params['title'] . ' time: ' . $params['time'];
     }
 

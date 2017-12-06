@@ -17,9 +17,9 @@ return $config = [
     //job任务相关
     'job'         => [
         'topics'  => [
-            ['name'=>'MyJob', 'workerNum'=>1],
-            ['name'=> 'MyJob2', 'workerNum'=>3],
-            ['name'=> 'MyJob3', 'workerNum'=>1],
+            ['name'=>'MyJob', 'workerMinNum'=>1, 'workerMaxNum'=>10],
+            ['name'=> 'MyJob2', 'workerMinNum'=>3, 'workerMaxNum'=>10],
+            ['name'=> 'MyJob3', 'workerMinNum'=>1, 'workerMaxNum'=>10],
         ],
         'queue'   => [
             'type' => 'redis',

@@ -47,6 +47,6 @@ class RedisTopicQueue extends BaseTopicQueue
 
     public function len($topic)
     {
-        return $this->queue->Llen($topic);
+        return $this->queue->lLen($topic);
     }
 }
