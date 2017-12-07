@@ -185,16 +185,20 @@ class Process
             if ($topics && $this->status   ='running') {
                 //遍历topic任务列表
                 foreach ((array) $topics as  $topic) {
-                    $len=$this->queue->len($topic['name']);
+                    $len                                         =$this->queue->len($topic['name']);
                     $this->canNotRestartWorkerNum[$topic['name']]=$this->canNotRestartWorkerNum[$topic['name']] ?? 0;
-                    $num = $this->canNotRestartWorkerNum[$topic['name']];
-                    $topic['workerMaxNum']=$topic['workerMaxNum'] ?? 0;
-                    if ($len > $this->queueMaxNum && $num < $topic['workerMaxNum']) {
-                        //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
-                        $this->reserveQueue($num, $topic['name'], self::CHILD_PROCESS_CAN_NOT_RESTART);
-                        $this->canNotRestartWorkerNum[$topic['name']]++;
+                    $num                                         = $this->canNotRestartWorkerNum[$topic['name']];
+                    $topic['workerMaxNum']                       =$topic['workerMaxNum'] ?? 0;
+                    while (true) {
+                        if ($len > $this->queueMaxNum && $num < $topic['workerMaxNum']) {
+                            //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
+                            $this->reserveQueue($num, $topic['name'], self::CHILD_PROCESS_CAN_NOT_RESTART);
+                            $this->canNotRestartWorkerNum[$topic['name']]++;
+                            $this->logger->log('topic ' . $topic['name'] . ' len: ' . $len, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                        } else {
+                            break;
+                        }
                     }
-                    $this->logger->log('topic ' . $topic['name'] . ' len: ' . $len, 'info', Logs::LOG_SAVE_FILE_WORKER);
                 }
             }
         });
