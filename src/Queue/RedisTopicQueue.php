@@ -42,11 +42,11 @@ class RedisTopicQueue extends BaseTopicQueue
     {
         $result = $this->queue->lPop($topic);
 
-        return !empty($result) ? unserialize($result) : null;
+        return !empty($result) ? @unserialize($result) : null;
     }
 
     public function len($topic)
     {
-        return $this->queue->lLen($topic) ?? 0;
+        return (int) $this->queue->lLen($topic) ?? 0;
     }
 }

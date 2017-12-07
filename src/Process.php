@@ -94,10 +94,10 @@ class Process
      */
     public function reserveQueue($num, $topic, $type=self::CHILD_PROCESS_CAN_RESTART)
     {
-        $reserveProcess = new \Swoole\Process(function () use ($num, $topic) {
+        $reserveProcess = new \Swoole\Process(function () use ($num, $topic, $type) {
             try {
                 //设置进程名字
-                $this->setProcessName('job ' . $num . ' ' . $topic . ' ' . $this->processName);
+                $this->setProcessName('job ' . $num . ' ' . $topic . ' ' . $type . $this->processName);
                 $this->jobs->run($topic);
             } catch (\Throwable $e) {
                 $this->logger->log($e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
@@ -137,12 +137,13 @@ class Process
                 if ($ret) {
                     $pid           = $ret['pid'];
                     $childProcess = $this->workers[$pid];
-                    $topic = $this->workersInfo[$pid]['topic'];
+                    $topic = $this->workersInfo[$pid]['topic'] ?? '';
                     $topicCanNotRestartNum =  $this->canNotRestartWorkerNum[$topic] ?? 'null';
                     $this->logger->log(self::CHILD_PROCESS_CAN_RESTART . '---' . $topic . '***' . $topicCanNotRestartNum . '***' . $this->status . '***' . $this->workersInfo[$pid]['type'] . '***' . $pid, 'info', Logs::LOG_SAVE_FILE_WORKER);
                     //主进程状态为running并且该子进程是可以重启的
                     if ($this->status == 'running' && $this->workersInfo[$pid]['type'] == self::CHILD_PROCESS_CAN_RESTART) {
                         try {
+                            $num = $this->workerNum;
                             $newPid           = $childProcess->start();
                             $this->workers[$newPid] = $childProcess;
                             $this->workersInfo[$newPid]['type'] = self::CHILD_PROCESS_CAN_RESTART;
@@ -176,6 +177,7 @@ class Process
         });
     }
 
+    //增加定时器，检查队列积压情况；
     public function registTimer()
     {
         \Swoole\Timer::tick($this->queueTickTimer, function ($timerId) {
@@ -185,10 +187,11 @@ class Process
                 foreach ((array) $topics as  $topic) {
                     $len=$this->queue->len($topic['name']);
                     $this->canNotRestartWorkerNum[$topic['name']]=$this->canNotRestartWorkerNum[$topic['name']] ?? 0;
-                    isset($topic['workerMaxNum']) && ($topic['workerMaxNum'] > 0) ? $topic['workerMaxNum'] : 0;
-                    if ($len >= $this->queueMaxNum && $this->canNotRestartWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
-                        //队列堆积达到一定数据，拉起一次性子进程
-                        $this->reserveQueue($topic['name'], self::CHILD_PROCESS_CAN_NOT_RESTART);
+                    $num = $this->canNotRestartWorkerNum[$topic['name']];
+                    $topic['workerMaxNum']=$topic['workerMaxNum'] ?? 0;
+                    if ($len > $this->queueMaxNum && $num < $topic['workerMaxNum']) {
+                        //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
+                        $this->reserveQueue($num, $topic['name'], self::CHILD_PROCESS_CAN_NOT_RESTART);
                         $this->canNotRestartWorkerNum[$topic['name']]++;
                     }
                     $this->logger->log('topic ' . $topic['name'] . ' len: ' . $len, 'info', Logs::LOG_SAVE_FILE_WORKER);
