@@ -97,7 +97,7 @@ class Process
         $reserveProcess = new \Swoole\Process(function () use ($num, $topic, $type) {
             try {
                 //设置进程名字
-                $this->setProcessName('job ' . $num . ' ' . $topic . ' ' . $type . $this->processName);
+                $this->setProcessName($type . ' job ' . $num . ' ' . $topic . ' ' . $this->processName);
                 $this->jobs->run($topic);
             } catch (\Throwable $e) {
                 $this->logger->log($e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
@@ -110,7 +110,7 @@ class Process
         $this->workers[$pid]                        = $reserveProcess;
         $this->workersInfo[$pid]['type']            = $type;
         $this->workersInfo[$pid]['topic']           = $topic;
-        $this->logger->log($type . ' worker id: ' . $num . ' pid: ' . $pid . ' is start...', 'info', Logs::LOG_SAVE_FILE_WORKER);
+        $this->logger->log('topic: ' . $topic . ' ' . $type . ' worker id: ' . $num . ' pid: ' . $pid . ' is start...', 'info', Logs::LOG_SAVE_FILE_WORKER);
         $this->workerNum++;
     }
 
