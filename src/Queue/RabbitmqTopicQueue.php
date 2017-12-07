@@ -50,7 +50,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
             $result = $message->getBody();
         }
 
-        return $result ? unserialize($result) : null;
+        return !empty($result) ? unserialize($result) : null;
     }
 
     public function len($topic)

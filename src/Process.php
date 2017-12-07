@@ -20,11 +20,11 @@ class Process
     public $jobs             = null;
 
     private $workers;
-    private $queueMaxNum     =100; //队列达到一定长度，增加子进程个数
-    private $queueTickTimer  =2000; //一定时间间隔（毫秒）检查队列长度
-    private $workerNum       =0;
-    private $topicWorkerNum  =[];
-    private $workersType     =[];
+    private $queueMaxNum                  =100; //队列达到一定长度，增加子进程个数
+    private $queueTickTimer               =2000; //一定时间间隔（毫秒）检查队列长度
+    private $workerNum                    =0; //固定分配的子进程个数
+    private $topicCanNotRestartWorkerNum  =[]; //一次性（不能重启）的子进程计数，最大数为每个topic配置workerMaxNum，它的个数是动态变化的
+    private $workersInfo                  =[];
     private $ppid;
     private $config   = [];
     private $pidFile  = '';
@@ -104,9 +104,10 @@ class Process
             }
             $this->logger->log('worker id: ' . $num . ' is done!!!', 'info', Logs::LOG_SAVE_FILE_WORKER);
         });
-        $pid                                = $reserveProcess->start();
-        $this->workers[$pid]                = $reserveProcess;
-        $this->workersType[$pid]            = $type;
+        $pid                                        = $reserveProcess->start();
+        $this->workers[$pid]                        = $reserveProcess;
+        $this->workersInfo[$pid]['type']            = $type;
+        $this->workersInfo[$pid]['topic']           = $topic;
         $this->workerNum++;
         $this->logger->log($type . ' worker id: ' . $num . ' pid: ' . $pid . ' is start...', 'info', Logs::LOG_SAVE_FILE_WORKER);
     }
@@ -129,21 +130,24 @@ class Process
                 if ($ret) {
                     $pid           = $ret['pid'];
                     $child_process = $this->workers[$pid];
-                    $this->logger->log($this->topicWorkerNum[$topic['name']] . '***' . $this->status . '***' . $this->workersType[$pid] . '***' . $pid, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                    $topic = $this->workersInfo[$pid]['topic'];
+
+                    $this->logger->log($topic . '***' . $this->topicCanNotRestartWorkerNum[$topic] ?? 'null' . '***' . $this->status . '***' . $this->workersInfo[$pid]['type'] . '***' . $pid, 'info', Logs::LOG_SAVE_FILE_WORKER);
                     //主进程状态为running并且该子进程是可以重启的
-                    if ($this->status == 'running' && $this->workersType[$pid] == self::CHILD_PROCESS_CAN_RESTART) {
+                    if ($this->status == 'running' && $this->workersInfo[$pid]['type'] == self::CHILD_PROCESS_CAN_RESTART) {
                         $new_pid           = $child_process->start();
                         $this->workers[$new_pid] = $child_process;
-                        $this->workersType[$new_pid] = 'canRestart';
+                        $this->workersInfo[$new_pid]['type'] = sefl::CHILD_PROCESS_CAN_RESTART;
+                        $this->workersInfo[$new_pid]['topic'] = $topic;
                         $this->workerNum++;
                         $this->logger->log("Worker Restart, kill_signal={$ret['signal']} PID=" . $new_pid, 'info', Logs::LOG_SAVE_FILE_WORKER);
                     }
                     //某个topic动态变化的子进程，退出之后个数减少一个
-                    if ($this->workersType[$pid] == self::CHILD_PROCESS_CAN_NOT_RESTART) {
-                        $this->topicWorkerNum[$topic['name']]--;
+                    if ($this->workersInfo[$pid]['type'] == self::CHILD_PROCESS_CAN_NOT_RESTART) {
+                        $this->topicCanNotRestartWorkerNum[$topic]--;
                     }
                     $this->logger->log("Worker Exit, kill_signal={$ret['signal']} PID=" . $pid, 'info', Logs::LOG_SAVE_FILE_WORKER);
-                    unset($this->workers[$pid], $this->workersType[$pid]);
+                    unset($this->workers[$pid], $this->workersInfo[$pid]);
                     $this->workerNum--;
 
                     $this->logger->log('Worker count: ' . count($this->workers) . '==' . $this->workerNum, 'info', Logs::LOG_SAVE_FILE_WORKER);
@@ -163,14 +167,14 @@ class Process
     {
         \Swoole\Timer::tick($this->queueTickTimer, function ($timerId) {
             $topics = $this->queue->getTopics();
-            if ($topics) {
+            if ($topics && $this->status   ='running') {
                 //遍历topic任务列表
                 foreach ((array) $topics as  $topic) {
                     $len=$this->queue->len($topic['name']);
                     if ($len >= $this->queueMaxNum && $this->workerMinNum[$topic['name']] < $topic['workerMaxNum']) {
                         //队列堆积达到一定数据，拉起一次性子进程
                         $this->reserveQueue($this->workerNum, $topic['name'], self::CHILD_PROCESS_CAN_NOT_RESTART);
-                        $this->topicWorkerNum[$topic['name']]++;
+                        $this->topicCanNotRestartWorkerNum[$topic['name']]++;
                     }
                     $this->logger->log('topic ' . $topic['name'] . ' len: ' . $len, 'info', Logs::LOG_SAVE_FILE_WORKER);
                 }
