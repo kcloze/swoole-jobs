@@ -17,9 +17,9 @@ class Queue
 
     public static function getQueue()
     {
-        if (isset(self::$connection) && self::$connection !== null) {
-            return self::$connection;
-        }
+        // if (isset(self::$connection) && self::$connection !== null) {
+        //     return self::$connection;
+        // }
         //job相关配置
         $config=Config::getConfig()['job']['queue'] ?? [];
 
@@ -35,9 +35,9 @@ class Queue
                 $conn->setPassword($config['pwd']);
                 $conn->setVhost($config['vHost']);
                 $conn->connect();
-                $channel = new \AMQPChannel($conn);
-                $exchange = new \AMQPExchange($channel);
-                $queue = new \AMQPQueue($channel);
+                $channel          = new \AMQPChannel($conn);
+                $exchange         = new \AMQPExchange($channel);
+                $queue            = new \AMQPQueue($channel);
                 self::$connection = new RabbitmqTopicQueue(['queue' => $queue, 'exchange' => $exchange]);
             } catch (\Exception $e) {
                 echo $e->getMessage();
