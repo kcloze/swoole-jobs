@@ -200,12 +200,13 @@ class Process
                     $len=$this->queue->len($topic['name']);
                     if ($len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
                         $max=$topic['workerMaxNum'] - $this->dynamicWorkerNum[$topic['name']];
-                        for ($i=0; $i < $max; $i++) {
-                            //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
-                            $this->reserveQueue($this->dynamicWorkerNum[$topic['name']], $topic['name'], self::CHILD_PROCESS_CAN_NOT_RESTART);
-                            $this->dynamicWorkerNum[$topic['name']]++;
-                            $this->logger->log('topic: ' . $topic['name'] . ' len: ' . $len . ' for: ' . $i . ' ' . $max, 'info', Logs::LOG_SAVE_FILE_WORKER);
-                        }
+                        //for ($i=0; $i < $max; $i++) {
+                        //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
+                        $this->reserveQueue($this->dynamicWorkerNum[$topic['name']], $topic['name'], self::CHILD_PROCESS_CAN_NOT_RESTART);
+                        $this->dynamicWorkerNum[$topic['name']]++;
+                        $i=0;
+                        $this->logger->log('topic: ' . $topic['name'] . ' len: ' . $len . ' for: ' . $i . ' ' . $max, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                        //}
                     }
                 }
             }

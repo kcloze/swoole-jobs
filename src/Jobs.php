@@ -26,7 +26,7 @@ class Jobs
         $this->config  = Config::getConfig(); //读取配置文件
         $this->queue   = Queue::getQueue();
         $this->queue->setTopics($this->config['job']['topics'] ?? []);
-        //$this->usleep  = $this->config['usleep'] ?? $this->usleep;
+        $this->usleep  = $this->config['usleep'] ?? $this->usleep;
         $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
     }
 
@@ -54,7 +54,7 @@ class Jobs
         $this->logger->log('usleep ' . $this->usleep . ' mirc second!', 'info');
         $this->logger->flush();
         $this->queue->close();
-        //usleep($this->usleep);
+        usleep($this->usleep);
     }
 
     //根据配置装入不同的框架

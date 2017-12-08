@@ -38,7 +38,7 @@ for ($i = 0; $i < 100; $i++) {
         'topic'      => 'MyJob',
         'jobClass'   => 'Kcloze\Jobs\Jobs\MyJob',
         'jobMethod'  => 'test1',
-        'jobParams'  => ['title' => 'kcloze', 'time' => time()],
+        'jobParams'  => ['kcloze', time()],
     ];
     $jobs->queue->push($data['topic'], $data);
 }
@@ -48,7 +48,7 @@ for ($i = 0; $i < 100; $i++) {
         'topic'       => 'MyJob',
         'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob',
         'jobMethod'   => 'test2',
-        'jobParams'   => ['title' => 'kcloze', 'time' => time()],
+        'jobParams'   => ['kcloze', time(), ['a', 'b']],
     ];
     $jobs->queue->push($data['topic'], $data);
 }
@@ -57,7 +57,7 @@ for ($i = 0; $i < 100; $i++) {
         'topic'       => 'MyJob',
         'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob',
         'jobMethod'   => 'testError',
-        'jobParams'   => ['title' => 'kcloze', 'time' => time()],
+        'jobParams'   => ['kcloze', time()],
     ];
     $jobs->queue->push($data['topic'], $data);
 }
@@ -67,10 +67,10 @@ for ($i = 0; $i < 100; $i++) {
 for ($i = 0; $i < 100; $i++) {
     // 根据自定义的 $jobs->load() 方法, 自定义数据格式
     $data = [
-        'topic'      => 'MyJob2',
-        'jobClass'   => 'Kcloze\Jobs\Jobs\MyJob2',
-        'jobMethod'  => 'test1',
-        'jobParams'  => ['title' => 'kcloze', 'time' => time()],
+        'topic'       => 'MyJob2',
+        'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
+        'jobMethod'   => 'test1',
+        'jobParams'   => ['kcloze', time()],
     ];
     $jobs->queue->push($data['topic'], $data);
 }
@@ -80,7 +80,7 @@ for ($i = 0; $i < 100; $i++) {
         'topic'       => 'MyJob2',
         'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
         'jobMethod'   => 'test2',
-        'jobParams'   => ['title' => 'kcloze', 'time' => time()],
+        'jobParams'   => ['kcloze', time(), ['a', 'b']],
     ];
     $jobs->queue->push($data['topic'], $data);
 }
@@ -89,7 +89,7 @@ for ($i = 0; $i < 100; $i++) {
         'topic'       => 'MyJob2',
         'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
         'jobMethod'   => 'testError',
-        'jobParams'   => [['title' => 'kcloze', 'time' => time()]],
+        'jobParams'   => ['kcloze', time()],
     ];
     $jobs->queue->push($data['topic'], $data);
 }

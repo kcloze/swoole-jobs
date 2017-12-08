@@ -25,7 +25,7 @@ class Queue
 
         if (isset($config['type']) && $config['type'] == 'redis') {
             $redis = new \Redis();
-            $redis->pconnect($config['host'], $config['port']);
+            $redis->connect($config['host'], $config['port']);
             self::$connection = new RedisTopicQueue($redis);
         } elseif (isset($config['type']) && $config['type'] == 'rabbitmq') {
             try {
