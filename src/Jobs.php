@@ -9,7 +9,7 @@
 
 namespace Kcloze\Jobs;
 
-use Kcloze\Jobs\Queue\BaseTopicQueue;
+use Kcloze\Jobs\Queue\Queue;
 
 class Jobs
 {
@@ -21,10 +21,11 @@ class Jobs
     public $usleep  = 10;
     public $config  = [];
 
-    public function __construct(BaseTopicQueue $queue)
+    public function __construct()
     {
         $this->config  = Config::getConfig(); //读取配置文件
-        $this->queue   = $queue;
+        $this->queue   = Queue::getQueue();
+        $this->queue->setTopics($this->config['job']['topics'] ?? []);
         $this->usleep  = $this->config['usleep'] ?? $this->usleep;
         $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
     }

@@ -17,9 +17,9 @@ class Queue
 
     public static function getQueue()
     {
-        // if (isset(self::$connection) && self::$connection !== null) {
-        //     return self::$connection;
-        // }
+        if (isset(self::$connection) && self::$connection !== null) {
+            return self::$connection;
+        }
         //job相关配置
         $config=Config::getConfig()['job']['queue'] ?? [];
 

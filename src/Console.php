@@ -9,8 +9,6 @@
 
 namespace Kcloze\Jobs;
 
-use Kcloze\Jobs\Queue\Queue;
-
 class Console
 {
     public $logger    = null;
@@ -30,12 +28,8 @@ class Console
 
     public function start()
     {
-        $queue   =  Queue::getQueue();
-        $queue->setTopics($this->config['job']['topics'] ?? []);
-
-        $jobs    = new Jobs($queue);
         //启动
-        $process = new Process($jobs, $queue);
+        $process = new Process();
         $process->start();
     }
 
