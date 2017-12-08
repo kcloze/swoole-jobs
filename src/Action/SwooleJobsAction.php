@@ -32,7 +32,6 @@ class SwooleJobsAction extends BaseAction
             $obj      =new $jobClass();
             if (is_object($obj) && method_exists($obj, $jobMethod)) {
                 call_user_func_array([$obj, $jobMethod], $jobParams);
-                //$obj->$jobMethod($jobParams);
             } else {
                 $this->logger->log('Action obj not find: ' . json_encode($jobData), 'error');
             }

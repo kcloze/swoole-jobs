@@ -24,7 +24,7 @@ class Process
 
     public $workers                       =[];
 
-    private $queueMaxNum                  =100; //队列达到一定长度，增加子进程个数
+    private $queueMaxNum                  =10; //队列达到一定长度，增加子进程个数
     private $queueTickTimer               =2000; //一定时间间隔（毫秒）检查队列长度
     private $workerNum                    =0; //固定分配的子进程个数
     private $dynamicWorkerNum             =[]; //动态（不能重启）子进程计数，最大数为每个topic配置workerMaxNum，它的个数是动态变化的
@@ -92,7 +92,7 @@ class Process
         }
 
         $this->registSignal();
-        $this->registTimer();
+        //$this->registTimer();
     }
 
     /**
@@ -105,6 +105,7 @@ class Process
     public function reserveQueue($num, $topic, $type=self::CHILD_PROCESS_CAN_RESTART)
     {
         $reserveProcess = new \Swoole\Process(function () use ($num, $topic, $type) {
+            $beginTime=microtime(true);
             try {
                 //设置进程名字
                 $this->setProcessName($type . ' job ' . $num . ' ' . $topic . ' ' . $this->processName);
@@ -115,7 +116,9 @@ class Process
             } catch (\Exception $e) {
                 $this->logger->log($e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
             }
-            $this->logger->log('worker id: ' . $num . ' is done!!!', 'info', Logs::LOG_SAVE_FILE_WORKER);
+
+            $endTime=microtime(true);
+            $this->logger->log($topic . ' worker id: ' . $num . ' is done!!! Timing: ' . ($endTime - $beginTime), 'info', Logs::LOG_SAVE_FILE_WORKER);
         });
         $pid                                        = $reserveProcess->start();
         $this->workers[$pid]                        = $reserveProcess;
@@ -200,13 +203,12 @@ class Process
                     $len=$this->queue->len($topic['name']);
                     if ($len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
                         $max=$topic['workerMaxNum'] - $this->dynamicWorkerNum[$topic['name']];
-                        //for ($i=0; $i < $max; $i++) {
-                        //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
-                        $this->reserveQueue($this->dynamicWorkerNum[$topic['name']], $topic['name'], self::CHILD_PROCESS_CAN_NOT_RESTART);
-                        $this->dynamicWorkerNum[$topic['name']]++;
-                        $i=0;
-                        $this->logger->log('topic: ' . $topic['name'] . ' len: ' . $len . ' for: ' . $i . ' ' . $max, 'info', Logs::LOG_SAVE_FILE_WORKER);
-                        //}
+                        for ($i=0; $i < $max; $i++) {
+                            //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
+                            $this->reserveQueue($this->dynamicWorkerNum[$topic['name']], $topic['name'], self::CHILD_PROCESS_CAN_NOT_RESTART);
+                            $this->dynamicWorkerNum[$topic['name']]++;
+                            $this->logger->log('topic: ' . $topic['name'] . ' len: ' . $len . ' for: ' . $i . ' ' . $max, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                        }
                     }
                 }
             }

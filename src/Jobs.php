@@ -13,12 +13,11 @@ use Kcloze\Jobs\Queue\Queue;
 
 class Jobs
 {
-    const MAX_POP     = 100; // 单个topic每次最多取多少次
-    const MAX_REQUEST = 1000; // 每个子进程while循环里面最多循坏次数，防止内存泄漏
+    const MAX_POP     = 10; // 单个topic每次最多取多少次
 
     public $logger  = null;
     public $queue   = null;
-    public $usleep  = 10;
+    public $sleep   = 10;
     public $config  = [];
 
     public function __construct()
@@ -26,35 +25,39 @@ class Jobs
         $this->config  = Config::getConfig(); //读取配置文件
         $this->queue   = Queue::getQueue();
         $this->queue->setTopics($this->config['job']['topics'] ?? []);
-        $this->usleep  = $this->config['usleep'] ?? $this->usleep;
+        $this->sleep   = $this->config['sleep'] ?? $this->sleep;
         $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
     }
 
     public function run($topic='')
     {
-        //循环次数计数
         if ($topic) {
             //每次最多取MAX_POP个任务执行
-            for ($i = 0; $i < self::MAX_POP; $i++) {
-                $data = $this->queue->pop($topic);
-                $this->logger->log('pop data: ' . print_r($data, true), 'info');
-                if (!empty($data)) {
-                    // 根据自己的业务需求改写此方法
-                    $jobObject   =  $this->loadObject($data);
-                    $baseAction  =  $this->loadFrameworkAction();
-                    $baseAction->start($jobObject);
-                } else {
-                    $this->logger->log($topic . ' no work to do!', 'info');
-                    break;
+
+            $len = $this->queue->len($topic);
+            $this->logger->log('pop len: ' . $len, 'info');
+            if ($len > 0) {
+                for ($i = 0; $i < self::MAX_POP; $i++) {
+                    $data = $this->queue->pop($topic);
+                    $this->logger->log('pop data: ' . print_r($data, true), 'info');
+                    if (!empty($data)) {
+                        // 根据自己的业务需求改写此方法
+                        $jobObject               =  $this->loadObject($data);
+                        $baseAction              =  $this->loadFrameworkAction();
+                        $baseAction->start($jobObject);
+                    }
+                    if ($this->queue->len($topic) <= 0) {
+                        break;
+                    }
                 }
+            } else {
+                $this->logger->log($topic . ' no work to do!', 'info');
+                sleep($this->sleep);
+                $this->logger->log('sleep ' . $this->sleep . ' mirc second!', 'info');
             }
         } else {
             $this->logger->log('All topic no work to do!', 'info');
         }
-        $this->logger->log('usleep ' . $this->usleep . ' mirc second!', 'info');
-        $this->logger->flush();
-        $this->queue->close();
-        usleep($this->usleep);
     }
 
     //根据配置装入不同的框架
