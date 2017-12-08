@@ -208,6 +208,7 @@ class Process
     private function waitWorkers()
     {
         $this->status   ='wait';
+        $this->logger->log('master status: wait', 'info', Logs::LOG_SAVE_FILE_WORKER);
     }
 
     //强制杀死子进程并退出主进程
