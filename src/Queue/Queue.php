@@ -17,15 +17,15 @@ class Queue
 
     public static function getQueue()
     {
-        // if (isset(self::$connection) && self::$connection !== null) {
-        //     return self::$connection;
-        // }
+        if (isset(self::$connection) && self::$connection !== null) {
+            return self::$connection;
+        }
         //job相关配置
         $config=Config::getConfig()['job']['queue'] ?? [];
 
         if (isset($config['type']) && $config['type'] == 'redis') {
             $redis = new \Redis();
-            $redis->connect($config['host'], $config['port']);
+            $redis->pconnect($config['host'], $config['port']);
             self::$connection = new RedisTopicQueue($redis);
         } elseif (isset($config['type']) && $config['type'] == 'rabbitmq') {
             try {
@@ -38,7 +38,7 @@ class Queue
                 $channel          = new \AMQPChannel($conn);
                 $exchange         = new \AMQPExchange($channel);
                 $queue            = new \AMQPQueue($channel);
-                self::$connection = new RabbitmqTopicQueue(['queue' => $queue, 'exchange' => $exchange]);
+                self::$connection = new RabbitmqTopicQueue(['conn'=>$conn, 'queue' => $queue, 'exchange' => $exchange]);
             } catch (\Exception $e) {
                 echo $e->getMessage();
             }

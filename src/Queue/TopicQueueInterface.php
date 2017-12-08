@@ -40,4 +40,6 @@ interface TopicQueueInterface
      * @return int
      */
     public function len($topic);
+
+    public function close();
 }

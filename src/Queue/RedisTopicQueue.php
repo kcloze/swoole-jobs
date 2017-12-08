@@ -49,4 +49,9 @@ class RedisTopicQueue extends BaseTopicQueue
     {
         return (int) $this->queue->lSize($topic) ?? 0;
     }
+
+    public function close()
+    {
+        $this->queue->close();
+    }
 }

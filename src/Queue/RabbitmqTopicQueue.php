@@ -61,4 +61,9 @@ class RabbitmqTopicQueue extends BaseTopicQueue
 
         return $queue->declareQueue();
     }
+
+    public function close()
+    {
+        $this->queue['conn']->disconnect();
+    }
 }
