@@ -45,7 +45,7 @@ class Process
         $this->table = new \Swoole\Table(1024);
         $this->table->column('name', \Swoole\Table::TYPE_STRING, 64);
         $this->table->create();
-        $this->table['status']['name']=self::STATUS_RUNNING;
+        $this->table['status']['name']=\Kcloze\Jobs\Process::STATUS_RUNNING;
 
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             $this->pidFile=$this->config['pidPath'] . '/master.pid';
@@ -85,14 +85,14 @@ class Process
                 if (isset($topic['workerMinNum']) && isset($topic['name'])) {
                     //每个topic开启最少个进程消费队列
                     for ($i = 0; $i < $topic['workerMinNum']; $i++) {
-                        $this->reserveQueue($i, $topic['name'], self::CHILD_PROCESS_CAN_RESTART);
+                        $this->reserveQueue($i, $topic['name'], \Kcloze\Jobs\Process::CHILD_PROCESS_CAN_RESTART);
                     }
                 }
             }
         }
 
         $this->registSignal();
-        //$this->registTimer();
+        $this->registTimer();
     }
 
     /**
@@ -153,13 +153,13 @@ class Process
                     $childProcess = $this->workers[$pid];
                     $topic = $this->workersInfo[$pid]['topic'] ?? '';
                     $topicCanNotRestartNum =  $this->dynamicWorkerNum[$topic] ?? 'null';
-                    $this->logger->log(self::CHILD_PROCESS_CAN_RESTART . '---' . $topic . '***' . $topicCanNotRestartNum . '***' . $this->table['status']['name'] . '***' . $this->workersInfo[$pid]['type'] . '***' . $pid, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                    $this->logger->log(Process::CHILD_PROCESS_CAN_RESTART . '---' . $topic . '***' . $topicCanNotRestartNum . '***' . $this->table['status']['name'] . '***' . $this->workersInfo[$pid]['type'] . '***' . $pid, 'info', Logs::LOG_SAVE_FILE_WORKER);
                     //主进程状态为running并且该子进程是可以重启的
-                    if ($this->table['status']['name'] == self::STATUS_RUNNING && $this->workersInfo[$pid]['type'] == self::CHILD_PROCESS_CAN_RESTART) {
+                    if ($this->table['status']['name'] == Process::STATUS_RUNNING && $this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_RESTART) {
                         try {
                             $newPid           = $childProcess->start();
                             $this->workers[$newPid] = $childProcess;
-                            $this->workersInfo[$newPid]['type'] = self::CHILD_PROCESS_CAN_RESTART;
+                            $this->workersInfo[$newPid]['type'] = Process::CHILD_PROCESS_CAN_RESTART;
                             $this->workersInfo[$newPid]['topic'] = $topic;
                             $this->workerNum++;
                             $this->logger->log("Worker Restart, kill_signal={$ret['signal']} PID=" . $newPid, 'info', Logs::LOG_SAVE_FILE_WORKER);
@@ -170,7 +170,7 @@ class Process
                         }
                     }
                     //某个topic动态变化的子进程，退出之后个数减少一个
-                    if ($this->workersInfo[$pid]['type'] == self::CHILD_PROCESS_CAN_NOT_RESTART) {
+                    if ($this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_NOT_RESTART) {
                         $this->dynamicWorkerNum[$topic]--;
                     }
                     $this->logger->log("Worker Exit, kill_signal={$ret['signal']} PID=" . $pid, 'info', Logs::LOG_SAVE_FILE_WORKER);
@@ -179,7 +179,7 @@ class Process
 
                     $this->logger->log('Worker count: ' . count($this->workers) . '==' . $this->workerNum, 'info', Logs::LOG_SAVE_FILE_WORKER);
                     //如果$this->workers为空，且主进程状态为wait，说明所有子进程安全退出，这个时候主进程退出
-                    if (empty($this->workers) && $this->table['status']['name'] == self::STATUS_WAIT) {
+                    if (empty($this->workers) && $this->table['status']['name'] == Process::STATUS_WAIT) {
                         $this->logger->log('主进程收到所有信号子进程的退出信号，子进程安全退出完成', 'info', Logs::LOG_SAVE_FILE_WORKER);
                         $this->exitMaster();
                     }
@@ -195,7 +195,7 @@ class Process
     {
         \Swoole\Timer::tick($this->queueTickTimer, function ($timerId) {
             $topics = $this->queue->getTopics();
-            if ($topics && $this->table['status']['name']  = self::STATUS_RUNNING) {
+            if ($topics && $this->table['status']['name']  = Process::STATUS_RUNNING) {
                 //遍历topic任务列表
                 foreach ((array) $topics as  $topic) {
                     $this->dynamicWorkerNum[$topic['name']]=$this->dynamicWorkerNum[$topic['name']] ?? 0;
@@ -205,7 +205,7 @@ class Process
                         $max=$topic['workerMaxNum'] - $this->dynamicWorkerNum[$topic['name']];
                         for ($i=0; $i < $max; $i++) {
                             //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
-                            $this->reserveQueue($this->dynamicWorkerNum[$topic['name']], $topic['name'], self::CHILD_PROCESS_CAN_NOT_RESTART);
+                            $this->reserveQueue($this->dynamicWorkerNum[$topic['name']], $topic['name'], Process::CHILD_PROCESS_CAN_NOT_RESTART);
                             $this->dynamicWorkerNum[$topic['name']]++;
                             $this->logger->log('topic: ' . $topic['name'] . ' len: ' . $len . ' for: ' . $i . ' ' . $max, 'info', Logs::LOG_SAVE_FILE_WORKER);
                         }
@@ -218,7 +218,7 @@ class Process
     //平滑等待子进程退出之后，再退出主进程
     private function waitWorkers()
     {
-        $this->table['status']['name'] = self::STATUS_WAIT;
+        $this->table['status']['name'] =self::STATUS_WAIT;
         $this->logger->log('master status: wait', 'info', Logs::LOG_SAVE_FILE_WORKER);
     }
 

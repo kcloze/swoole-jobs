@@ -25,13 +25,21 @@
 
 ## 4. 安装
 
-
+#### 4.1 composer
 ```
 git clone https://github.com/kcloze/swoole-jobs.git
 cd swoole-jobs
 composer install
 
 ```
+#### 4.2 docker
+* git clone https://github.com/kcloze/swoole-jobs.git
+* cd swoole-jobs and composer install
+* 根据根目录Dockerfile构建镜像
+* docker build -t swoole-jobs .
+* docker run  -it  -v ~/data/code/php:/data swoole-jobs /bin/bash
+* 进入容器之后，进入项目目录：php swoole-jobs.php start
+
 ## 5. 运行
 
 ### 5.1 示范
