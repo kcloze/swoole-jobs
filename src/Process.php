@@ -154,6 +154,8 @@ class Process
                     $topic = $this->workersInfo[$pid]['topic'] ?? '';
                     $topicCanNotRestartNum =  $this->dynamicWorkerNum[$topic] ?? 'null';
                     $this->logger->log(Process::CHILD_PROCESS_CAN_RESTART . '---' . $topic . '***' . $topicCanNotRestartNum . '***' . $this->table['status']['name'] . '***' . $this->workersInfo[$pid]['type'] . '***' . $pid, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                    $this->logger->log($pid . ',' . $this->table['status']['name'] . ',' . Process::STATUS_RUNNING . ',' . $this->workersInfo[$pid]['type'] . ',' . Process::CHILD_PROCESS_CAN_RESTART, 'info', Logs::LOG_SAVE_FILE_WORKER);
+
                     //主进程状态为running并且该子进程是可以重启的
                     if ($this->table['status']['name'] == Process::STATUS_RUNNING && $this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_RESTART) {
                         try {

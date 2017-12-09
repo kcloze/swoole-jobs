@@ -13,20 +13,16 @@ use Kcloze\Jobs\Config;
 
 class Queue
 {
-    protected static $connection = null;
-
     public static function getQueue()
     {
-        if (isset(self::$connection) && self::$connection !== null) {
-            return self::$connection;
-        }
+
         //job相关配置
         $config=Config::getConfig()['job']['queue'] ?? [];
 
         if (isset($config['type']) && $config['type'] == 'redis') {
             $redis = new \Redis();
             $redis->connect($config['host'], $config['port']);
-            self::$connection = new RedisTopicQueue($redis);
+            $connection = new RedisTopicQueue($redis);
         } elseif (isset($config['type']) && $config['type'] == 'rabbitmq') {
             try {
                 $conn = new \AMQPConnection();
@@ -38,7 +34,7 @@ class Queue
                 $channel          = new \AMQPChannel($conn);
                 $exchange         = new \AMQPExchange($channel);
                 $queue            = new \AMQPQueue($channel);
-                self::$connection = new RabbitmqTopicQueue(['conn'=>$conn, 'queue' => $queue, 'exchange' => $exchange]);
+                $connection       = new RabbitmqTopicQueue(['conn'=>$conn, 'queue' => $queue, 'exchange' => $exchange]);
             } catch (\Exception $e) {
                 echo $e->getMessage();
             }
@@ -47,6 +43,6 @@ class Queue
             exit;
         }
 
-        return self::$connection;
+        return $connection;
     }
 }

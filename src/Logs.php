@@ -38,9 +38,9 @@ class Logs
 
     public static function getLogger($logPath='')
     {
-        if (isset(self::$instance) && self::$instance !== null) {
-            return self::$instance;
-        }
+        // if (isset(self::$instance) && self::$instance !== null) {
+        //     return self::$instance;
+        // }
         self::$instance=new self($logPath);
 
         return self::$instance;

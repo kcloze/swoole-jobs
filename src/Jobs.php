@@ -35,7 +35,7 @@ class Jobs
             //每次最多取MAX_POP个任务执行
 
             $len = $this->queue->len($topic);
-            $this->logger->log('pop len: ' . $len, 'info');
+            $this->logger->log($topic . ' pop len: ' . $len, 'info');
             if ($len > 0) {
                 for ($i = 0; $i < self::MAX_POP; $i++) {
                     $data = $this->queue->pop($topic);
@@ -53,7 +53,7 @@ class Jobs
             } else {
                 $this->logger->log($topic . ' no work to do!', 'info');
                 sleep($this->sleep);
-                $this->logger->log('sleep ' . $this->sleep . ' mirc second!', 'info');
+                $this->logger->log('sleep ' . $this->sleep . ' second!', 'info');
             }
         } else {
             $this->logger->log('All topic no work to do!', 'info');
