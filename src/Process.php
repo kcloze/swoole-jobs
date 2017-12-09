@@ -204,19 +204,21 @@ class Process
         \Swoole\Timer::tick($this->queueTickTimer, function ($timerId) {
             $topics = $this->queue->getTopics();
             $this->status=$this->cache->hget(Process::APP_NAME, Process::STATUS_HSET_KEY_HASH);
-            if ($topics && $this->status  = Process::STATUS_RUNNING) {
+            if ($topics && $this->status == Process::STATUS_RUNNING) {
                 //遍历topic任务列表
                 foreach ((array) $topics as  $topic) {
                     $this->dynamicWorkerNum[$topic['name']]=$this->dynamicWorkerNum[$topic['name']] ?? 0;
                     $topic['workerMaxNum']                       =$topic['workerMaxNum'] ?? 0;
                     $len=$this->queue->len($topic['name']);
-                    if ($len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
+                    $this->status=$this->cache->hget(Process::APP_NAME, Process::STATUS_HSET_KEY_HASH);
+
+                    if ($this->status == Process::STATUS_RUNNING && $len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
                         $max=$topic['workerMaxNum'] - $this->dynamicWorkerNum[$topic['name']];
                         for ($i=0; $i < $max; $i++) {
                             //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
                             $this->reserveQueue($this->dynamicWorkerNum[$topic['name']], $topic['name'], Process::CHILD_PROCESS_CAN_NOT_RESTART);
                             $this->dynamicWorkerNum[$topic['name']]++;
-                            $this->logger->log('topic: ' . $topic['name'] . ' len: ' . $this->queue->len($topic['name']) . ' for: ' . $i . ' ' . $max, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                            $this->logger->log('topic: ' . $topic['name'] . ' ' . $this->status . ' len: ' . $this->queue->len($topic['name']) . ' for: ' . $i . ' ' . $max, 'info', Logs::LOG_SAVE_FILE_WORKER);
                         }
                     }
                 }
