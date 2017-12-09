@@ -9,10 +9,14 @@
 
 return $config = [
     //log目录
-    'logPath'      => __DIR__ . '/log',
-    'pidPath'      => __DIR__ . '/log',
-    'sleep'        => 3, //每次topic消费完之后停留毫秒数，线上环境不能过大
-    'processName'  => ':swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
+    'logPath'           => __DIR__ . '/log',
+    'pidPath'           => __DIR__ . '/log',
+    'sleep'             => 3, //每次topic消费完之后停留毫秒数，线上环境不能过大
+    'processName'       => ':swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
+    'cache'             => [
+            'host'     => '192.168.1.105',
+            'port'     => 6379,
+    ],
     //job任务相关
     'job'         => [
         'topics'  => [
