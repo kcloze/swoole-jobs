@@ -18,8 +18,8 @@ class Process
     const STATUS_RUNNING                              ='runnning'; //主进程running状态
     const STATUS_WAIT                                 ='wait'; //主进程wait状态
     const STATUS_STOP                                 ='stop'; //主进程stop状态
-    const APP_NAME                                    ='swoole-jobs'; //主进程stop状态
-    const STATUS_HSET_KEY_HASH                        ='stop'; //主进程stop状态
+    const APP_NAME                                    ='swoole-jobs'; //app name
+    const STATUS_HSET_KEY_HASH                        ='status'; //status hash名
 
     public $processName      = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
     public $jobs             = null;
