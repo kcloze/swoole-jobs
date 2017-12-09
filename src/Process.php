@@ -104,7 +104,8 @@ class Process
      */
     public function reserveQueue($num, $topic, $type=self::CHILD_PROCESS_CAN_RESTART)
     {
-        $reserveProcess = new \Swoole\Process(function () use ($num, $topic, $type) {
+        $reserveProcess = new \Swoole\Process(function ($worker) use ($num, $topic, $type) {
+            $this->checkMpid($worker);
             $beginTime=microtime(true);
             try {
                 //设置进程名字
@@ -209,7 +210,7 @@ class Process
                             //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
                             $this->reserveQueue($this->dynamicWorkerNum[$topic['name']], $topic['name'], Process::CHILD_PROCESS_CAN_NOT_RESTART);
                             $this->dynamicWorkerNum[$topic['name']]++;
-                            $this->logger->log('topic: ' . $topic['name'] . ' len: ' . $len . ' for: ' . $i . ' ' . $max, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                            $this->logger->log('topic: ' . $topic['name'] . ' len: ' . $this->queue->len($topic['name']) . ' for: ' . $i . ' ' . $max, 'info', Logs::LOG_SAVE_FILE_WORKER);
                         }
                     }
                 }
@@ -221,7 +222,7 @@ class Process
     private function waitWorkers()
     {
         $this->table['status']['name'] =self::STATUS_WAIT;
-        $this->logger->log('master status: wait', 'info', Logs::LOG_SAVE_FILE_WORKER);
+        $this->logger->log('master status: ' . $this->table['status']['name'], 'info', Logs::LOG_SAVE_FILE_WORKER);
     }
 
     //强制杀死子进程并退出主进程
@@ -232,7 +233,7 @@ class Process
         if ($this->workers) {
             foreach ($this->workers as $pid => $worker) {
                 //强制杀workers子进程
-            \Swoole\Process::kill($pid);
+                \Swoole\Process::kill($pid);
                 unset($this->workers[$pid]);
                 $this->logger->log('主进程收到退出信号,[' . $pid . ']子进程跟着退出', 'info', Logs::LOG_SAVE_FILE_WORKER);
                 $this->logger->log('Worker count: ' . count($this->workers), 'info', Logs::LOG_SAVE_FILE_WORKER);
@@ -249,6 +250,15 @@ class Process
         $this->queue->close();
         sleep(1);
         exit();
+    }
+
+    //主进程如果不存在了，子进程退出
+    private function checkMpid(&$worker)
+    {
+        if (!@\Swoole\Process::kill($this->ppid, 0)) {
+            $worker->exit();
+            $this->logger->log("Master process exited, I [{$worker['pid']}] also quit", 'info', Logs::LOG_SAVE_FILE_WORKER);
+        }
     }
 
     /**
