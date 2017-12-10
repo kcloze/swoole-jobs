@@ -1,6 +1,6 @@
 {
     "name": "kcloze/swoole-jobs",
-    "description": "基于swoole的job调度组件",
+    "description": "基于swoole的job调度组件，类似gearman的分布式任务处理系统",
     "keywords": ["swoole", "job", "scheduler", "调度"],
     "homepage": "https://github.com/kcloze/swoole-jobs",
     "license": "MIT",

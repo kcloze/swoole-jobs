@@ -1,24 +1,28 @@
 # swoole-jobs
 
-* 基于swoole的job调度组件
+* 基于swoole的job调度组件，类似gearman的分布式任务处理系统
 
 ## 1. 使用场景
 
-* web中较慢的逻辑，比如统计/email/短信/图片处理等
-* 单机job任务并发数10000以内，但可以多机器部署
+* web中较慢的逻辑，比如统计/email/短信/图片处理等；
+* 支持redis/rabbitmq/zeromq等任何一种做队列消息存储；
+* 比yii／laravel等框架自带队列更稳定更快[消费进程可动态变化]
 
 ## 2. 架构图
 
 ![架构图](jobs-archi.png)
+![进程模型](jobs-process.png)
 
 
 ## 3. 特性
 
-* 基于swoole的job调度组件；
+* 基于swoole的job调度组件；，类似gearman的分布式任务处理系统；
 * redis/rabbitmq/zeromq等任何一种做队列消息存储(目前只实现redis/rabbitmq)；
 * 利用swoole的process实现多进程管理，进程个数可配置，worker进程退出后会自动拉起；
 * 子进程循环次数可配置，防止业务代码内存泄漏；默认stop命令会等待子进程平滑退出；
-* 支持topic特性，不同的job绑定不同的topic；支持优先队列，根据topic顺序消费；
+* 支持topic特性，不同的job绑定不同的topic；
+* 每个topic启动对应数量的子进程，杜绝不同topic之间相互影响;
+* 根据队列积压情况，子进程动态启动进程数，最大子进程个数可配置；
 * 支持composer，可以跟任意框架集成；
 * 日志文件自动切割，默认最大100M，最多5个日志文件，防止日志刷满磁盘；
 

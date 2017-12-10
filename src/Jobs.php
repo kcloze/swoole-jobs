@@ -13,7 +13,8 @@ use Kcloze\Jobs\Queue\Queue;
 
 class Jobs
 {
-    const MAX_POP     = 10; // 单个topic每次最多取多少次
+    const MAX_POP          = 100; // 单个topic每次最多取多少次
+    const SLEEP_TIME       = 5; // 单个topic如果没有任务，该进程暂停秒数，不能低于1秒，数值太小无用进程会频繁拉起
 
     public $logger  = null;
     public $queue   = null;
@@ -25,7 +26,7 @@ class Jobs
         $this->config  = Config::getConfig(); //读取配置文件
         $this->queue   = Queue::getQueue();
         $this->queue->setTopics($this->config['job']['topics'] ?? []);
-        $this->sleep   = $this->config['sleep'] ?? $this->sleep;
+        $this->sleep   = self::SLEEP_TIME;
         $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
     }
 

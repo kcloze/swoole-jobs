@@ -13,6 +13,7 @@ return $config = [
     'pidPath'           => __DIR__ . '/log',
     'sleep'             => 3, //每次topic消费完之后停留毫秒数，线上环境不能过大
     'processName'       => ':swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
+    //只支持redis
     'cache'             => [
             'host'     => '192.168.1.105',
             'port'     => 6379,
@@ -20,7 +21,7 @@ return $config = [
     //job任务相关
     'job'         => [
         'topics'  => [
-            ['name'=>'MyJob', 'workerMinNum'=>1, 'workerMaxNum'=>10],
+            ['name'=>'MyJob', 'workerMinNum'=>1, 'workerMaxNum'=>20],
             ['name'=> 'MyJob2', 'workerMinNum'=>3, 'workerMaxNum'=>10],
             ['name'=> 'MyJob3', 'workerMinNum'=>1, 'workerMaxNum'=>10],
         ],
