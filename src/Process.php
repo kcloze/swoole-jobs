@@ -13,8 +13,8 @@ use Kcloze\Jobs\Queue\Queue;
 
 class Process
 {
-    const CHILD_PROCESS_CAN_RESTART                   ='canRestart'; //子进程可以重启
-    const CHILD_PROCESS_CAN_NOT_RESTART               ='canNotRestart'; //子进程不可以重启
+    const CHILD_PROCESS_CAN_RESTART                   ='staticWorker'; //子进程可以重启,进程个数固定
+    const CHILD_PROCESS_CAN_NOT_RESTART               ='dynamicWorker'; //子进程不可以重启，进程个数根据队列堵塞情况动态分配
     const STATUS_RUNNING                              ='runnning'; //主进程running状态
     const STATUS_WAIT                                 ='wait'; //主进程wait状态
     const STATUS_STOP                                 ='stop'; //主进程stop状态
@@ -44,12 +44,11 @@ class Process
         $this->config  =  Config::getConfig();
         $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
         $this->queue   = Queue::getQueue();
+
         $this->queue->setTopics($this->config['job']['topics'] ?? []);
 
         //该变量需要在多进程共享
-        $this->cache = new Cache($this->config['cache']);
         $this->status=self::STATUS_RUNNING;
-        $this->cache->hset(self::APP_NAME, self::STATUS_HSET_KEY_HASH, self::STATUS_RUNNING);
 
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             $this->pidFile=$this->config['pidPath'] . '/master.pid';
@@ -66,16 +65,18 @@ class Process
          * 判断文件是否存在，并判断进程是否在运行
          */
         if (file_exists($this->pidFile)) {
-            $pid    =file_get_contents($this->pidFile);
+            $pid=$this->getMasterData('pid');
             if ($pid && @\Swoole\Process::kill($pid, 0)) {
                 die('已有进程运行中,请先结束或重启' . PHP_EOL);
             }
         }
 
         \Swoole\Process::daemon();
-        $this->ppid = getmypid();
-        file_put_contents($this->pidFile, $this->ppid);
-        $this->setProcessName('job master ' . $this->ppid . $this->processName);
+        $this->ppid    = getmypid();
+        $data['pid']   =$this->ppid;
+        $data['status']=$this->status;
+        $this->saveMasterData($data);
+        $this->setProcessName(self::APP_NAME . ' master ' . $this->ppid . $this->processName);
     }
 
     public function start()
@@ -157,7 +158,7 @@ class Process
                     $pid           = $ret['pid'];
                     $childProcess = $this->workers[$pid];
                     $topic = $this->workersInfo[$pid]['topic'] ?? '';
-                    $this->status=$this->cache->hget(Process::APP_NAME, Process::STATUS_HSET_KEY_HASH);
+                    $this->status=$this->getMasterData('status');
                     $topicCanNotRestartNum =  $this->dynamicWorkerNum[$topic] ?? 'null';
                     $this->logger->log(Process::CHILD_PROCESS_CAN_RESTART . '---' . $topic . '***' . $topicCanNotRestartNum . '***' . $this->status . '***' . $this->workersInfo[$pid]['type'] . '***' . $pid, 'info', Logs::LOG_SAVE_FILE_WORKER);
                     $this->logger->log($pid . ',' . $this->status . ',' . Process::STATUS_RUNNING . ',' . $this->workersInfo[$pid]['type'] . ',' . Process::CHILD_PROCESS_CAN_RESTART, 'info', Logs::LOG_SAVE_FILE_WORKER);
@@ -203,14 +204,14 @@ class Process
     {
         \Swoole\Timer::tick($this->queueTickTimer, function ($timerId) {
             $topics = $this->queue->getTopics();
-            $this->status=$this->cache->hget(Process::APP_NAME, Process::STATUS_HSET_KEY_HASH);
+            $this->status=$this->getMasterData('status');
             if ($topics && $this->status == Process::STATUS_RUNNING) {
                 //遍历topic任务列表
                 foreach ((array) $topics as  $topic) {
                     $this->dynamicWorkerNum[$topic['name']]=$this->dynamicWorkerNum[$topic['name']] ?? 0;
                     $topic['workerMaxNum']                       =$topic['workerMaxNum'] ?? 0;
                     $len=$this->queue->len($topic['name']);
-                    $this->status=$this->cache->hget(Process::APP_NAME, Process::STATUS_HSET_KEY_HASH);
+                    $this->status=$this->getMasterData('status');
 
                     if ($this->status == Process::STATUS_RUNNING && $len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
                         $max=$topic['workerMaxNum'] - $this->dynamicWorkerNum[$topic['name']];
@@ -229,7 +230,9 @@ class Process
     //平滑等待子进程退出之后，再退出主进程
     private function waitWorkers()
     {
-        $this->cache->hset(self::APP_NAME, self::STATUS_HSET_KEY_HASH, self::STATUS_WAIT);
+        $data['pid']   =$this->ppid;
+        $data['status']=self::STATUS_WAIT;
+        $this->saveMasterData($data);
         $this->status = self::STATUS_WAIT;
         $this->logger->log('master status: ' . $this->status, 'info', Logs::LOG_SAVE_FILE_WORKER);
     }
@@ -281,5 +284,20 @@ class Process
         if (function_exists('swoole_set_process_name') && PHP_OS != 'Darwin') {
             swoole_set_process_name($name);
         }
+    }
+
+    private function saveMasterData($data=[])
+    {
+        file_put_contents($this->pidFile, serialize($data));
+    }
+
+    private function getMasterData($key='')
+    {
+        $data=unserialize(file_get_contents($this->pidFile));
+        if ($key) {
+            return $data[$key] ?? null;
+        }
+
+        return $data;
     }
 }

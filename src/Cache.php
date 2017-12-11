@@ -67,8 +67,11 @@ class Cache
             isset($this->config['serialize']) && $serialize = $this->config['serialize'];
         }
         $value = $serialize ? serialize($value) : $value;
+        if ($timeout > 0) {
+            return $this->handler->set($key, $value, $timeout);
+        }
 
-        return $this->handler->set($key, $value, $timeout);
+        return $this->handler->set($key, $value);
     }
 
     public function hget($key, $hash, $serialize = false)

@@ -7,7 +7,7 @@
  * with this source code in the file LICENSE.
  */
 
- define('APP_PATH', __DIR__ . '/..');
+define('APP_PATH', __DIR__ . '/..');
 
 date_default_timezone_set('Asia/Shanghai');
 

@@ -51,7 +51,8 @@ class Console
         }
 
         if (file_exists($masterPidFile)) {
-            $pid=file_get_contents($masterPidFile);
+            $data   =unserialize(file_get_contents($masterPidFile));
+            $pid    =$data['pid'] ?? null;
             if ($pid && !@\Swoole\Process::kill($pid, 0)) {
                 exit('service is not running' . PHP_EOL);
             }

@@ -13,11 +13,6 @@ return $config = [
     'pidPath'           => __DIR__ . '/log',
     'sleep'             => 3, //每次topic消费完之后停留毫秒数，线上环境不能过大
     'processName'       => ':swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
-    //只支持redis
-    'cache'             => [
-            'host'     => '192.168.1.105',
-            'port'     => 6379,
-    ],
     //job任务相关
     'job'         => [
         'topics'  => [
@@ -27,7 +22,7 @@ return $config = [
         ],
         'queue'   => [
             'type' => 'redis',
-            'host' => '192.168.1.105',
+            'host' => '127.0.0.1',
             'port' => 6379,
         ],
    ],

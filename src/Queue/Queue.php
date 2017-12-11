@@ -20,8 +20,12 @@ class Queue
         $config=Config::getConfig()['job']['queue'] ?? [];
 
         if (isset($config['type']) && $config['type'] == 'redis') {
-            $redis = new \Redis();
-            $redis->connect($config['host'], $config['port']);
+            try {
+                $redis = new \Redis();
+                $redis->connect($config['host'], $config['port']);
+            } catch (\Exception $e) {
+                die($e->getMessage() . PHP_EOL);
+            }
             $connection = new RedisTopicQueue($redis);
         } elseif (isset($config['type']) && $config['type'] == 'rabbitmq') {
             try {
@@ -36,7 +40,7 @@ class Queue
                 $queue            = new \AMQPQueue($channel);
                 $connection       = new RabbitmqTopicQueue(['conn'=>$conn, 'queue' => $queue, 'exchange' => $exchange]);
             } catch (\Exception $e) {
-                echo $e->getMessage();
+                die($e->getMessage() . PHP_EOL);
             }
         } else {
             echo 'you must add queue config' . PHP_EOL;
