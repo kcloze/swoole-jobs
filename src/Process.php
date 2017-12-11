@@ -114,7 +114,7 @@ class Process
             $beginTime=microtime(true);
             try {
                 //设置进程名字
-                $this->setProcessName($type . ' job ' . $num . ' ' . $topic . ' ' . $this->processName);
+                $this->setProcessName($type . ' ' . $topic . ' job ' . $num . ' ' . $this->processName);
                 $jobs  = new Jobs();
                 $jobs->run($topic);
             } catch (\Throwable $e) {
