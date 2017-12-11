@@ -51,7 +51,7 @@ composer install
 1.修改配置config.php
 
 2.启动服务
-php ./swoole-jobs.php start|stop|exit|restart
+php ./swoole-jobs.php start >> log/system.log 2>&1
 
 3.往队列推送任务
 php ./test/testJobs.php
@@ -124,6 +124,10 @@ sudo systemctl stop swoole-jobs.service
 
 
 ## 7. change log
+
+#### 2017-12-10
+* worker子进程支持个数可以根据队列挤压情况动态变化；
+* worker子进程最大和最小启动个数可配置；
 
 #### 2017-12-4
 * 子进程启动模式变更：单独给每个topic启动对应数量的子进程，杜绝不同topic之间相互影响
