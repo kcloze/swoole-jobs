@@ -2,11 +2,12 @@
 
 * 基于swoole的job调度组件，类似gearman的分布式任务处理系统
 
-## 1. 使用场景
+## 1. 说明
 
 * web中较慢的逻辑，比如统计/email/短信/图片处理等；
 * 支持redis/rabbitmq/zeromq等任何一种做队列消息存储；
 * 比yii／laravel等框架自带队列更稳定更快[消费进程可动态变化]
+* [yii2整合示例](https://github.com/kcloze/swoole-jobs-yii2)
 
 ## 2. 架构图
 
