@@ -31,9 +31,13 @@ class Logs
 
     private static $instance=null;
 
-    public function __construct($logPath='')
+    public function __construct($logPath)
     {
-        $this->logPath = !empty($logPath) ? $logPath : APP_PATH . '/log';
+        if (empty($logPath)) {
+            die('config logPath must be set!' . PHP_EOL);
+        }
+        Utils::mkdir($logPath);
+        $this->logPath = $logPath;
     }
 
     public static function getLogger($logPath='')

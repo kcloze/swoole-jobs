@@ -51,9 +51,10 @@ class Process
         $this->status=self::STATUS_RUNNING;
 
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
+            Utils::mkdir($this->config['pidPath']);
             $this->pidFile=$this->config['pidPath'] . '/master.pid';
         } else {
-            $this->pidFile=APP_PATH . '/master.pid';
+            die('config pidPath must be set!' . PHP_EOL);
         }
         if (isset($this->config['processName']) && !empty($this->config['processName'])) {
             $this->processName = $this->config['processName'];
