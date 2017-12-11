@@ -9,15 +9,15 @@
 
 namespace Kcloze\Jobs\Queue;
 
-use Kcloze\Jobs\Config;
+//use Kcloze\Jobs\Config;
 
 class Queue
 {
-    public static function getQueue()
+    public static function getQueue($config)
     {
 
         //job相关配置
-        $config=Config::getConfig()['job']['queue'] ?? [];
+        //$config=Config::getConfig()['job']['queue'] ?? [];
 
         if (isset($config['type']) && $config['type'] == 'redis') {
             try {

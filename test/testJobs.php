@@ -13,22 +13,19 @@ date_default_timezone_set('Asia/Shanghai');
 
 require APP_PATH . '/vendor/autoload.php';
 
-use Kcloze\Jobs\Config;
-use Kcloze\Jobs\Jobs;
 use Kcloze\Jobs\Queue\Queue;
 
 $config = require_once APP_PATH . '/config.php';
-Config::setConfig($config);
 
-$queue   =  Queue::getQueue();
-$jobs    = new Jobs($queue);
+$queue=Queue::getQueue($config['job']['queue']);
+$queue->setTopics($config['job']['topics']);
 
-if (!$jobs->queue) {
+if (!$queue) {
     die("queue object is null\n");
 }
 
 //jobs的topic需要在配置文件里面定义，并且一次性注册进去
-$topics = $jobs->queue->getTopics();
+$topics = $queue->getTopics();
 var_dump($topics);
 
 //往topic为MyJob的任务增加执行job
@@ -40,7 +37,7 @@ for ($i = 0; $i < 100; $i++) {
         'jobMethod'  => 'test1',
         'jobParams'  => ['kcloze', time()],
     ];
-    $jobs->queue->push($data['topic'], $data);
+    $queue->push($data['topic'], $data);
 }
 for ($i = 0; $i < 100; $i++) {
     // 根据自定义的 $jobs->load() 方法, 自定义数据格式
@@ -50,7 +47,7 @@ for ($i = 0; $i < 100; $i++) {
         'jobMethod'   => 'test2',
         'jobParams'   => ['kcloze', time(), ['a', 'b']],
     ];
-    $jobs->queue->push($data['topic'], $data);
+    $queue->push($data['topic'], $data);
 }
 for ($i = 0; $i < 100; $i++) {
     $data = [
@@ -59,7 +56,7 @@ for ($i = 0; $i < 100; $i++) {
         'jobMethod'   => 'testError',
         'jobParams'   => ['kcloze', time()],
     ];
-    $jobs->queue->push($data['topic'], $data);
+    $queue->push($data['topic'], $data);
 }
 
 //往topic为MyJob2的任务增加执行job
@@ -72,7 +69,7 @@ for ($i = 0; $i < 100; $i++) {
         'jobMethod'   => 'test1',
         'jobParams'   => ['kcloze', time()],
     ];
-    $jobs->queue->push($data['topic'], $data);
+    $queue->push($data['topic'], $data);
 }
 for ($i = 0; $i < 100; $i++) {
     // 根据自定义的 $jobs->load() 方法, 自定义数据格式
@@ -82,7 +79,7 @@ for ($i = 0; $i < 100; $i++) {
         'jobMethod'   => 'test2',
         'jobParams'   => ['kcloze', time(), ['a', 'b']],
     ];
-    $jobs->queue->push($data['topic'], $data);
+    $queue->push($data['topic'], $data);
 }
 for ($i = 0; $i < 100; $i++) {
     $data = [
@@ -91,5 +88,5 @@ for ($i = 0; $i < 100; $i++) {
         'jobMethod'   => 'testError',
         'jobParams'   => ['kcloze', time()],
     ];
-    $jobs->queue->push($data['topic'], $data);
+    $queue->push($data['topic'], $data);
 }

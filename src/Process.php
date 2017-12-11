@@ -43,7 +43,7 @@ class Process
     {
         $this->config  =  Config::getConfig();
         $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
-        $this->queue   = Queue::getQueue();
+        $this->queue   = Queue::getQueue($this->config['job']['queue']);
 
         $this->queue->setTopics($this->config['job']['topics'] ?? []);
 

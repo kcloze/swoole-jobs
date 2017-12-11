@@ -36,6 +36,6 @@ class YiiAction extends BaseAction
         } catch (\Exception $e) {
             $this->logger->log($e->getMessage(), 'error');
         }
-        unset($application);
+        unset($application, $JobObject);
     }
 }

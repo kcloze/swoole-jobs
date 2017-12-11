@@ -24,7 +24,7 @@ class Jobs
     public function __construct()
     {
         $this->config  = Config::getConfig(); //读取配置文件
-        $this->queue   = Queue::getQueue();
+        $this->queue   = Queue::getQueue($this->config['job']['queue']);
         $this->queue->setTopics($this->config['job']['topics'] ?? []);
         $this->sleep   = self::SLEEP_TIME;
         $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
