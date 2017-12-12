@@ -13,7 +13,7 @@ use Kcloze\Jobs\Queue\Queue;
 
 class Jobs
 {
-    const MAX_POP          = 100; // 单个topic每次最多取多少次
+    const MAX_POP          = 100; // 单个topic进程启动后每次最多取多少次，超过之后自然推出，防内存泄漏
     const SLEEP_TIME       = 5; // 单个topic如果没有任务，该进程暂停秒数，不能低于1秒，数值太小无用进程会频繁拉起
 
     public $logger  = null;

@@ -9,23 +9,17 @@
 
 namespace Kcloze\Jobs\Queue;
 
-//use Kcloze\Jobs\Config;
-
 class Queue
 {
     public static function getQueue($config)
     {
-
-        //job相关配置
-        //$config=Config::getConfig()['job']['queue'] ?? [];
-
         if (isset($config['type']) && $config['type'] == 'redis') {
             try {
                 $redis = new \Redis();
                 $redis->connect($config['host'], $config['port']);
-				if(isset($config['password'])&&!empty($config['password'])){
-					$redis->auth($config['password']);
-				}
+                if (isset($config['password']) && !empty($config['password'])) {
+                    $redis->auth($config['password']);
+                }
             } catch (\Exception $e) {
                 die($e->getMessage() . PHP_EOL);
             }

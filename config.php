@@ -19,12 +19,23 @@ return $config = [
             ['name'=> 'MyJob2', 'workerMinNum'=>3, 'workerMaxNum'=>10],
             ['name'=> 'MyJob3', 'workerMinNum'=>1, 'workerMaxNum'=>10],
         ],
+        // redis
+        // 'queue'   => [
+        //     'type'    => 'redis',
+        //     'host'    => '192.168.1.105',
+        //     'port'    => 6379,
+        //     'password'=> 'pwd',
+        // ],
+
+        // rabbitmq
         'queue'   => [
-            'type' => 'redis',
-            'host' => '127.0.0.1',
-            'port' => 6379,
-			'password'=> 'pwd'
+            'type'  => 'rabbitmq',
+            'host'  => '192.168.1.105',
+            'login' => 'guest',
+            'pwd'   => 'guest',
+            'vHost' => '/',
         ],
+
    ],
    //框架类型及装载类
    'framework' => [

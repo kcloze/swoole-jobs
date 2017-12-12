@@ -47,12 +47,11 @@ class Console
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             $masterPidFile=$this->config['pidPath'] . '/master.pid';
         } else {
-            $masterPidFile=APP_PATH . '/log/master.pid';
+            die('config pidPath must be set!' . PHP_EOL);
         }
 
         if (file_exists($masterPidFile)) {
-            $data   =unserialize(file_get_contents($masterPidFile));
-            $pid    =$data['pid'] ?? null;
+            $pid   =file_get_contents($masterPidFile);
             if ($pid && !@\Swoole\Process::kill($pid, 0)) {
                 exit('service is not running' . PHP_EOL);
             }
@@ -122,13 +121,10 @@ SYNOPSIS
       php swoole-jobs command [options]
           Manage swoole-jobs daemons.
 
-
 WORKFLOWS
-
 
       help [command]
       Show this help, or workflow help for command.
-
 
       restart
       Stop, then start swoole-jobs master and workers.

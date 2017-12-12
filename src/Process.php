@@ -32,12 +32,12 @@ class Process
     private $dynamicWorkerNum             =[]; //动态（不能重启）子进程计数，最大数为每个topic配置workerMaxNum，它的个数是动态变化的
     private $workersInfo                  =[];
     private $ppid;
-    private $config     = [];
-    private $pidFile    = '';
-    private $status     = '';
-    private $cache      = null;
-    private $logger     = null;
-    private $queue      = null;
+    private $config         = [];
+    private $pidFile        = ''; //pid存放文件
+    private $pidInfoFile    = ''; //pid 序列化信息
+    private $status         = '';
+    private $logger         = null;
+    private $queue          = null;
 
     public function __construct()
     {
@@ -52,7 +52,8 @@ class Process
 
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             Utils::mkdir($this->config['pidPath']);
-            $this->pidFile=$this->config['pidPath'] . '/master.pid';
+            $this->pidFile    =$this->config['pidPath'] . '/master.pid';
+            $this->pidInfoFile=$this->config['pidPath'] . '/master.info';
         } else {
             die('config pidPath must be set!' . PHP_EOL);
         }
@@ -264,6 +265,7 @@ class Process
     private function exitMaster()
     {
         @unlink($this->pidFile);
+        @unlink($this->pidInfoFile);
         $this->logger->log('Time: ' . microtime(true) . '主进程' . $this->ppid . '退出', 'info', Logs::LOG_SAVE_FILE_WORKER);
         $this->queue->close();
         sleep(1);
@@ -294,12 +296,13 @@ class Process
 
     private function saveMasterData($data=[])
     {
-        file_put_contents($this->pidFile, serialize($data));
+        file_put_contents($this->pidFile, $data['pid']);
+        file_put_contents($this->pidInfoFile, serialize($data));
     }
 
     private function getMasterData($key='')
     {
-        $data=unserialize(file_get_contents($this->pidFile));
+        $data=unserialize(file_get_contents($this->pidInfoFile));
         if ($key) {
             return $data[$key] ?? null;
         }
