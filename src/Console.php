@@ -71,12 +71,12 @@ class Console
     public function restart()
     {
         $this->logger->log('restarting...');
-        $this->exit();
+        $this->kill();
         sleep(3);
         $this->start();
     }
 
-    public function exit()
+    public function kill()
     {
         $this->stop(SIGTERM);
     }
@@ -97,7 +97,7 @@ class Console
                 $this->stop();
                 break;
             case 'exit':
-                $this->exit();
+                $this->kill();
                 break;
             case 'restart':
                 $this->restart();
