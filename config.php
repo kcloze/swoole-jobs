@@ -23,6 +23,7 @@ return $config = [
             'type' => 'redis',
             'host' => '127.0.0.1',
             'port' => 6379,
+			'password'=> 'pwd'
         ],
    ],
    //框架类型及装载类
