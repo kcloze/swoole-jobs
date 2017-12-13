@@ -30,7 +30,7 @@ return $config = [
         // rabbitmq
         'queue'   => [
             'type'      => 'rabbitmq',
-            'host'      => '127.0.0.1',
+            'host'      => '192.168.9.24',
             'user'      => 'phpadmin',
             'pass'      => 'phpadmin',
             'port'      => '5672',

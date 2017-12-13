@@ -32,6 +32,10 @@ $context->deleteTopic($topic);
 $context->declareTopic($topic);
 
 $message = $context->createMessage('Hello Bar!');
+$message->setExpiration(60);
+$message->setPriority('hight');
+
+//var_dump($message); exit;
 
 while (true) {
     $fooQueue = $context->createQueue('foo');

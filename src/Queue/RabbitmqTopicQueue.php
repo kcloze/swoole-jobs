@@ -36,7 +36,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         $this->context = $context;
     }
 
-    public function push($topic, $value)
+    public function push($topic, $value, $delay=0, $priority='', $ttl=0)
     {
         $queue   = $this->createQueue($topic);
         $message = $this->context->createMessage(serialize($value));

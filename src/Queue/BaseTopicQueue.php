@@ -27,7 +27,16 @@ abstract class BaseTopicQueue implements TopicQueueInterface
         $this->topics = $topics;
     }
 
-    public function push($topic, $value)
+    /**
+     * push message to queue.
+     *
+     * @param [string] $topic
+     * @param [sting]  $value
+     * @param [int]    $delay    延迟秒数
+     * @param [string] $priority 优先级
+     * @param [int]    $ttl      超时时间
+     */
+    public function push($topic, $value, $delay=0, $priority='', $ttl=0)
     {
     }
 
