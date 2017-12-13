@@ -22,18 +22,19 @@ return $config = [
         // redis
         // 'queue'   => [
         //     'type'    => 'redis',
-        //     'host'    => '192.168.1.105',
+        //     'host'    => '127.0.0.1',
         //     'port'    => 6379,
-        //     'password'=> 'pwd',
+        //     //'password'=> 'pwd',
         // ],
 
         // rabbitmq
         'queue'   => [
-            'type'  => 'rabbitmq',
-            'host'  => '192.168.1.105',
-            'login' => 'guest',
-            'pwd'   => 'guest',
-            'vHost' => '/',
+            'type'      => 'rabbitmq',
+            'host'      => '127.0.0.1',
+            'user'      => 'phpadmin',
+            'pass'      => 'phpadmin',
+            'port'      => '5672',
+            'vhost'     => 'php',
         ],
 
    ],

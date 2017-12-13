@@ -32,28 +32,27 @@ class Process
     private $dynamicWorkerNum             =[]; //动态（不能重启）子进程计数，最大数为每个topic配置workerMaxNum，它的个数是动态变化的
     private $workersInfo                  =[];
     private $ppid;
-    private $config         = [];
-    private $pidFile        = ''; //pid存放文件
-    private $pidInfoFile    = ''; //pid 序列化信息
-    private $status         = '';
-    private $logger         = null;
-    private $queue          = null;
+    private $config                       = [];
+    private $pidFile                      = 'master.pid'; //pid存放文件
+    private $pidInfoFile                  = 'master.info'; //pid 序列化信息
+    private $status                       = '';
+    private $logger                       = null;
+    private $queue                        = null;
+    private $topics                       = null;
 
     public function __construct()
     {
         $this->config  =  Config::getConfig();
         $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
-        $this->queue   = Queue::getQueue($this->config['job']['queue']);
-
-        $this->queue->setTopics($this->config['job']['topics'] ?? []);
+        $this->topics  =$this->config['job']['topics'] ?? [];
 
         //该变量需要在多进程共享
         $this->status=self::STATUS_RUNNING;
 
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             Utils::mkdir($this->config['pidPath']);
-            $this->pidFile    =$this->config['pidPath'] . '/master.pid';
-            $this->pidInfoFile=$this->config['pidPath'] . '/master.info';
+            $this->pidFile    =$this->config['pidPath'] . '/' . $this->pidFile;
+            $this->pidInfoFile=$this->config['pidPath'] . '/' . $this->pidInfoFile;
         } else {
             die('config pidPath must be set!' . PHP_EOL);
         }
@@ -83,7 +82,7 @@ class Process
 
     public function start()
     {
-        $topics = $this->queue->getTopics();
+        $topics = $this->topics;
         $this->logger->log('topics: ' . json_encode($topics));
 
         if ($topics) {
@@ -210,11 +209,17 @@ class Process
     public function registTimer()
     {
         \Swoole\Timer::tick($this->queueTickTimer, function ($timerId) {
-            $topics = $this->queue->getTopics();
-            $this->status=$this->getMasterData('status');
+            $topics = $this->topics;
+            $this->status  =$this->getMasterData('status');
+            $this->queue   = Queue::getQueue($this->config['job']['queue']);
+            $this->queue->setTopics($topics);
+
             if ($topics && $this->status == Process::STATUS_RUNNING) {
                 //遍历topic任务列表
                 foreach ((array) $topics as  $topic) {
+                    if (empty($topic['name'])) {
+                        continue;
+                    }
                     $this->dynamicWorkerNum[$topic['name']]=$this->dynamicWorkerNum[$topic['name']] ?? 0;
                     $topic['workerMaxNum']                       =$topic['workerMaxNum'] ?? 0;
                     $len=$this->queue->len($topic['name']);
@@ -231,6 +236,7 @@ class Process
                     }
                 }
             }
+            $this->queue->close();
         });
     }
 
@@ -267,7 +273,7 @@ class Process
         @unlink($this->pidFile);
         @unlink($this->pidInfoFile);
         $this->logger->log('Time: ' . microtime(true) . '主进程' . $this->ppid . '退出', 'info', Logs::LOG_SAVE_FILE_WORKER);
-        $this->queue->close();
+
         sleep(1);
         exit();
     }

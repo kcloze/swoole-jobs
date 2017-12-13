@@ -9,6 +9,8 @@
 
 namespace Kcloze\Jobs\Queue;
 
+use Enqueue\AmqpExt\AmqpConnectionFactory;
+
 class Queue
 {
     public static function getQueue($config)
@@ -26,16 +28,9 @@ class Queue
             $connection = new RedisTopicQueue($redis);
         } elseif (isset($config['type']) && $config['type'] == 'rabbitmq') {
             try {
-                $conn = new \AMQPConnection();
-                $conn->setHost($config['host']);
-                $conn->setLogin($config['login']);
-                $conn->setPassword($config['pwd']);
-                $conn->setVhost($config['vHost']);
-                $conn->connect();
-                $channel          = new \AMQPChannel($conn);
-                $exchange         = new \AMQPExchange($channel);
-                $queue            = new \AMQPQueue($channel);
-                $connection       = new RabbitmqTopicQueue(['conn'=>$conn, 'queue' => $queue, 'exchange' => $exchange]);
+                $factory          = new AmqpConnectionFactory($config);
+                $context          = $factory->createContext();
+                $connection       = new RabbitmqTopicQueue($context, $config['exchange'] ?? null);
             } catch (\Exception $e) {
                 die($e->getMessage() . PHP_EOL);
             }

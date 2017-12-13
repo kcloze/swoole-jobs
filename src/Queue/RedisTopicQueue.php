@@ -19,17 +19,6 @@ class RedisTopicQueue extends BaseTopicQueue
      */
     public function __construct(\Redis $redis)
     {
-        /*
-         * $redis 的简单初始化方法
-         * try {
-         * $redis = new \Redis();
-         * $redis->connect($host, $port);
-         * $redis->auth($pwd);
-         * $redis->select($db);
-         * } catch (\Exception $e) {
-         * echo $e->getMessage();
-         * }
-         */
         $this->queue = $redis;
     }
 

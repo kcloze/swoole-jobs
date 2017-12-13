@@ -56,6 +56,7 @@ class Jobs
                 sleep($this->sleep);
                 $this->logger->log('sleep ' . $this->sleep . ' second!', 'info');
             }
+            $this->queue->close();
         } else {
             $this->logger->log('All topic no work to do!', 'info');
         }

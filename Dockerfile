@@ -8,8 +8,6 @@ RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list
 RUN sed -i "s/security.debian.org/mirrors.aliyun.com\/debian-security/g" /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
         libpng-dev \
         libpq-dev \
         g++ \
@@ -17,7 +15,6 @@ RUN apt-get update && apt-get install -y \
         libxml2-dev \
         htop \
         git \
-        redis-server \
         vim \
         libfreetype6-dev \
         libjpeg62-turbo-dev \

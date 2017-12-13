@@ -9,61 +9,73 @@
 
 namespace Kcloze\Jobs\Queue;
 
+use Enqueue\AmqpExt\AmqpContext;
+use Interop\Amqp\AmqpQueue;
+use Interop\Amqp\AmqpTopic;
+
 class RabbitmqTopicQueue extends BaseTopicQueue
 {
+    const EXCHANGE  ='php.amqp.ext';
+
+    public $queue   =null;
+    private $context=null;
+
     /**
      * RabbitmqTopicQueue constructor.
      * 使用依赖注入的方式.
      *
      * @param array $queue
+     * @param mixed $exchange
      */
-    public function __construct(array $queue)
+    public function __construct(AmqpContext $context, $exchange)
     {
-        $this->queue = $queue;
+        $rabbitTopic  = $context->createTopic($exchange ?? self::EXCHANGE);
+        $rabbitTopic->addFlag(AmqpTopic::FLAG_DURABLE);
+        $rabbitTopic->setType(AmqpTopic::TYPE_FANOUT);
+        $context->declareTopic($rabbitTopic);
+        $this->context = $context;
     }
 
     public function push($topic, $value)
     {
-        /* @var \AMQPQueue $queue */
-        $queue = $this->queue['queue'];
-        $queue->setName($topic);
-        $queue->setFlags(AMQP_DURABLE);
-        $queue->declareQueue();
+        $queue   = $this->createQueue($topic);
+        $message = $this->context->createMessage(serialize($value));
 
-        /* @var \AMQPExchange $exchange */
-        $exchange = $this->queue['exchange'];
-        $result   = $exchange->publish(serialize($value), $topic);
+        $result=$this->context->createProducer()->send($queue, $message);
 
         return $result;
     }
 
     public function pop($topic)
     {
-        /* @var \AMQPQueue $queue */
-        $queue = $this->queue['queue'];
-        $queue->setName($topic);
-        $queue->setFlags(AMQP_DURABLE);
-        $queue->declareQueue();
-        $message = $queue->get(AMQP_AUTOACK);
-        $result  = null;
-        if ($message) {
-            $result = $message->getBody();
+        $queue    = $this->createQueue($topic);
+        $consumer = $this->context->createConsumer($queue);
+        if ($m = $consumer->receive(1)) {
+            $result=$m->getBody();
+            $consumer->acknowledge($m);
         }
 
         return !empty($result) ? unserialize($result) : null;
     }
 
+    //这里的topic跟rabbitmq不一样，其实就是队列名字
     public function len($topic)
     {
-        $queue = $this->queue['queue'];
-        $queue->setName($topic);
-        $queue->setFlags(AMQP_DURABLE);
+        $queue = $this->createQueue($topic);
 
-        return $queue->declareQueue();
+        return $this->context->declareQueue($queue);
     }
 
     public function close()
     {
-        $this->queue['conn']->disconnect();
+        $this->context->close();
+    }
+
+    private function createQueue($topic)
+    {
+        $queue = $this->context->createQueue($topic);
+        $queue->addFlag(AmqpQueue::FLAG_DURABLE);
+
+        return $queue;
     }
 }
