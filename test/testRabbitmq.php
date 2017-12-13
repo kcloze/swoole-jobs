@@ -12,18 +12,12 @@ use Interop\Amqp\AmqpQueue;
 use Interop\Amqp\AmqpTopic;
 use Interop\Amqp\Impl\AmqpBind;
 
-$config = [
-    'host'   => '192.168.9.24',
-    'user'   => 'phpadmin',
-    'pass'   => 'phpadmin',
-    'port'   => '5672',
-    'vhost'  => 'php',
-];
+$config = require_once APP_PATH . '/config.php';
 
-$factory = new AmqpConnectionFactory($config);
+$factory = new AmqpConnectionFactory($config['job']['queue']);
 $context = $factory->createContext();
 
-$topic = $context->createTopic('php.amqp.ext');
+$topic = $context->createTopic($config['job']['queue']['exchange']);
 $topic->addFlag(AmqpTopic::FLAG_DURABLE);
 $topic->setType(AmqpTopic::TYPE_FANOUT);
 //$topic->setArguments(['alternate-exchange' => 'foo']);
@@ -32,8 +26,9 @@ $context->deleteTopic($topic);
 $context->declareTopic($topic);
 
 $message = $context->createMessage('Hello Bar!');
-$message->setExpiration(60);
-$message->setPriority('hight');
+//$message->setExpiration(60 * 1000); //6 sec
+//$message->setPriority(5);
+//$message->setTimestamp(5 * 1000); //5 sec
 
 //var_dump($message); exit;
 

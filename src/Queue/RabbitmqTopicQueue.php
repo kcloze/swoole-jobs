@@ -15,7 +15,13 @@ use Interop\Amqp\AmqpTopic;
 
 class RabbitmqTopicQueue extends BaseTopicQueue
 {
-    const EXCHANGE  ='php.amqp.ext';
+    const EXCHANGE    ='php.amqp.ext';
+    //队列优先级
+    const HIGH_LEVEL_1=1;
+    const HIGH_LEVEL_2=2;
+    const HIGH_LEVEL_3=3;
+    const HIGH_LEVEL_4=4;
+    const HIGH_LEVEL_5=5;
 
     public $queue   =null;
     private $context=null;
@@ -36,10 +42,22 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         $this->context = $context;
     }
 
-    public function push($topic, $value, $delay=0, $priority='', $ttl=0)
+    /*
+     * push message to queue.
+     *
+     * @param [string] $topic
+     * @param [sting]  $value
+     * @param [int]    $delay    延迟毫秒
+     * @param [int]    $priority 优先级
+     * @param [int]    $expiration      过期毫秒
+     */
+    public function push($topic, $value, $delay=0, $priority=self::HIGH_LEVEL_1, $expiration=0)
     {
         $queue   = $this->createQueue($topic);
         $message = $this->context->createMessage(serialize($value));
+        $delay && $message->setExpiration($delay);
+        $priority && $message->setPriority($priority);
+        $expiration && $message->setTimestamp($expiration);
 
         $result=$this->context->createProducer()->send($queue, $message);
 
