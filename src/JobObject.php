@@ -11,6 +11,7 @@ namespace Kcloze\Jobs;
 
 class JobObject
 {
+    public $uuid     ='';
     public $topic    ='';
     public $jobClass ='';
     public $jobMethod='';

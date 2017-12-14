@@ -13,6 +13,7 @@ date_default_timezone_set('Asia/Shanghai');
 
 require APP_PATH . '/vendor/autoload.php';
 
+use Kcloze\Jobs\JobObject;
 use Kcloze\Jobs\Queue\BaseTopicQueue;
 use Kcloze\Jobs\Queue\Queue;
 
@@ -41,77 +42,51 @@ addTest1($queue);
 function addTest1($queue)
 {
     for ($i = 0; $i < 100; $i++) {
-        // 根据自定义的 $jobs->load() 方法, 自定义数据格式
-    $data = [
-        'topic'      => 'MyJob',
-        'jobClass'   => 'Kcloze\Jobs\Jobs\MyJob',
-        'jobMethod'  => 'test1',
-        'jobParams'  => ['kcloze', time()],
-    ];
-        $delay   =600 * 1000;
-        $priority=BaseTopicQueue::HIGH_LEVEL_1;
-        $queue->push($data['topic'], $data);
+        $job         =new JobObject('MyJob', 'Kcloze\Jobs\Jobs\MyJob', 'test1', ['kcloze', time()]);
+        $delay       =60 * 1000;
+        $priority    =BaseTopicQueue::HIGH_LEVEL_1;
+        $queue->push('MyJob', $job, $delay, $priority);
     }
 }
 
 function addTest2($queue)
 {
     for ($i = 0; $i < 100; $i++) {
-        // 根据自定义的 $jobs->load() 方法, 自定义数据格式
-    $data = [
-        'topic'       => 'MyJob',
-        'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob',
-        'jobMethod'   => 'test2',
-        'jobParams'   => ['kcloze', time(), ['a', 'b']],
-    ];
-        $queue->push($data['topic'], $data);
+        $job         =new JobObject('MyJob', 'Kcloze\Jobs\Jobs\MyJob', 'test2', ['kcloze', time()]);
+        $delay       =60 * 1000;
+        $priority    =BaseTopicQueue::HIGH_LEVEL_2;
+        $queue->push('MyJob', $job, $delay, $priority);
     }
 }
 
 function addTest3($queue)
 {
     for ($i = 0; $i < 100; $i++) {
-        $data = [
-        'topic'       => 'MyJob',
-        'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob',
-        'jobMethod'   => 'testError',
-        'jobParams'   => ['kcloze', time()],
-    ];
-        $queue->push($data['topic'], $data);
+        $job         =new JobObject('MyJob', 'Kcloze\Jobs\Jobs\MyJob', 'testError', ['kcloze', time()]);
+        $delay       =60 * 1000;
+        $priority    =BaseTopicQueue::HIGH_LEVEL_3;
+        $queue->push('MyJob', $job, $delay, $priority);
     }
 }
 
 function addTest4($queue)
 {
-
-    //往topic为MyJob2的任务增加执行job
     for ($i = 0; $i < 100; $i++) {
-        // 根据自定义的 $jobs->load() 方法, 自定义数据格式
-        $data = [
-            'topic'       => 'MyJob2',
-            'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
-            'jobMethod'   => 'test1',
-            'jobParams'   => ['kcloze', time()],
-        ];
-        $queue->push($data['topic'], $data);
+        $job         =new JobObject('MyJob2', 'Kcloze\Jobs\Jobs\MyJob2', 'test1', ['kcloze', time()]);
+        $delay       =60 * 1000;
+        $priority    =BaseTopicQueue::HIGH_LEVEL_1;
+        $queue->push('MyJob', $job, $delay, $priority);
     }
     for ($i = 0; $i < 100; $i++) {
-        // 根据自定义的 $jobs->load() 方法, 自定义数据格式
-    $data = [
-        'topic'       => 'MyJob2',
-        'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
-        'jobMethod'   => 'test2',
-        'jobParams'   => ['kcloze', time(), ['a', 'b']],
-    ];
-        $queue->push($data['topic'], $data);
+        $job         =new JobObject('MyJob2', 'Kcloze\Jobs\Jobs\MyJob2', 'test2', ['kcloze', time()]);
+        $delay       =60 * 1000;
+        $priority    =BaseTopicQueue::HIGH_LEVEL_1;
+        $queue->push('MyJob', $job, $delay, $priority);
     }
     for ($i = 0; $i < 100; $i++) {
-        $data = [
-        'topic'       => 'MyJob2',
-        'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
-        'jobMethod'   => 'testError',
-        'jobParams'   => ['kcloze', time()],
-    ];
-        $queue->push($data['topic'], $data);
+        $job         =new JobObject('MyJob2', 'Kcloze\Jobs\Jobs\MyJob2', 'testError', ['kcloze', time()]);
+        $delay       =60 * 1000;
+        $priority    =BaseTopicQueue::HIGH_LEVEL_1;
+        $queue->push('MyJob', $job, $delay, $priority);
     }
 }

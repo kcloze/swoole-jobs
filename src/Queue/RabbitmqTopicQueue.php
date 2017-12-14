@@ -10,8 +10,10 @@
 namespace Kcloze\Jobs\Queue;
 
 use Enqueue\AmqpExt\AmqpContext;
+use Enqueue\AmqpTools\RabbitMqDlxDelayStrategy;
 use Interop\Amqp\AmqpQueue;
 use Interop\Amqp\AmqpTopic;
+use Kcloze\Jobs\JobObject;
 
 class RabbitmqTopicQueue extends BaseTopicQueue
 {
@@ -40,18 +42,30 @@ class RabbitmqTopicQueue extends BaseTopicQueue
      * push message to queue.
      *
      * @param [string] $topic
-     * @param [sting]  $value
+     * @param [JobObject]  $job
      * @param [int]    $delay    延迟毫秒
      * @param [int]    $priority 优先级
      * @param [int]    $expiration      过期毫秒
      */
-    public function push($topic, $value, $delay=0, $priority=BaseTopicQueue::HIGH_LEVEL_1, $expiration=0)
+    public function push($topic, JobObject $job, $delay=0, $priority=BaseTopicQueue::HIGH_LEVEL_1, $expiration=0)
     {
+        if (!$this->isConnected()) {
+            return;
+        }
+
         $queue   = $this->createQueue($topic);
-        $message = $this->context->createMessage(serialize($value));
-        $delay && $message->setExpiration($delay);
-        $priority && $message->setPriority($priority);
-        $expiration && $message->setTimestamp($expiration);
+        $message = $this->context->createMessage(serialize($job));
+        $producer=$this->context->createProducer();
+        if ($delay) {
+            $producer->setDelayStrategy(new RabbitMqDlxDelayStrategy());
+            $producer->setDeliveryDelay($delay);
+        }
+        if ($priority) {
+            $producer->setPriority($priority);
+        }
+        if ($expiration) {
+            $producer > setTimeToLive($expiration);
+        }
 
         $result=$this->context->createProducer()->send($queue, $message);
 
@@ -60,6 +74,10 @@ class RabbitmqTopicQueue extends BaseTopicQueue
 
     public function pop($topic)
     {
+        if (!$this->isConnected()) {
+            return;
+        }
+
         $queue    = $this->createQueue($topic);
         $consumer = $this->context->createConsumer($queue);
         if ($m = $consumer->receive(1)) {
@@ -73,6 +91,9 @@ class RabbitmqTopicQueue extends BaseTopicQueue
     //这里的topic跟rabbitmq不一样，其实就是队列名字
     public function len($topic)
     {
+        if (!$this->isConnected()) {
+            return;
+        }
         $queue = $this->createQueue($topic);
 
         return $this->context->declareQueue($queue);

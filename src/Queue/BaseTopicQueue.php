@@ -9,6 +9,8 @@
 
 namespace Kcloze\Jobs\Queue;
 
+use Kcloze\Jobs\JobObject;
+
 abstract class BaseTopicQueue implements TopicQueueInterface
 {
     //队列优先级
@@ -34,7 +36,7 @@ abstract class BaseTopicQueue implements TopicQueueInterface
         $this->topics = $topics;
     }
 
-    public function push($topic, $value, $delay=0, $priority=self::HIGH_LEVEL_1, $expiration=0)
+    public function push($topic, JobObject $job, $delay=0, $priority=self::HIGH_LEVEL_1, $expiration=0)
     {
     }
 

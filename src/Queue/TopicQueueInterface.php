@@ -9,6 +9,8 @@
 
 namespace Kcloze\Jobs\Queue;
 
+use Kcloze\Jobs\JobObject;
+
 interface TopicQueueInterface
 {
     /**
@@ -28,7 +30,7 @@ interface TopicQueueInterface
      * @param mixed $priority
      * @param mixed $expiration
      */
-    public function push($topic, $value, $delay, $priority, $expiration);
+    public function push($topic, JobObject $job, $delay, $priority, $expiration);
 
     /**
      * @param $topic

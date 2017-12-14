@@ -9,6 +9,8 @@
 
 namespace Kcloze\Jobs\Queue;
 
+use Kcloze\Jobs\JobObject;
+
 class RedisTopicQueue extends BaseTopicQueue
 {
     /**
@@ -31,9 +33,9 @@ class RedisTopicQueue extends BaseTopicQueue
      * @param [int]    $priority 优先级
      * @param [int]    $expiration      过期毫秒
      */
-    public function push($topic, $value, $delay=0, $priority=BaseTopicQueue::HIGH_LEVEL_1, $expiration=0)
+    public function push($topic, JobObject $job, $delay=0, $priority=BaseTopicQueue::HIGH_LEVEL_1, $expiration=0)
     {
-        return $this->queue->lPush($topic, serialize($value));
+        return $this->queue->lPush($topic, serialize($job));
     }
 
     public function pop($topic)
