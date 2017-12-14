@@ -24,8 +24,11 @@ interface TopicQueueInterface
     /**
      * @param $topic
      * @param $value
+     * @param mixed $delay
+     * @param mixed $priority
+     * @param mixed $expiration
      */
-    public function push($topic, $value);
+    public function push($topic, $value, $delay, $priority, $expiration);
 
     /**
      * @param $topic

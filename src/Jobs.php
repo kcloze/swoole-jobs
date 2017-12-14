@@ -24,8 +24,6 @@ class Jobs
     public function __construct()
     {
         $this->config  = Config::getConfig(); //读取配置文件
-        $this->queue   = Queue::getQueue($this->config['job']['queue']);
-        $this->queue->setTopics($this->config['job']['topics'] ?? []);
         $this->sleep   = self::SLEEP_TIME;
         $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
     }
@@ -33,11 +31,18 @@ class Jobs
     public function run($topic='')
     {
         if ($topic) {
-            //每次最多取MAX_POP个任务执行
+            $this->queue = Queue::getQueue($this->config['job']['queue']);
+            if (empty($this->queue)) {
+                sleep($this->sleep);
+
+                return;
+            }
+            $this->queue->setTopics($this->config['job']['topics'] ?? []);
 
             $len = $this->queue->len($topic);
             $this->logger->log($topic . ' pop len: ' . $len, 'info');
             if ($len > 0) {
+                //每次最多取MAX_POP个任务执行
                 for ($i = 0; $i < self::MAX_POP; $i++) {
                     $data = $this->queue->pop($topic);
                     $this->logger->log('pop data: ' . print_r($data, true), 'info');

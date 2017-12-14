@@ -18,6 +18,7 @@ class JobObject
 
     public function __construct($topic, $jobClass, $jobMethod, $jobParams)
     {
+        $this->uuid     =uniqid($topic, true);
         $this->topic    =$topic;
         $this->jobClass =$jobClass;
         $this->jobMethod=$jobMethod;

@@ -212,6 +212,9 @@ class Process
             $topics = $this->topics;
             $this->status  =$this->getMasterData('status');
             $this->queue   = Queue::getQueue($this->config['job']['queue']);
+            if (empty($this->queue)) {
+                return;
+            }
             $this->queue->setTopics($topics);
 
             if ($topics && $this->status == Process::STATUS_RUNNING) {

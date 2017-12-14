@@ -22,7 +22,16 @@ class RedisTopicQueue extends BaseTopicQueue
         $this->queue = $redis;
     }
 
-    public function push($topic, $value)
+    /*
+     * push message to queue.
+     *
+     * @param [string] $topic
+     * @param [sting]  $value
+     * @param [int]    $delay    延迟毫秒
+     * @param [int]    $priority 优先级
+     * @param [int]    $expiration      过期毫秒
+     */
+    public function push($topic, $value, $delay=0, $priority=BaseTopicQueue::HIGH_LEVEL_1, $expiration=0)
     {
         return $this->queue->lPush($topic, serialize($value));
     }

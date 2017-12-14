@@ -16,15 +16,9 @@ use Interop\Amqp\AmqpTopic;
 class RabbitmqTopicQueue extends BaseTopicQueue
 {
     const EXCHANGE    ='php.amqp.ext';
-    //队列优先级
-    const HIGH_LEVEL_1=1;
-    const HIGH_LEVEL_2=2;
-    const HIGH_LEVEL_3=3;
-    const HIGH_LEVEL_4=4;
-    const HIGH_LEVEL_5=5;
 
     public $queue   =null;
-    private $context=null;
+    public $context =null;
 
     /**
      * RabbitmqTopicQueue constructor.
@@ -51,7 +45,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
      * @param [int]    $priority 优先级
      * @param [int]    $expiration      过期毫秒
      */
-    public function push($topic, $value, $delay=0, $priority=self::HIGH_LEVEL_1, $expiration=0)
+    public function push($topic, $value, $delay=0, $priority=BaseTopicQueue::HIGH_LEVEL_1, $expiration=0)
     {
         $queue   = $this->createQueue($topic);
         $message = $this->context->createMessage(serialize($value));
@@ -87,6 +81,11 @@ class RabbitmqTopicQueue extends BaseTopicQueue
     public function close()
     {
         $this->context->close();
+    }
+
+    public function isConnected()
+    {
+        return $this->context->getExtChannel()->getConnection()->isConnected();
     }
 
     private function createQueue($topic)

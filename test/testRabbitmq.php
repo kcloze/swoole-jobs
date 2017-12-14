@@ -26,9 +26,9 @@ $context->deleteTopic($topic);
 $context->declareTopic($topic);
 
 $message = $context->createMessage('Hello Bar!');
-//$message->setExpiration(60 * 1000); //6 sec
-//$message->setPriority(5);
-//$message->setTimestamp(5 * 1000); //5 sec
+$message->setExpiration(60 * 1000); //6 sec
+$message->setPriority(5);
+$message->setTimestamp(5 * 1000); //5 sec
 
 //var_dump($message); exit;
 

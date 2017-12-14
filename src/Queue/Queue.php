@@ -23,7 +23,13 @@ class Queue
                     $redis->auth($config['password']);
                 }
             } catch (\Exception $e) {
-                die($e->getMessage() . PHP_EOL);
+                echo $e->getMessage() . PHP_EOL;
+
+                return false;
+            } catch (\Throwable $e) {
+                echo $e->getMessage() . PHP_EOL;
+
+                return false;
             }
             $connection = new RedisTopicQueue($redis);
         } elseif (isset($config['type']) && $config['type'] == 'rabbitmq') {
@@ -32,7 +38,13 @@ class Queue
                 $context          = $factory->createContext();
                 $connection       = new RabbitmqTopicQueue($context, $config['exchange'] ?? null);
             } catch (\Exception $e) {
-                die($e->getMessage() . PHP_EOL);
+                echo $e->getMessage() . PHP_EOL;
+
+                return false;
+            } catch (\Throwable $e) {
+                echo $e->getMessage() . PHP_EOL;
+
+                return false;
             }
         } else {
             echo 'you must add queue config' . PHP_EOL;

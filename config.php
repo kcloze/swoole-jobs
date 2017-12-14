@@ -29,12 +29,13 @@ return $config = [
 
         // rabbitmq
         'queue'   => [
-            'type'      => 'rabbitmq',
-            'host'      => '192.168.9.24',
-            'user'      => 'phpadmin',
-            'pass'      => 'phpadmin',
-            'port'      => '5672',
-            'vhost'     => 'php',
+            'type'         => 'rabbitmq',
+            'host'         => '192.168.9.24',
+            'user'         => 'phpadmin',
+            'pass'         => 'phpadmin',
+            'port'         => '5672',
+            'vhost'        => 'php',
+            'exchange'     => 'php.amqp.ext',
         ],
 
    ],

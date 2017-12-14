@@ -13,6 +13,7 @@ date_default_timezone_set('Asia/Shanghai');
 
 require APP_PATH . '/vendor/autoload.php';
 
+use Kcloze\Jobs\Queue\BaseTopicQueue;
 use Kcloze\Jobs\Queue\Queue;
 
 $config = require_once APP_PATH . '/config.php';
@@ -31,65 +32,86 @@ if (!$queue) {
 $topics = $queue->getTopics();
 var_dump($topics);
 
+addTest1($queue);
+// addTest2($queue);
+// addTest3($queue);
+// addTest4($queue);
+
 //往topic为MyJob的任务增加执行job
-for ($i = 0; $i < 100; $i++) {
-    // 根据自定义的 $jobs->load() 方法, 自定义数据格式
+function addTest1($queue)
+{
+    for ($i = 0; $i < 100; $i++) {
+        // 根据自定义的 $jobs->load() 方法, 自定义数据格式
     $data = [
         'topic'      => 'MyJob',
         'jobClass'   => 'Kcloze\Jobs\Jobs\MyJob',
         'jobMethod'  => 'test1',
         'jobParams'  => ['kcloze', time()],
     ];
-    $queue->push($data['topic'], $data);
+        $delay   =600 * 1000;
+        $priority=BaseTopicQueue::HIGH_LEVEL_1;
+        $queue->push($data['topic'], $data);
+    }
 }
-for ($i = 0; $i < 100; $i++) {
-    // 根据自定义的 $jobs->load() 方法, 自定义数据格式
+
+function addTest2($queue)
+{
+    for ($i = 0; $i < 100; $i++) {
+        // 根据自定义的 $jobs->load() 方法, 自定义数据格式
     $data = [
         'topic'       => 'MyJob',
         'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob',
         'jobMethod'   => 'test2',
         'jobParams'   => ['kcloze', time(), ['a', 'b']],
     ];
-    $queue->push($data['topic'], $data);
+        $queue->push($data['topic'], $data);
+    }
 }
-for ($i = 0; $i < 100; $i++) {
-    $data = [
+
+function addTest3($queue)
+{
+    for ($i = 0; $i < 100; $i++) {
+        $data = [
         'topic'       => 'MyJob',
         'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob',
         'jobMethod'   => 'testError',
         'jobParams'   => ['kcloze', time()],
     ];
-    $queue->push($data['topic'], $data);
+        $queue->push($data['topic'], $data);
+    }
 }
 
-//往topic为MyJob2的任务增加执行job
+function addTest4($queue)
+{
 
-for ($i = 0; $i < 100; $i++) {
-    // 根据自定义的 $jobs->load() 方法, 自定义数据格式
-    $data = [
-        'topic'       => 'MyJob2',
-        'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
-        'jobMethod'   => 'test1',
-        'jobParams'   => ['kcloze', time()],
-    ];
-    $queue->push($data['topic'], $data);
-}
-for ($i = 0; $i < 100; $i++) {
-    // 根据自定义的 $jobs->load() 方法, 自定义数据格式
+    //往topic为MyJob2的任务增加执行job
+    for ($i = 0; $i < 100; $i++) {
+        // 根据自定义的 $jobs->load() 方法, 自定义数据格式
+        $data = [
+            'topic'       => 'MyJob2',
+            'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
+            'jobMethod'   => 'test1',
+            'jobParams'   => ['kcloze', time()],
+        ];
+        $queue->push($data['topic'], $data);
+    }
+    for ($i = 0; $i < 100; $i++) {
+        // 根据自定义的 $jobs->load() 方法, 自定义数据格式
     $data = [
         'topic'       => 'MyJob2',
         'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
         'jobMethod'   => 'test2',
         'jobParams'   => ['kcloze', time(), ['a', 'b']],
     ];
-    $queue->push($data['topic'], $data);
-}
-for ($i = 0; $i < 100; $i++) {
-    $data = [
+        $queue->push($data['topic'], $data);
+    }
+    for ($i = 0; $i < 100; $i++) {
+        $data = [
         'topic'       => 'MyJob2',
         'jobClass'    => 'Kcloze\Jobs\Jobs\MyJob2',
         'jobMethod'   => 'testError',
         'jobParams'   => ['kcloze', time()],
     ];
-    $queue->push($data['topic'], $data);
+        $queue->push($data['topic'], $data);
+    }
 }
