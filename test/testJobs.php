@@ -34,9 +34,9 @@ $topics = $queue->getTopics();
 var_dump($topics);
 
 addTest1($queue);
-// addTest2($queue);
-// addTest3($queue);
-// addTest4($queue);
+addTest2($queue);
+addTest3($queue);
+addTest4($queue);
 
 //往topic为MyJob的任务增加执行job
 function addTest1($queue)
@@ -75,18 +75,18 @@ function addTest4($queue)
         $job         =new JobObject('MyJob2', 'Kcloze\Jobs\Jobs\MyJob2', 'test1', ['kcloze', time()]);
         $delay       =60 * 1000;
         $priority    =BaseTopicQueue::HIGH_LEVEL_1;
-        $queue->push('MyJob', $job, $delay, $priority);
+        $queue->push('MyJob2', $job, $delay, $priority);
     }
     for ($i = 0; $i < 100; $i++) {
         $job         =new JobObject('MyJob2', 'Kcloze\Jobs\Jobs\MyJob2', 'test2', ['kcloze', time()]);
         $delay       =60 * 1000;
         $priority    =BaseTopicQueue::HIGH_LEVEL_1;
-        $queue->push('MyJob', $job, $delay, $priority);
+        $queue->push('MyJob2', $job, $delay, $priority);
     }
     for ($i = 0; $i < 100; $i++) {
         $job         =new JobObject('MyJob2', 'Kcloze\Jobs\Jobs\MyJob2', 'testError', ['kcloze', time()]);
         $delay       =60 * 1000;
         $priority    =BaseTopicQueue::HIGH_LEVEL_1;
-        $queue->push('MyJob', $job, $delay, $priority);
+        $queue->push('MyJob2', $job, $delay, $priority);
     }
 }
