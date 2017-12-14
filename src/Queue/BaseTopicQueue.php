@@ -51,4 +51,8 @@ abstract class BaseTopicQueue implements TopicQueueInterface
     public function close()
     {
     }
+
+    public function isConnected()
+    {
+    }
 }

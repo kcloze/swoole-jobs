@@ -35,11 +35,19 @@ class RedisTopicQueue extends BaseTopicQueue
      */
     public function push($topic, JobObject $job, $delay=0, $priority=BaseTopicQueue::HIGH_LEVEL_1, $expiration=0)
     {
+        if (!$this->isConnected()) {
+            return;
+        }
+
         return $this->queue->lPush($topic, serialize($job));
     }
 
     public function pop($topic)
     {
+        if (!$this->isConnected()) {
+            return;
+        }
+
         $result = $this->queue->lPop($topic);
 
         return !empty($result) ? @unserialize($result) : null;
@@ -47,11 +55,36 @@ class RedisTopicQueue extends BaseTopicQueue
 
     public function len($topic)
     {
+        if (!$this->isConnected()) {
+            return 0;
+        }
+
         return (int) $this->queue->lSize($topic) ?? 0;
     }
 
     public function close()
     {
+        if (!$this->isConnected()) {
+            return;
+        }
+
         $this->queue->close();
+    }
+
+    public function isConnected()
+    {
+        try {
+            $this->queue->ping();
+        } catch (\Exception $e) {
+            echo $e->getMessage() . PHP_EOL;
+
+            return false;
+        } catch (\Throwable $e) {
+            echo $e->getMessage() . PHP_EOL;
+
+            return false;
+        }
+
+        return true;
     }
 }

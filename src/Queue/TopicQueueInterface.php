@@ -47,4 +47,6 @@ interface TopicQueueInterface
     public function len($topic);
 
     public function close();
+
+    public function isConnected();
 }
