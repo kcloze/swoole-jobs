@@ -56,14 +56,14 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         $queue   = $this->createQueue($topic);
         $message = $this->context->createMessage(serialize($job));
         $producer=$this->context->createProducer();
-        if ($delay) {
+        if ($delay > 0) {
             $producer->setDelayStrategy(new RabbitMqDlxDelayStrategy());
             $producer->setDeliveryDelay($delay);
         }
         if ($priority) {
             $producer->setPriority($priority);
         }
-        if ($expiration) {
+        if ($expiration > 0) {
             $producer > setTimeToLive($expiration);
         }
 
@@ -101,6 +101,10 @@ class RabbitmqTopicQueue extends BaseTopicQueue
 
     public function close()
     {
+        if (!$this->isConnected()) {
+            return;
+        }
+
         $this->context->close();
     }
 
