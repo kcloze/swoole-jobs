@@ -12,6 +12,7 @@ namespace Kcloze\Jobs\Action;
 use Kcloze\Jobs\Config;
 use Kcloze\Jobs\JobObject;
 use Kcloze\Jobs\Logs;
+use Kcloze\Jobs\Utils;
 use yii\console\Application;
 
 class YiiAction extends BaseAction
@@ -32,9 +33,11 @@ class YiiAction extends BaseAction
         $params              = $JobObject->jobParams;
         try {
             $application->runAction($route, $params);
-            $this->logger->log('Action has been done, action content: ' . json_encode($jobData));
+            $this->logger->log('Action has been done, action content: ' . json_encode($JobObject));
+        } catch (\Throwable $e) {
+            Utils::catchError($this->logger, $e);
         } catch (\Exception $e) {
-            $this->logger->log($e->getMessage(), 'error');
+            Utils::catchError($this->logger, $e);
         }
         unset($application, $JobObject);
     }

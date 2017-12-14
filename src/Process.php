@@ -119,14 +119,9 @@ class Process
                 $jobs  = new Jobs();
                 $jobs->run($topic);
             } catch (\Throwable $e) {
-                $error = '运行时间：' . date('Y-m-d H:i:s') . PHP_EOL;
-                $error .= '错误类型：' . get_class($e) . PHP_EOL;
-                $error .= '错误代码：' . $e->getCode() . PHP_EOL;
-                $error .= '错误信息：' . $e->getMessage() . PHP_EOL;
-                $error .= '错误堆栈：' . $e->getTraceAsString() . PHP_EOL;
-                $this->logger->log($error, 'error', Logs::LOG_SAVE_FILE_WORKER);
+                Utils::catchError($this->logger, $e);
             } catch (\Exception $e) {
-                $this->logger->log($e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
+                Utils::catchError($this->logger, $e);
             }
 
             $endTime=microtime(true);
