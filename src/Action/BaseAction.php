@@ -17,7 +17,7 @@ abstract class BaseAction
     {
     }
 
-    public function start(JobObject $jobData)
+    public function start(JobObject $JobObject)
     {
     }
 }

@@ -15,5 +15,5 @@ interface ActionInterface
 {
     public function init();
 
-    public function start(JobObject $jobData);
+    public function start(JobObject $JobObject);
 }

@@ -12,6 +12,7 @@ namespace Kcloze\Jobs\Action;
 use Kcloze\Jobs\Config;
 use Kcloze\Jobs\JobObject;
 use Kcloze\Jobs\Logs;
+use Kcloze\Jobs\Utils;
 
 class SwooleJobsAction extends BaseAction
 {
@@ -22,23 +23,25 @@ class SwooleJobsAction extends BaseAction
         $this->logger = Logs::getLogger(Config::getConfig()['logPath'] ?? []);
     }
 
-    public function start(JobObject $jobData)
+    public function start(JobObject $JobObject)
     {
         $this->init();
-        $jobClass =$jobData->jobClass;
-        $jobMethod=$jobData->jobMethod;
-        $jobParams=$jobData->jobParams;
+        $jobClass =$JobObject->jobClass;
+        $jobMethod=$JobObject->jobMethod;
+        $jobParams=$JobObject->jobParams;
         try {
             $obj      =new $jobClass();
             if (is_object($obj) && method_exists($obj, $jobMethod)) {
                 call_user_func_array([$obj, $jobMethod], $jobParams);
             } else {
-                $this->logger->log('Action obj not find: ' . json_encode($jobData), 'error');
+                $this->logger->log('Action obj not find: ' . json_encode($JobObject), 'error');
             }
+        } catch (\Throwable $e) {
+            Utils::catchError($this->logger, $e);
         } catch (\Exception $e) {
-            $this->logger->log($e->getMessage(), 'error');
+            Utils::catchError($this->logger, $e);
         }
 
-        $this->logger->log('Action has been done, action content: ' . json_encode($jobData));
+        $this->logger->log('Action has been done, action content: ' . json_encode($JobObject));
     }
 }
