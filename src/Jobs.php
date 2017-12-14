@@ -46,11 +46,13 @@ class Jobs
                 for ($i = 0; $i < self::MAX_POP; $i++) {
                     $data = $this->queue->pop($topic);
                     $this->logger->log('pop data: ' . print_r($data, true), 'info');
-                    if (!empty($data)) {
+                    if (!empty($data) && is_object($data)) {
                         // 根据自己的业务需求改写此方法
                         $jobObject               =  $this->loadObject($data);
                         $baseAction              =  $this->loadFrameworkAction();
                         $baseAction->start($jobObject);
+                    } else {
+                        $this->logger->log('pop error data: ' . print_r($data, true), 'error');
                     }
                     if ($this->queue->len($topic) <= 0) {
                         break;
@@ -89,6 +91,10 @@ class Jobs
     //实例化job对象
     private function loadObject($data)
     {
-        return new JobObject($data['topic'], $data['jobClass'], $data['jobMethod'], $data['jobParams']);
+        if (is_object($data)) {
+            return $data;
+        }
+
+        return fasle;
     }
 }
