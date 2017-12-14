@@ -39,7 +39,10 @@ class Logs
         Utils::mkdir($logPath);
         $this->logPath = $logPath;
     }
-
+    /**
+     * 获取日志实例
+     * @$logPath
+     */
     public static function getLogger($logPath='')
     {
         // if (isset(self::$instance) && self::$instance !== null) {
@@ -49,12 +52,16 @@ class Logs
 
         return self::$instance;
     }
-
+    /**
+     * 格式化日志信息.
+     */
     public function formatLogMessage($message, $level, $category, $time)
     {
         return @date('Y/m/d H:i:s', $time) . " [$level] [$category] $message\n";
     }
-
+    /**
+     * 日志分类处理.
+     */
     public function log($message, $level = 'info', $category = self::LOG_SAVE_FILE_APP, $flush = true)
     {
         $this->logs[$category][] = [$message, $level, $category, microtime(true)];
@@ -63,7 +70,9 @@ class Logs
             $this->flush($category);
         }
     }
-
+    /**
+     * 日志分类处理.
+     */
     public function processLogs()
     {
         $logsAll=[];
@@ -122,6 +131,7 @@ class Logs
                 $this->rotateFiles($fileName);
                 @flock($fp, LOCK_UN);
                 @fclose($fp);
+                @file_get_contents($fileName, $value, FILE_APPEND | LOCK_EX);
             } else {
                 @fwrite($fp, $value);
                 @flock($fp, LOCK_UN);
