@@ -72,13 +72,21 @@ class Jobs
     //根据配置装入不同的框架
     private function loadFrameworkAction()
     {
-        if (isset($this->config['framework']['type']) && $this->config['framework']['type'] == 'yii') {
-            //Yii框架命令行任务
-            $classFramework=$this->config['framework']['class'] ?? '\Kcloze\Jobs\Action\YiiAction';
-        } else {
-            //swoole-jobs自带jobs
-            $classFramework=$this->config['framework']['class'] ?? '\Kcloze\Jobs\Action\SwooleJobsAction';
+        $type = $this->config['framework']['type'] ?? 'swoole-jobs';
+        switch ($type) {
+            case 'yii':
+                $classFramework=$this->config['framework']['class'] ?? '\Kcloze\Jobs\Action\YiiAction';
+                break;
+            case 'phalcon':
+                $classFramework=$this->config['framework']['class'] ?? '\Kcloze\Jobs\Action\PhalconAction';
+                break;
+
+            default:
+                $classFramework=$this->config['framework']['class'] ?? '\Kcloze\Jobs\Action\SwooleJobsAction';
+
+                break;
         }
+
         try {
             $action = new $classFramework();
         } catch (\Exception $e) {

@@ -94,9 +94,11 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         if (!$this->isConnected()) {
             return;
         }
-        $queue = $this->createQueue($topic);
 
-        return $this->context->declareQueue($queue);
+        $queue = $this->createQueue($topic);
+        $len   =$this->context->declareQueue($queue);
+
+        return $len ?? 0;
     }
 
     public function close()
@@ -115,8 +117,14 @@ class RabbitmqTopicQueue extends BaseTopicQueue
 
     private function createQueue($topic)
     {
-        $queue = $this->context->createQueue($topic);
-        $queue->addFlag(AmqpQueue::FLAG_DURABLE);
+        try {
+            $queue = $this->context->createQueue($topic);
+            $queue->addFlag(AmqpQueue::FLAG_DURABLE);
+        } catch (\Throwable $e) {
+            echo 'queue Error: ' . $e->getMessage() . PHP_EOL;
+        } catch (\Exception $e) {
+            echo 'queue Error: ' . $e->getMessage() . PHP_EOL;
+        }
 
         return $queue;
     }

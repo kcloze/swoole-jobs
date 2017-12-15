@@ -220,7 +220,13 @@ class Process
                     }
                     $this->dynamicWorkerNum[$topic['name']]=$this->dynamicWorkerNum[$topic['name']] ?? 0;
                     $topic['workerMaxNum']                       =$topic['workerMaxNum'] ?? 0;
-                    $len=$this->queue->len($topic['name']);
+                    try {
+                        $len=$this->queue->len($topic['name']);
+                    } catch (\Throwable $e) {
+                        $this->logger->log('queueError' . $e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
+                    } catch (\Exception $e) {
+                        $this->logger->log('queueError: ' . $e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
+                    }
                     $this->status=$this->getMasterData('status');
 
                     if ($this->status == Process::STATUS_RUNNING && $len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {

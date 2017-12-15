@@ -39,9 +39,13 @@ class Logs
         Utils::mkdir($logPath);
         $this->logPath = $logPath;
     }
+
     /**
-     * 获取日志实例
+     * 获取日志实例.
+     *
      * @$logPath
+     *
+     * @param mixed $logPath
      */
     public static function getLogger($logPath='')
     {
@@ -52,15 +56,27 @@ class Logs
 
         return self::$instance;
     }
+
     /**
      * 格式化日志信息.
+     *
+     * @param mixed $message
+     * @param mixed $level
+     * @param mixed $category
+     * @param mixed $time
      */
     public function formatLogMessage($message, $level, $category, $time)
     {
         return @date('Y/m/d H:i:s', $time) . " [$level] [$category] $message\n";
     }
+
     /**
      * 日志分类处理.
+     *
+     * @param mixed $message
+     * @param mixed $level
+     * @param mixed $category
+     * @param mixed $flush
      */
     public function log($message, $level = 'info', $category = self::LOG_SAVE_FILE_APP, $flush = true)
     {
@@ -70,6 +86,7 @@ class Logs
             $this->flush($category);
         }
     }
+
     /**
      * 日志分类处理.
      */
@@ -129,14 +146,10 @@ class Logs
 
             if (@filesize($fileName) > $this->maxFileSize * 1024 * 1024) {
                 $this->rotateFiles($fileName);
-                @flock($fp, LOCK_UN);
-                @fclose($fp);
-                @file_get_contents($fileName, $value, FILE_APPEND | LOCK_EX);
-            } else {
-                @fwrite($fp, $value);
-                @flock($fp, LOCK_UN);
-                @fclose($fp);
             }
+            @fwrite($fp, $value);
+            @flock($fp, LOCK_UN);
+            @fclose($fp);
         }
     }
 
