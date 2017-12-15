@@ -1,6 +1,7 @@
 # swoole-jobs
 
-* 基于swoole的job调度组件，类似gearman的分布式任务处理系统
+* 基于swoole类似gearman的分布式任务处理系统
+* 高性能/动态多woker进程消费队列，加速后端耗时服
 
 ## 1. 说明
 
