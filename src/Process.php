@@ -222,6 +222,7 @@ class Process
                     $topic['workerMaxNum']                       =$topic['workerMaxNum'] ?? 0;
                     try {
                         $len=$this->queue->len($topic['name']);
+                        $this->logger->log('topic: ' . $topic['name'] . ' ' . $this->status . ' len: ' . $len , 'info', Logs::LOG_SAVE_FILE_WORKER);
                     } catch (\Throwable $e) {
                         $this->logger->log('queueError' . $e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
                     } catch (\Exception $e) {
