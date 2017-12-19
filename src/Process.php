@@ -20,6 +20,7 @@ class Process
     const STATUS_STOP                                 ='stop'; //主进程stop状态
     const APP_NAME                                    ='swoole-jobs'; //app name
     const STATUS_HSET_KEY_HASH                        ='status'; //status hash名
+    const SLEEP_TIME                                  =1000; //子进程退出之后，自动拉起暂停毫秒数
 
     public $processName      = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
     public $jobs             = null;
@@ -166,6 +167,7 @@ class Process
 
                     //主进程状态为running并且该子进程是可以重启的
                     if ($this->status == Process::STATUS_RUNNING && $this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_RESTART) {
+                        usleep(Process::SLEEP_TIME);
                         try {
                             $newPid           = $childProcess->start();
                             $this->workers[$newPid] = $childProcess;
