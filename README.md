@@ -35,8 +35,21 @@
 ```
 git clone https://github.com/kcloze/swoole-jobs.git
 cd swoole-jobs
-composer install
 
+```
+####  4.1.2 默认redis做队列；如果用rabbitmq做队列，需要增加包依赖：修改composer.json
+
+
+```
+    "require": {
+        "php": ">=7.0",
+        "ext-swoole": ">=1.8.9",
+        "enqueue/amqp-ext": "0.8.9"
+    },
+```
+
+```
+composer install
 ```
 #### 4.2 docker
 * git clone https://github.com/kcloze/swoole-jobs.git
