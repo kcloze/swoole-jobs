@@ -7,8 +7,7 @@
     "require": {
         "php": ">=7.0",
         "ext-swoole": ">=1.8.9",
-        "ext-redis": "*",
-        "enqueue/amqp-ext": "0.8.9"
+        "ext-redis": "*"
     },
     "authors": [
         {
