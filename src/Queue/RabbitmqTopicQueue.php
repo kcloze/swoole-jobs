@@ -64,10 +64,10 @@ class RabbitmqTopicQueue extends BaseTopicQueue
             $producer->setPriority($priority);
         }
         if ($expiration > 0) {
-            $producer > setTimeToLive($expiration);
+            $producer->setTimeToLive($expiration);
         }
 
-        $result=$this->context->createProducer()->send($queue, $message);
+        $result=$producer->send($queue, $message);
 
         return $result;
     }
