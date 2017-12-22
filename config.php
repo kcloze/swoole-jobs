@@ -10,6 +10,8 @@
 return $config = [
     //log目录
     'logPath'           => __DIR__ . '/log',
+    'logSaveFileApp'    => 'application.log', //默认log存储名字
+    'logSaveFileWorker' => 'crontab.log', // 进程启动相关log存储名字
     'pidPath'           => __DIR__ . '/log',
     'processName'       => ':swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
     //job任务相关

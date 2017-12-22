@@ -39,11 +39,12 @@ class Process
     private $logger                       = null;
     private $queue                        = null;
     private $topics                       = null;
+    private $logSaveFileWorker            = 'workers.log';
 
     public function __construct()
     {
         $this->config  =  Config::getConfig();
-        $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
+        $this->logger  = new Logs($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
         $this->topics  =$this->config['job']['topics'] ?? [];
 
         //该变量需要在多进程共享
@@ -59,7 +60,9 @@ class Process
         if (isset($this->config['processName']) && !empty($this->config['processName'])) {
             $this->processName = $this->config['processName'];
         }
-
+        if (isset($this->config['logSaveFileWorker']) && !empty($this->config['logSaveFileWorker'])) {
+            $this->logSaveFileWorker = $this->config['logSaveFileWorker'];
+        }
         /*
          * master.pid 文件记录 master 进程 pid, 方便之后进程管理
          * 请管理好此文件位置, 使用 systemd 管理进程时会用到此文件
@@ -125,13 +128,13 @@ class Process
             }
 
             $endTime=microtime(true);
-            $this->logger->log($topic . ' worker id: ' . $num . ' is done!!! Timing: ' . ($endTime - $beginTime), 'info', Logs::LOG_SAVE_FILE_WORKER);
+            $this->logger->log($topic . ' worker id: ' . $num . ' is done!!! Timing: ' . ($endTime - $beginTime), 'info', $this->logSaveFileWorker);
         });
         $pid                                        = $reserveProcess->start();
         $this->workers[$pid]                        = $reserveProcess;
         $this->workersInfo[$pid]['type']            = $type;
         $this->workersInfo[$pid]['topic']           = $topic;
-        $this->logger->log('topic: ' . $topic . ' ' . $type . ' worker id: ' . $num . ' pid: ' . $pid . ' is start...', 'info', Logs::LOG_SAVE_FILE_WORKER);
+        $this->logger->log('topic: ' . $topic . ' ' . $type . ' worker id: ' . $num . ' pid: ' . $pid . ' is start...', 'info', $this->logSaveFileWorker);
         $this->workerNum++;
     }
 
@@ -153,7 +156,7 @@ class Process
                 try {
                     $ret = \Swoole\Process::wait(false);
                 } catch (\Exception $e) {
-                    $this->logger->log('signoError: ' . $signo . $e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
+                    $this->logger->log('signoError: ' . $signo . $e->getMessage(), 'error', $this->logSaveFileWorker);
                 }
                 if ($ret) {
                     $pid           = $ret['pid'];
@@ -161,36 +164,42 @@ class Process
                     $topic = $this->workersInfo[$pid]['topic'] ?? '';
                     $this->status=$this->getMasterData('status');
                     $topicCanNotRestartNum =  $this->dynamicWorkerNum[$topic] ?? 'null';
-                    $this->logger->log(Process::CHILD_PROCESS_CAN_RESTART . '---' . $topic . '***' . $topicCanNotRestartNum . '***' . $this->status . '***' . $this->workersInfo[$pid]['type'] . '***' . $pid, 'info', Logs::LOG_SAVE_FILE_WORKER);
-                    $this->logger->log($pid . ',' . $this->status . ',' . Process::STATUS_RUNNING . ',' . $this->workersInfo[$pid]['type'] . ',' . Process::CHILD_PROCESS_CAN_RESTART, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                    $this->logger->log(Process::CHILD_PROCESS_CAN_RESTART . '---' . $topic . '***' . $topicCanNotRestartNum . '***' . $this->status . '***' . $this->workersInfo[$pid]['type'] . '***' . $pid, 'info', $this->logSaveFileWorker);
+                    $this->logger->log($pid . ',' . $this->status . ',' . Process::STATUS_RUNNING . ',' . $this->workersInfo[$pid]['type'] . ',' . Process::CHILD_PROCESS_CAN_RESTART, 'info', $this->logSaveFileWorker);
 
                     //主进程状态为running并且该子进程是可以重启的
                     if ($this->status == Process::STATUS_RUNNING && $this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_RESTART) {
                         try {
-                            $newPid           = $childProcess->start();
+                            //子进程重启可能失败，必须启动成功之后，再往下执行
+                            while (true) {
+                                $newPid = $childProcess->start();
+                                if ($newPid > 0) {
+                                    break;
+                                }
+                            }
                             $this->workers[$newPid] = $childProcess;
                             $this->workersInfo[$newPid]['type'] = Process::CHILD_PROCESS_CAN_RESTART;
                             $this->workersInfo[$newPid]['topic'] = $topic;
                             $this->workerNum++;
-                            $this->logger->log("Worker Restart, kill_signal={$ret['signal']} PID=" . $newPid, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                            $this->logger->log("Worker Restart, kill_signal={$ret['signal']} PID=" . $newPid, 'info', $this->logSaveFileWorker);
                         } catch (\Throwable $e) {
-                            $this->logger->log('restartErrorThrow' . $e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
+                            $this->logger->log('restartErrorThrow' . $e->getMessage(), 'error', $this->logSaveFileWorker);
                         } catch (\Exception $e) {
-                            $this->logger->log('restartError: ' . $e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
+                            $this->logger->log('restartError: ' . $e->getMessage(), 'error', $this->logSaveFileWorker);
                         }
                     }
                     //某个topic动态变化的子进程，退出之后个数减少一个
                     if ($this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_NOT_RESTART) {
                         $this->dynamicWorkerNum[$topic]--;
                     }
-                    $this->logger->log("Worker Exit, kill_signal={$ret['signal']} PID=" . $pid, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                    $this->logger->log("Worker Exit, kill_signal={$ret['signal']} PID=" . $pid, 'info', $this->logSaveFileWorker);
                     unset($this->workers[$pid], $this->workersInfo[$pid]);
                     $this->workerNum--;
 
-                    $this->logger->log('Worker count: ' . count($this->workers) . '==' . $this->workerNum, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                    $this->logger->log('Worker count: ' . count($this->workers) . '==' . $this->workerNum, 'info', $this->logSaveFileWorker);
                     //如果$this->workers为空，且主进程状态为wait，说明所有子进程安全退出，这个时候主进程退出
                     if (empty($this->workers) && $this->status == Process::STATUS_WAIT) {
-                        $this->logger->log('主进程收到所有信号子进程的退出信号，子进程安全退出完成', 'info', Logs::LOG_SAVE_FILE_WORKER);
+                        $this->logger->log('主进程收到所有信号子进程的退出信号，子进程安全退出完成', 'info', $this->logSaveFileWorker);
                         $this->exitMaster();
                     }
                 } else {
@@ -222,11 +231,11 @@ class Process
                     $topic['workerMaxNum']                       =$topic['workerMaxNum'] ?? 0;
                     try {
                         $len=$this->queue->len($topic['name']);
-                        $this->logger->log('topic: ' . $topic['name'] . ' ' . $this->status . ' len: ' . $len , 'info', Logs::LOG_SAVE_FILE_WORKER);
+                        $this->logger->log('topic: ' . $topic['name'] . ' ' . $this->status . ' len: ' . $len, 'info', $this->logSaveFileWorker);
                     } catch (\Throwable $e) {
-                        $this->logger->log('queueError' . $e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
+                        $this->logger->log('queueError' . $e->getMessage(), 'error', $this->logSaveFileWorker);
                     } catch (\Exception $e) {
-                        $this->logger->log('queueError: ' . $e->getMessage(), 'error', Logs::LOG_SAVE_FILE_WORKER);
+                        $this->logger->log('queueError: ' . $e->getMessage(), 'error', $this->logSaveFileWorker);
                     }
                     $this->status=$this->getMasterData('status');
 
@@ -236,7 +245,7 @@ class Process
                             //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
                             $this->reserveQueue($this->dynamicWorkerNum[$topic['name']], $topic['name'], Process::CHILD_PROCESS_CAN_NOT_RESTART);
                             $this->dynamicWorkerNum[$topic['name']]++;
-                            $this->logger->log('topic: ' . $topic['name'] . ' ' . $this->status . ' len: ' . $len . ' for: ' . $i . ' ' . $max, 'info', Logs::LOG_SAVE_FILE_WORKER);
+                            $this->logger->log('topic: ' . $topic['name'] . ' ' . $this->status . ' len: ' . $len . ' for: ' . $i . ' ' . $max, 'info', $this->logSaveFileWorker);
                         }
                     }
                 }
@@ -252,7 +261,7 @@ class Process
         $data['status']=self::STATUS_WAIT;
         $this->saveMasterData($data);
         $this->status = self::STATUS_WAIT;
-        $this->logger->log('master status: ' . $this->status, 'info', Logs::LOG_SAVE_FILE_WORKER);
+        $this->logger->log('master status: ' . $this->status, 'info', $this->logSaveFileWorker);
     }
 
     //强制杀死子进程并退出主进程
@@ -265,8 +274,8 @@ class Process
                 //强制杀workers子进程
                 \Swoole\Process::kill($pid);
                 unset($this->workers[$pid]);
-                $this->logger->log('主进程收到退出信号,[' . $pid . ']子进程跟着退出', 'info', Logs::LOG_SAVE_FILE_WORKER);
-                $this->logger->log('Worker count: ' . count($this->workers), 'info', Logs::LOG_SAVE_FILE_WORKER);
+                $this->logger->log('主进程收到退出信号,[' . $pid . ']子进程跟着退出', 'info', $this->logSaveFileWorker);
+                $this->logger->log('Worker count: ' . count($this->workers), 'info', $this->logSaveFileWorker);
             }
         }
         $this->exitMaster();
@@ -277,7 +286,7 @@ class Process
     {
         @unlink($this->pidFile);
         @unlink($this->pidInfoFile);
-        $this->logger->log('Time: ' . microtime(true) . '主进程' . $this->ppid . '退出', 'info', Logs::LOG_SAVE_FILE_WORKER);
+        $this->logger->log('Time: ' . microtime(true) . '主进程' . $this->ppid . '退出', 'info', $this->logSaveFileWorker);
 
         sleep(1);
         exit();
@@ -288,7 +297,7 @@ class Process
     {
         if (!@\Swoole\Process::kill($this->ppid, 0)) {
             $worker->exit();
-            $this->logger->log("Master process exited, I [{$worker['pid']}] also quit", 'info', Logs::LOG_SAVE_FILE_WORKER);
+            $this->logger->log("Master process exited, I [{$worker['pid']}] also quit", 'info', $this->logSaveFileWorker);
         }
     }
 

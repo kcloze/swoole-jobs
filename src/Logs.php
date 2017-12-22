@@ -17,27 +17,30 @@ class Logs
     const LEVEL_INFO           = 'info';
     const LEVEL_PROFILE        = 'profile';
     const MAX_LOGS             = 10000;
-    //log保存文件名
-    const LOG_SAVE_FILE_APP    = 'application';
-    const LOG_SAVE_FILE_WORKER = 'worker';
+
     public $rotateByCopy       = true;
     public $maxLogFiles        = 5;
     public $maxFileSize        = 100; // in MB
 
     private $logPath      = '';
     //单个类型log
-    private $logs        = [];
-    private $logCount    = 0;
+    private $logs                 = [];
+    private $logCount             = 0;
+    //默认log文件存储名
+    private $logSaveFileApp       = 'application.log';
 
     private static $instance=null;
 
-    public function __construct($logPath)
+    public function __construct($logPath, $logSaveFileApp='')
     {
         if (empty($logPath)) {
             die('config logPath must be set!' . PHP_EOL);
         }
         Utils::mkdir($logPath);
         $this->logPath = $logPath;
+        if ($logSaveFileApp) {
+            $this->logSaveFileApp = $logSaveFileApp;
+        }
     }
 
     /**
@@ -46,13 +49,14 @@ class Logs
      * @$logPath
      *
      * @param mixed $logPath
+     * @param mixed $logSaveFileApp
      */
-    public static function getLogger($logPath='')
+    public static function getLogger($logPath='', $logSaveFileApp='')
     {
-        // if (isset(self::$instance) && self::$instance !== null) {
-        //     return self::$instance;
-        // }
-        self::$instance=new self($logPath);
+        if (isset(self::$instance) && self::$instance !== null) {
+            return self::$instance;
+        }
+        self::$instance=new self($logPath, $logSaveFileApp);
 
         return self::$instance;
     }
@@ -78,9 +82,12 @@ class Logs
      * @param mixed $category
      * @param mixed $flush
      */
-    public function log($message, $level = 'info', $category = self::LOG_SAVE_FILE_APP, $flush = true)
+    public function log($message, $level = 'info', $category = '', $flush = true)
     {
-        $this->logs[$category][] = [$message, $level, $category, microtime(true)];
+        if (empty($category)) {
+            $category=$this->logSaveFileApp;
+        }
+        $this->logs[$category][]      = [$message, $level, $category, microtime(true)];
         $this->logCount++;
         if ($this->logCount >= self::MAX_LOGS || true == $flush) {
             $this->flush($category);
@@ -137,7 +144,7 @@ class Logs
             if (empty($key)) {
                 continue;
             }
-            $fileName = $this->logPath . '/' . $key . '.log';
+            $fileName = $this->logPath . '/' . $key;
 
             if (($fp = @fopen($fileName, 'a')) === false) {
                 throw new \Exception("Unable to append to log file: {$fileName}");

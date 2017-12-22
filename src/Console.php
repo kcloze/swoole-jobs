@@ -18,7 +18,7 @@ class Console
     {
         Config::setConfig($config);
         $this->config = Config::getConfig();
-        $this->logger = Logs::getLogger(Config::getConfig()['logPath'] ?? []);
+        $this->logger  = new Logs($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
     }
 
     public function run()
@@ -56,7 +56,7 @@ class Console
                 exit('service is not running' . PHP_EOL);
             }
             //macOS 只接受SIGKILL信号,kill之后进程居然直接崩溃类...,还好生产环境也不会用macOS吧
-            $signal=(PHP_OS == 'Darwin') ? SIGKILL : $signal;
+            //$signal=(PHP_OS == 'Darwin') ? SIGKILL : $signal;
             if (@\Swoole\Process::kill($pid, $signal)) {
                 $this->logger->log('[pid: ' . $pid . '] has been stopped success');
             } else {
