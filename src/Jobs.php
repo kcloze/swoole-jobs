@@ -72,21 +72,7 @@ class Jobs
     //根据配置装入不同的框架
     private function loadFrameworkAction()
     {
-        $type = $this->config['framework']['type'] ?? 'swoole-jobs';
-        switch ($type) {
-            case 'yii':
-                $classFramework=$this->config['framework']['class'] ?? '\Kcloze\Jobs\Action\YiiAction';
-                break;
-            case 'phalcon':
-                $classFramework=$this->config['framework']['class'] ?? '\Kcloze\Jobs\Action\PhalconAction';
-                break;
-
-            default:
-                $classFramework=$this->config['framework']['class'] ?? '\Kcloze\Jobs\Action\SwooleJobsAction';
-
-                break;
-        }
-
+        $classFramework=$this->config['framework']['class'] ?? '\Kcloze\Jobs\Action\SwooleJobsAction';
         try {
             $action = new $classFramework();
         } catch (\Exception $e) {

@@ -13,12 +13,11 @@ class Queue
 {
     public static function getQueue($config)
     {
-        if (isset($config['class']) && $config['class']) {
-            if (is_callable([$config['class'], 'getConnection'])) {
-                return $config['class']::getConnection($config);
-            }
-            echo 'you must add queue config' . PHP_EOL;
-            exit;
+        $classQueue=$config['class'] ?? '\Kcloze\Jobs\Queue\RedisTopicQueue';
+        if (is_callable([$classQueue, 'getConnection'])) {
+            return $classQueue::getConnection($config);
         }
+        echo 'you must add queue config' . PHP_EOL;
+        exit;
     }
 }
