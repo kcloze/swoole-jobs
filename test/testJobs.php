@@ -21,7 +21,7 @@ $config = require_once APP_PATH . '/config.php';
 
 $queue=Queue::getQueue($config['job']['queue']);
 
-var_dump($queue);
+var_dump($queue); exit;
 
 $queue->setTopics($config['job']['topics']);
 

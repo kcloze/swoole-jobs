@@ -22,23 +22,23 @@ return $config = [
             ['name'=> 'MyJob3', 'workerMinNum'=>1, 'workerMaxNum'=>10],
         ],
         // redis
-        // 'queue'   => [
-        //     'type'    => 'redis',
-        //     'host'    => '127.0.0.1',
-        //     'port'    => 6379,
-        //     //'password'=> 'pwd',
-        // ],
+        'queue'   => [
+            'class'    => '\Kcloze\Jobs\Queue\RedisTopicQueue',
+            'host'     => '127.0.0.1',
+            'port'     => 6379,
+            //'password'=> 'pwd',
+        ],
 
         // rabbitmq
-        'queue'   => [
-            'type'         => 'rabbitmq',
-            'host'         => '192.168.1.105',
-            'user'         => 'guest',
-            'pass'         => 'guest',
-            'port'         => '5672',
-            'vhost'        => '/',
-            'exchange'     => 'php.amqp.ext',
-        ],
+        // 'queue'   => [
+        //     'class'         => '\Kcloze\Jobs\Queue\RabbitmqTopicQueue',
+        //     'host'          => '192.168.1.105',
+        //     'user'          => 'guest',
+        //     'pass'          => 'guest',
+        //     'port'          => '5672',
+        //     'vhost'         => '/',
+        //     'exchange'      => 'php.amqp.ext',
+        // ],
 
    ],
    //框架类型及装载类

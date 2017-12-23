@@ -13,6 +13,8 @@ use Kcloze\Jobs\JobObject;
 
 interface TopicQueueInterface
 {
+    public static function getConnection(array $config);
+
     /**
      * @return array a array of topics
      */

@@ -9,6 +9,7 @@
 
 namespace Kcloze\Jobs\Queue;
 
+use Enqueue\AmqpExt\AmqpConnectionFactory;
 use Enqueue\AmqpExt\AmqpContext;
 use Enqueue\AmqpTools\RabbitMqDlxDelayStrategy;
 use Interop\Amqp\AmqpQueue;
@@ -36,6 +37,25 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         $rabbitTopic->setType(AmqpTopic::TYPE_FANOUT);
         $context->declareTopic($rabbitTopic);
         $this->context = $context;
+    }
+
+    public static function getConnection(array $config)
+    {
+        try {
+            $factory          = new AmqpConnectionFactory($config);
+            $context          = $factory->createContext();
+            $connection       = new self($context, $config['exchange'] ?? null);
+        } catch (\Exception $e) {
+            echo $e->getMessage() . PHP_EOL;
+
+            return false;
+        } catch (\Throwable $e) {
+            echo $e->getMessage() . PHP_EOL;
+
+            return false;
+        }
+
+        return $connection;
     }
 
     /*

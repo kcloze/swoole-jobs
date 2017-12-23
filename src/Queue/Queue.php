@@ -9,48 +9,16 @@
 
 namespace Kcloze\Jobs\Queue;
 
-use Enqueue\AmqpExt\AmqpConnectionFactory;
-
 class Queue
 {
     public static function getQueue($config)
     {
-        if (isset($config['type']) && $config['type'] == 'redis') {
-            try {
-                $redis = new \Redis();
-                $redis->connect($config['host'], $config['port']);
-                if (isset($config['password']) && !empty($config['password'])) {
-                    $redis->auth($config['password']);
-                }
-            } catch (\Exception $e) {
-                echo $e->getMessage() . PHP_EOL;
-
-                return false;
-            } catch (\Throwable $e) {
-                echo $e->getMessage() . PHP_EOL;
-
-                return false;
+        if (isset($config['class']) && $config['class']) {
+            if (is_callable([$config['class'], 'getConnection'])) {
+                return $config['class']::getConnection($config);
             }
-            $connection = new RedisTopicQueue($redis);
-        } elseif (isset($config['type']) && $config['type'] == 'rabbitmq') {
-            try {
-                $factory          = new AmqpConnectionFactory($config);
-                $context          = $factory->createContext();
-                $connection       = new RabbitmqTopicQueue($context, $config['exchange'] ?? null);
-            } catch (\Exception $e) {
-                echo $e->getMessage() . PHP_EOL;
-
-                return false;
-            } catch (\Throwable $e) {
-                echo $e->getMessage() . PHP_EOL;
-
-                return false;
-            }
-        } else {
             echo 'you must add queue config' . PHP_EOL;
             exit;
         }
-
-        return $connection;
     }
 }

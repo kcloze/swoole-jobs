@@ -23,6 +23,10 @@ abstract class BaseTopicQueue implements TopicQueueInterface
     public $topics = [];
     public $queue  = null;
 
+    public static function getConnection(array $config)
+    {
+    }
+
     public function getTopics()
     {
         //根据key大到小排序，并保持索引关系

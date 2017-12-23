@@ -17,7 +17,7 @@ class Console
     public function __construct($config)
     {
         Config::setConfig($config);
-        $this->config = Config::getConfig();
+        $this->config  = Config::getConfig();
         $this->logger  = new Logs($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
     }
 

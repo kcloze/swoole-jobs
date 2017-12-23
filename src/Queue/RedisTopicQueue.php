@@ -24,6 +24,28 @@ class RedisTopicQueue extends BaseTopicQueue
         $this->queue = $redis;
     }
 
+    public static function getConnection(array $config)
+    {
+        try {
+            $redis = new \Redis();
+            $redis->connect($config['host'], $config['port']);
+            if (isset($config['password']) && !empty($config['password'])) {
+                $redis->auth($config['password']);
+            }
+        } catch (\Exception $e) {
+            echo $e->getMessage() . PHP_EOL;
+
+            return false;
+        } catch (\Throwable $e) {
+            echo $e->getMessage() . PHP_EOL;
+
+            return false;
+        }
+        $connection = new self($redis);
+
+        return $connection;
+    }
+
     /*
      * push message to queue.
      *
