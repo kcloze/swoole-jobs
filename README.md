@@ -18,7 +18,7 @@
 
 ## 3. 特性
 
-* 基于swoole的job调度组件；，类似gearman的分布式任务处理系统；
+* 基于swoole的job调度组件；类似gearman的分布式任务处理系统；
 * redis/rabbitmq/zeromq等任何一种做队列消息存储(目前只实现redis/rabbitmq)；
 * 利用swoole的process实现多进程管理，进程个数可配置，worker进程退出后会自动拉起；
 * 子进程循环次数可配置，防止业务代码内存泄漏；默认stop命令会等待子进程平滑退出；

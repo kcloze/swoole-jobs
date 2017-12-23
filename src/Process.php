@@ -318,7 +318,7 @@ class Process
 
     private function saveMasterData($data=[])
     {
-        file_put_contents($this->pidFile, $data['pid']);
+        isset($data['pid']) && file_put_contents($this->pidFile, $data['pid']);
         file_put_contents($this->pidInfoFile, serialize($data));
     }
 
