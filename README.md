@@ -178,7 +178,7 @@ sudo systemctl stop swoole-jobs.service
 
 ## 8. 注意事项
 
-* 如果嵌入自己的框架，jobs类可以自己根据框架路径自由定义，详情看src/Jobs.php
+* 如果嵌入自己的框架，可参考src/Action代码，继承抽象类Kcloze\Jobs\Action\BaseAction
 
 
 
