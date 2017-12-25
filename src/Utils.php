@@ -14,20 +14,15 @@ class Utils
     /**
      * 循环创建目录.
      *
-     * @param mixed $dir
+     * @param mixed $path
+     * @param mixed $recursive
      * @param mixed $mode
      */
-    public static function mkdir($dir, $mode = 0777)
+    public function mkdir($path, $mode=0777, $recursive=true)
     {
-        if (is_dir($dir) || @mkdir($dir, $mode)) {
-            return true;
+        if (!is_dir($path)) {
+            mkdir($path, $mode, $recursive);
         }
-
-        if (!mkdir(dirname($dir), $mode)) {
-            return false;
-        }
-
-        return @mkdir($dir, $mode);
     }
 
     public static function catchError($logger, $exception)
