@@ -8,7 +8,7 @@
 * web中较慢的逻辑，比如统计/email/短信/图片处理等；
 * 支持redis/rabbitmq/zeromq等任何一种做队列消息存储；
 * 比yii／laravel等框架自带队列更稳定更快[消费进程可动态变化]
-* 自带yii2/phalcon/yaf集成示例，其他框架参考src/Action代码，[yii2完整示例](https://github.com/kcloze/swoole-jobs-yii2)
+* 自带yii2/phalcon/yaf集成示例，其他框架可参考src/Action代码，[yii2完整示例](https://github.com/kcloze/swoole-jobs-yii2)
 
 ## 2. 架构图
 
