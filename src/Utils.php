@@ -23,7 +23,7 @@ class Utils
             return true;
         }
 
-        if (!mk_dir(dirname($dir), $mode)) {
+        if (!mkdir(dirname($dir), $mode)) {
             return false;
         }
 
