@@ -18,7 +18,7 @@ class Utils
      * @param mixed $recursive
      * @param mixed $mode
      */
-    public function mkdir($path, $mode=0777, $recursive=true)
+    public static function mkdir($path, $mode=0777, $recursive=true)
     {
         if (!is_dir($path)) {
             mkdir($path, $mode, $recursive);

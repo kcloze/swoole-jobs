@@ -107,11 +107,12 @@ WORKFLOWS
 
 
 ## 6. 服务管理
-### 启动和关闭服务,有两种方式:
+### 线上启动和关闭服务,有两种方式:
 
-#### 6.1 php脚本(主进程挂了之后,需要手动启动)
+#### 6.1 启动脚本加入到crontab定时任务，每分钟执行一次(swoole-jobs会自动检查是否在执行，避免重复启动)
+
 ```
-./swoole-jobs.php start|stop|exit|restart
+* * * * * /usr/local/bin/php /***/swoole-jobs.php start >> /***/log/system.log 2>&1
 
 ```
 
