@@ -11,6 +11,7 @@ namespace Kcloze\Jobs\Queue;
 
 use Enqueue\AmqpExt\AmqpConnectionFactory;
 use Enqueue\AmqpExt\AmqpContext;
+use Enqueue\AmqpTools\RabbitMqDelayPluginDelayStrategy;
 use Enqueue\AmqpTools\RabbitMqDlxDelayStrategy;
 use Interop\Amqp\AmqpQueue;
 use Interop\Amqp\AmqpTopic;
@@ -67,7 +68,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
      * @param [int]    $priority 优先级
      * @param [int]    $expiration      过期毫秒
      */
-    public function push($topic, JobObject $job, $delay=0, $priority=BaseTopicQueue::HIGH_LEVEL_1, $expiration=0)
+    public function push($topic, JobObject $job, $delay=0, $priority=BaseTopicQueue::HIGH_LEVEL_1, $expiration=0, $delayStrategy=1)
     {
         if (!$this->isConnected()) {
             return;
@@ -77,7 +78,13 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         $message = $this->context->createMessage(serialize($job));
         $producer=$this->context->createProducer();
         if ($delay > 0) {
-            $producer->setDelayStrategy(new RabbitMqDlxDelayStrategy());
+            //有两种策略实现延迟队列：rabbitmq插件和自带队列延迟
+            if ($delayStrategy == 1) {
+                $delayStrategyObj= new RabbitMqDelayPluginDelayStrategy();
+            } else {
+                $delayStrategyObj= new RabbitMqDlxDelayStrategy();
+            }
+            $producer->setDelayStrategy($delayStrategyObj);
             $producer->setDeliveryDelay($delay);
         }
         if ($priority) {
