@@ -252,7 +252,7 @@ class Process
                     }
                 }
             }
-            $this->queue->close();
+            //$this->queue->close();
         });
     }
 

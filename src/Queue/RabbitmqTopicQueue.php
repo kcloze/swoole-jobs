@@ -110,10 +110,10 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         return $job->uuid ?? '';
     }
 
-    public function pop($topic): array
+    public function pop($topic)
     {
         if (!$this->isConnected()) {
-            return [];
+            return;
         }
 
         $queue    = $this->createQueue($topic);

@@ -35,8 +35,8 @@ $topics = $queue->getTopics();
 
 addTest1($queue);
 addTest2($queue);
-// addTest3($queue);
-// addTest4($queue);
+addTest3($queue);
+addTest4($queue);
 
 //往topic为MyJob的任务增加执行job
 function addTest1($queue)

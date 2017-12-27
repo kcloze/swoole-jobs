@@ -42,7 +42,7 @@ interface TopicQueueInterface
      *
      * @return array
      */
-    public function pop($topic): array;
+    public function pop($topic);
 
     /**
      * @param $topic

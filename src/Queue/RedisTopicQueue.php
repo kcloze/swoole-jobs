@@ -63,15 +63,15 @@ class RedisTopicQueue extends BaseTopicQueue
         return $job->uuid ?? '';
     }
 
-    public function pop($topic): array
+    public function pop($topic)
     {
         if (!$this->isConnected()) {
-            return [];
+            return;
         }
 
         $result = $this->queue->lPop($topic);
 
-        return !empty($result) ? @unserialize($result) : [];
+        return !empty($result) ? unserialize($result) : null;
     }
 
     public function len($topic): int
