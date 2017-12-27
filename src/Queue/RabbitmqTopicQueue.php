@@ -35,7 +35,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
     {
         $rabbitTopic  = $context->createTopic($exchange ?? self::EXCHANGE);
         $rabbitTopic->addFlag(AmqpTopic::FLAG_DURABLE);
-        $rabbitTopic->setType(AmqpTopic::TYPE_FANOUT);
+        //$rabbitTopic->setType(AmqpTopic::TYPE_FANOUT);
         $context->declareTopic($rabbitTopic);
         $this->context = $context;
     }

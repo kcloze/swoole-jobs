@@ -61,7 +61,7 @@ function addTest2($queue)
         $priority              =BaseTopicQueue::HIGH_LEVEL_2;
         $jobExtras['delay']    =$delay;
         $jobExtras['priority'] =$priority;
-        $job                   =new JobObject('MyJob', '\Kcloze\Jobs\Jobs\MyJob', 'test2', ['kcloze', time()], $jobExtras);
+        $job                   =new JobObject('MyJob', '\Kcloze\Jobs\Jobs\MyJob', 'test2', ['kcloze', time(), 'oop'], $jobExtras);
         $result                =$queue->push('MyJob', $job);
         var_dump($result);
     }
@@ -90,7 +90,7 @@ function addTest4($queue)
         $jobExtras['delay']    =$delay;
         $jobExtras['priority'] =$priority;
         $job                   =new JobObject('MyJob2', '\Kcloze\Jobs\Jobs\MyJob2', 'test1', ['kcloze', time()], $jobExtras);
-        $result                =$queue->push('MyJob', $job);
+        $result                =$queue->push('MyJob2', $job);
         var_dump($result);
     }
     for ($i = 0; $i < 100; $i++) {
@@ -99,8 +99,8 @@ function addTest4($queue)
         $priority              =BaseTopicQueue::HIGH_LEVEL_2;
         $jobExtras['delay']    =$delay;
         $jobExtras['priority'] =$priority;
-        $job                   =new JobObject('MyJob2', '\Kcloze\Jobs\Jobs\MyJob2', 'test2', ['kcloze', time()], $jobExtras);
-        $result                =$queue->push('MyJob', $job);
+        $job                   =new JobObject('MyJob2', '\Kcloze\Jobs\Jobs\MyJob2', 'test2', ['kcloze', time(), 'oop'], $jobExtras);
+        $result                =$queue->push('MyJob2', $job);
         var_dump($result);
     }
     for ($i = 0; $i < 100; $i++) {
@@ -110,7 +110,7 @@ function addTest4($queue)
         $jobExtras['delay']    =$delay;
         $jobExtras['priority'] =$priority;
         $job                   =new JobObject('MyJob2', '\Kcloze\Jobs\Jobs\MyJob2', 'testError', ['kcloze', time()], $jobExtras);
-        $result                =$queue->push('MyJob', $job);
+        $result                =$queue->push('MyJob2', $job);
         var_dump($result);
     }
 }
