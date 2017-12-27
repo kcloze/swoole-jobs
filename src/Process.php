@@ -45,7 +45,7 @@ class Process
     public function __construct()
     {
         $this->config  =  Config::getConfig();
-        $this->logger  = new Logs($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
+        $this->logger  = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
         $this->topics  =$this->config['job']['topics'] ?? [];
 
         //该变量需要在多进程共享

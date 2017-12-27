@@ -24,7 +24,7 @@ class Jobs
     {
         $this->config  = Config::getConfig(); //读取配置文件
         $this->sleep   = $this->config['sleep'] ?? $this->sleep;
-        $this->logger  = Logs::getLogger($this->config['logPath'] ?? []);
+        $this->logger  = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
     }
 
     public function run($topic='')

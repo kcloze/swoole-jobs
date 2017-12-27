@@ -19,11 +19,12 @@ class PhalconAction
 {
     public function init()
     {
-        $this->logger = Logs::getLogger(Config::getConfig()['logPath'] ?? []);
+        $this->logger  = Logs::getLogger(Config::getConfig()['logPath'] ?? '', Config::getConfig()['logSaveFileApp'] ?? '');
     }
 
     public function start(JobObject $JobObject)
     {
+        $this->init();
         try {
             $arguments['task']  =$JobObject->jobClass;
             $arguments['action']=$JobObject->jobMethod;

@@ -20,7 +20,7 @@ class YafAction
 
     public function init()
     {
-        $this->logger = Logs::getLogger(Config::getConfig()['logPath'] ?? []);
+        $this->logger  = Logs::getLogger(Config::getConfig()['logPath'] ?? '', Config::getConfig()['logSaveFileApp'] ?? '');
     }
 
     //yaf运行参数配置
