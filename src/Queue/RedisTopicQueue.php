@@ -46,36 +46,35 @@ class RedisTopicQueue extends BaseTopicQueue
         return $connection;
     }
 
-    /*
+    /**
      * push message to queue.
      *
-     * @param [string] $topic
-     * @param [sting]  $value
-     * @param [int]    $delay    延迟毫秒
-     * @param [int]    $priority 优先级
-     * @param [int]    $expiration      过期毫秒
+     * @param [type]    $topic
+     * @param JobObject $job
      */
-    public function push($topic, JobObject $job, $delay=0, $priority=BaseTopicQueue::HIGH_LEVEL_1, $expiration=0)
+    public function push($topic, JobObject $job): string
     {
         if (!$this->isConnected()) {
-            return;
+            return '';
         }
 
-        return $this->queue->lPush($topic, serialize($job));
+        $this->queue->lPush($topic, serialize($job));
+
+        return $job->uuid ?? '';
     }
 
-    public function pop($topic)
+    public function pop($topic): array
     {
         if (!$this->isConnected()) {
-            return;
+            return [];
         }
 
         $result = $this->queue->lPop($topic);
 
-        return !empty($result) ? @unserialize($result) : null;
+        return !empty($result) ? @unserialize($result) : [];
     }
 
-    public function len($topic)
+    public function len($topic): int
     {
         if (!$this->isConnected()) {
             return 0;

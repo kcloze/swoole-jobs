@@ -35,7 +35,7 @@ return $config = [
             'host'          => '192.168.9.24',
             'user'          => 'phpadmin',
             'pass'          => 'phpadmin',
-            'port'          => '5672',
+            'port'          => '5671',
             'vhost'         => 'php',
             'exchange'      => 'php.amqp.ext',
         ],

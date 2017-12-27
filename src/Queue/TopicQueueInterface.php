@@ -26,27 +26,30 @@ interface TopicQueueInterface
     public function setTopics(array $topics);
 
     /**
-     * @param $topic
-     * @param $value
-     * @param mixed $delay
-     * @param mixed $priority
-     * @param mixed $expiration
+     * 推送队列，返回jobid字符串.
+     *
+     * @param [type]    $topic
+     * @param JobObject $job
+     *
+     * @return string
      */
-    public function push($topic, JobObject $job, $delay, $priority, $expiration);
+    public function push($topic, JobObject $job): string;
 
     /**
-     * @param $topic
+     * 从队列拿消息.
      *
-     * @return mixed
+     * @param [type] $topic
+     *
+     * @return array
      */
-    public function pop($topic);
+    public function pop($topic): array;
 
     /**
      * @param $topic
      *
      * @return int
      */
-    public function len($topic);
+    public function len($topic): int;
 
     public function close();
 

@@ -40,15 +40,15 @@ abstract class BaseTopicQueue implements TopicQueueInterface
         $this->topics = $topics;
     }
 
-    public function push($topic, JobObject $job, $delay=0, $priority=self::HIGH_LEVEL_1, $expiration=0)
+    public function push($topic, JobObject $job): string
     {
     }
 
-    public function pop($topic)
+    public function pop($topic): array
     {
     }
 
-    public function len($topic)
+    public function len($topic): int
     {
     }
 

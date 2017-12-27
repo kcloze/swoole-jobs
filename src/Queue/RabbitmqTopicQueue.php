@@ -68,17 +68,28 @@ class RabbitmqTopicQueue extends BaseTopicQueue
      * @param [int]    $priority 优先级
      * @param [int]    $expiration      过期毫秒
      */
-    public function push($topic, JobObject $job, $delay=0, $priority=BaseTopicQueue::HIGH_LEVEL_1, $expiration=0, $delayStrategy=1)
+
+    /**
+     * push message to queue.
+     *
+     * @param [type]    $topic
+     * @param JobObject $job
+     * @param int       $delayStrategy
+     */
+    public function push($topic, JobObject $job, $delayStrategy=1): string
     {
         if (!$this->isConnected()) {
-            return;
+            return '';
         }
 
-        $queue   = $this->createQueue($topic);
-        $message = $this->context->createMessage(serialize($job));
-        $producer=$this->context->createProducer();
+        $queue        = $this->createQueue($topic);
+        $message      = $this->context->createMessage(serialize($job));
+        $producer     =$this->context->createProducer();
+        $delay        = $job->jobExtras['delay'] ?? 0;
+        $priority     = $job->jobExtras['priority'] ?? BaseTopicQueue::HIGH_LEVEL_1;
+        $expiration   = $job->jobExtras['expiration'] ?? 0;
         if ($delay > 0) {
-            //有两种策略实现延迟队列：rabbitmq插件和自带队列延迟
+            //有两种策略实现延迟队列：rabbitmq插件,对消息创建延迟队列；自带队列延迟，变像实现，每个不同的过期时间都会创建队列(不推荐)
             if ($delayStrategy == 1) {
                 $delayStrategyObj= new RabbitMqDelayPluginDelayStrategy();
             } else {
@@ -96,13 +107,13 @@ class RabbitmqTopicQueue extends BaseTopicQueue
 
         $result=$producer->send($queue, $message);
 
-        return $result;
+        return $job->uuid ?? '';
     }
 
-    public function pop($topic)
+    public function pop($topic): array
     {
         if (!$this->isConnected()) {
-            return;
+            return [];
         }
 
         $queue    = $this->createQueue($topic);
@@ -116,10 +127,10 @@ class RabbitmqTopicQueue extends BaseTopicQueue
     }
 
     //这里的topic跟rabbitmq不一样，其实就是队列名字
-    public function len($topic)
+    public function len($topic): int
     {
         if (!$this->isConnected()) {
-            return;
+            return 0;
         }
 
         $queue = $this->createQueue($topic);
@@ -147,6 +158,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         try {
             $queue = $this->context->createQueue($topic);
             $queue->addFlag(AmqpQueue::FLAG_DURABLE);
+            $len   =$this->context->declareQueue($queue);
         } catch (\Throwable $e) {
             echo 'queue Error: ' . $e->getMessage() . PHP_EOL;
         } catch (\Exception $e) {
