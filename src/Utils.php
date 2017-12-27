@@ -34,4 +34,9 @@ class Utils
 
         $logger->log($error, 'error');
     }
+
+    public static function getMillisecond()
+    {
+        return microtime(true);
+    }
 }
