@@ -46,10 +46,13 @@ class Jobs
                     $data = $this->queue->pop($topic);
                     $this->logger->log('pop data: ' . print_r($data, true), 'info');
                     if (!empty($data) && is_object($data)) {
+                        $beginTime=microtime(true);
                         // 根据自己的业务需求改写此方法
                         $jobObject               =  $this->loadObject($data);
                         $baseAction              =  $this->loadFrameworkAction();
                         $baseAction->start($jobObject);
+                        $endTime=microtime(true);
+                        $this->logger->log('job id ' . $jobObject->uuid . ' done, spend time: ' . ($endTime - $beginTime), 'info');
                     } else {
                         $this->logger->log('pop error data: ' . print_r($data, true), 'error');
                     }
