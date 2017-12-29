@@ -9,13 +9,15 @@
 
 namespace Kcloze\Jobs\Queue;
 
+use Kcloze\Jobs\Logs;
+
 class Queue
 {
-    public static function getQueue($config)
+    public static function getQueue(array $config, Logs $logger)
     {
         $classQueue=$config['class'] ?? '\Kcloze\Jobs\Queue\RedisTopicQueue';
         if (is_callable([$classQueue, 'getConnection'])) {
-            return $classQueue::getConnection($config);
+            return $classQueue::getConnection($config, $logger);
         }
         echo 'you must add queue config' . PHP_EOL;
         exit;

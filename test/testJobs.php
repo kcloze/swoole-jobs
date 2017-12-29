@@ -14,12 +14,13 @@ date_default_timezone_set('Asia/Shanghai');
 require APP_PATH . '/vendor/autoload.php';
 
 use Kcloze\Jobs\JobObject;
+use Kcloze\Jobs\Logs;
 use Kcloze\Jobs\Queue\BaseTopicQueue;
 use Kcloze\Jobs\Queue\Queue;
 
-$config = require_once APP_PATH . '/config.php';
-
-$queue=Queue::getQueue($config['job']['queue']);
+$config        = require_once APP_PATH . '/config.php';
+$logger        = Logs::getLogger($config['logPath'] ?? '', $config['logSaveFileApp'] ?? '');
+$queue         =Queue::getQueue($config['job']['queue'], $logger);
 
 //var_dump($queue);
 

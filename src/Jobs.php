@@ -30,7 +30,7 @@ class Jobs
     public function run($topic='')
     {
         if ($topic) {
-            $this->queue = Queue::getQueue($this->config['job']['queue']);
+            $this->queue = Queue::getQueue($this->config['job']['queue'], $this->logger);
             if (empty($this->queue)) {
                 sleep($this->sleep);
 
@@ -65,7 +65,7 @@ class Jobs
                 sleep($this->sleep);
                 $this->logger->log('sleep ' . $this->sleep . ' second!', 'info');
             }
-            //$this->queue->close();
+            $this->queue->close();
         } else {
             $this->logger->log('All topic no work to do!', 'info');
         }
@@ -77,8 +77,10 @@ class Jobs
         $classFramework=$this->config['framework']['class'] ?? '\Kcloze\Jobs\Action\SwooleJobsAction';
         try {
             $action = new $classFramework();
+        } catch (\Throwable $e) {
+            Utils::catchError($this->logger, $e);
         } catch (\Exception $e) {
-            echo $e->getMessage();
+            Utils::catchError($this->logger, $e);
         }
 
         return $action;

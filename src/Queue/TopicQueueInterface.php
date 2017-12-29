@@ -10,10 +10,11 @@
 namespace Kcloze\Jobs\Queue;
 
 use Kcloze\Jobs\JobObject;
+use Kcloze\Jobs\Logs;
 
 interface TopicQueueInterface
 {
-    public static function getConnection(array $config);
+    public static function getConnection(array $config, Logs $logger);
 
     /**
      * @return array a array of topics

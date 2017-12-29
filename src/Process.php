@@ -223,7 +223,7 @@ class Process
         \Swoole\Timer::tick($this->queueTickTimer, function ($timerId) {
             $topics = $this->topics;
             $this->status  =$this->getMasterData('status');
-            $this->queue   = Queue::getQueue($this->config['job']['queue']);
+            $this->queue   = Queue::getQueue($this->config['job']['queue'], $this->logger);
             if (empty($this->queue)) {
                 return;
             }

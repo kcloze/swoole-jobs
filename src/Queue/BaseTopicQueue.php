@@ -10,6 +10,7 @@
 namespace Kcloze\Jobs\Queue;
 
 use Kcloze\Jobs\JobObject;
+use Kcloze\Jobs\Logs;
 
 abstract class BaseTopicQueue implements TopicQueueInterface
 {
@@ -23,7 +24,7 @@ abstract class BaseTopicQueue implements TopicQueueInterface
     public $topics = [];
     public $queue  = null;
 
-    public static function getConnection(array $config)
+    public static function getConnection(array $config, Logs $logger)
     {
     }
 

@@ -10,21 +10,26 @@
 namespace Kcloze\Jobs\Queue;
 
 use Kcloze\Jobs\JobObject;
+use Kcloze\Jobs\Logs;
+use Kcloze\Jobs\Utils;
 
 class RedisTopicQueue extends BaseTopicQueue
 {
+    private $logger =null;
+
     /**
      * RedisTopicQueue constructor.
      * 使用依赖注入的方式.
      *
      * @param \Redis $redis
      */
-    public function __construct(\Redis $redis)
+    public function __construct(\Redis $redis, Logs $logger)
     {
-        $this->queue = $redis;
+        $this->queue   = $redis;
+        $this->logger  = $logger;
     }
 
-    public static function getConnection(array $config)
+    public static function getConnection(array $config, Logs $logger)
     {
         try {
             $redis = new \Redis();
@@ -32,16 +37,16 @@ class RedisTopicQueue extends BaseTopicQueue
             if (isset($config['password']) && !empty($config['password'])) {
                 $redis->auth($config['password']);
             }
-        } catch (\Exception $e) {
-            echo $e->getMessage() . PHP_EOL;
+        } catch (\Throwable $e) {
+            Utils::catchError($logger, $e);
 
             return false;
-        } catch (\Throwable $e) {
-            echo $e->getMessage() . PHP_EOL;
+        } catch (\Exception $e) {
+            Utils::catchError($logger, $e);
 
             return false;
         }
-        $connection = new self($redis);
+        $connection = new self($redis, $logger);
 
         return $connection;
     }
@@ -96,12 +101,12 @@ class RedisTopicQueue extends BaseTopicQueue
     {
         try {
             $this->queue->ping();
-        } catch (\Exception $e) {
-            echo $e->getMessage() . PHP_EOL;
+        } catch (\Throwable $e) {
+            Utils::catchError($this->logger, $e);
 
             return false;
-        } catch (\Throwable $e) {
-            echo $e->getMessage() . PHP_EOL;
+        } catch (\Exception $e) {
+            Utils::catchError($this->logger, $e);
 
             return false;
         }

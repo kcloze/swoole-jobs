@@ -16,13 +16,15 @@ use Enqueue\AmqpTools\RabbitMqDlxDelayStrategy;
 use Interop\Amqp\AmqpQueue;
 use Interop\Amqp\AmqpTopic;
 use Kcloze\Jobs\JobObject;
+use Kcloze\Jobs\Logs;
+use Kcloze\Jobs\Utils;
 
 class RabbitmqTopicQueue extends BaseTopicQueue
 {
     const EXCHANGE    ='php.amqp.ext';
 
-    public $queue   =null;
     public $context =null;
+    private $logger =null;
 
     /**
      * RabbitmqTopicQueue constructor.
@@ -31,27 +33,28 @@ class RabbitmqTopicQueue extends BaseTopicQueue
      * @param array $queue
      * @param mixed $exchange
      */
-    public function __construct(AmqpContext $context, $exchange)
+    public function __construct(AmqpContext $context, $exchange, Logs $logger)
     {
-        $rabbitTopic  = $context->createTopic($exchange ?? self::EXCHANGE);
+        $this->logger  = $logger;
+        $rabbitTopic   = $context->createTopic($exchange ?? self::EXCHANGE);
         $rabbitTopic->addFlag(AmqpTopic::FLAG_DURABLE);
         //$rabbitTopic->setType(AmqpTopic::TYPE_FANOUT);
         $context->declareTopic($rabbitTopic);
         $this->context = $context;
     }
 
-    public static function getConnection(array $config)
+    public static function getConnection(array $config, Logs $logger)
     {
         try {
             $factory          = new AmqpConnectionFactory($config);
             $context          = $factory->createContext();
-            $connection       = new self($context, $config['exchange'] ?? null);
-        } catch (\Exception $e) {
-            echo $e->getMessage() . PHP_EOL;
+            $connection       = new self($context, $config['exchange'] ?? null, $logger);
+        } catch (\Throwable $e) {
+            Utils::catchError($logger, $e);
 
             return false;
-        } catch (\Throwable $e) {
-            echo $e->getMessage() . PHP_EOL;
+        } catch (\Exception $e) {
+            Utils::catchError($logger, $e);
 
             return false;
         }
@@ -160,9 +163,13 @@ class RabbitmqTopicQueue extends BaseTopicQueue
             $queue->addFlag(AmqpQueue::FLAG_DURABLE);
             $len   =$this->context->declareQueue($queue);
         } catch (\Throwable $e) {
-            echo 'queue Error: ' . $e->getMessage() . PHP_EOL;
+            Utils::catchError($this->logger, $e);
+
+            return false;
         } catch (\Exception $e) {
-            echo 'queue Error: ' . $e->getMessage() . PHP_EOL;
+            Utils::catchError($this->logger, $e);
+
+            return false;
         }
 
         return $queue;
