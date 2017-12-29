@@ -51,8 +51,8 @@ class YafAction
             //此处params为固定参数名称，在yafAction里进行获取
             //public function methodAction($params){}
             $request  = new \Yaf\Request\Simple('CLI', $module, $controller, $action, ['params'=>$params]);
-            unset($params);
             $response = $app->bootstrap()->getDispatcher()->returnResponse(true)->dispatch($request);
+            unset($params);
             $this->logger->log('Action has been done, action content: ' . json_encode($JobObject));
         } catch (\Throwable $e) {
             Utils::catchError($this->logger, $e);
