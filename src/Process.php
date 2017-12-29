@@ -172,13 +172,19 @@ class Process
                     if ($this->status == Process::STATUS_RUNNING && $this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_RESTART) {
                         usleep(Process::SLEEP_TIME);
                         try {
-                            //子进程重启可能失败，必须启动成功之后，再往下执行
-                            while (true) {
+                            //子进程重启可能失败，必须启动成功之后，再往下执行;最多尝试10次
+                            for ($i=0; $i < 10; $i++) {
                                 $newPid = $childProcess->start();
                                 if ($newPid > 0) {
                                     break;
                                 }
                             }
+                            if (!$newPid) {
+                                $this->logger->log('静态子进程重启失败，问题有点严重，需要重启静态子进程', 'error', $this->logSaveFileWorker);
+                                $this->reserveQueue(0, $topic);
+                                continue;
+                            }
+
                             $this->workers[$newPid] = $childProcess;
                             $this->workersInfo[$newPid]['type'] = Process::CHILD_PROCESS_CAN_RESTART;
                             $this->workersInfo[$newPid]['topic'] = $topic;
@@ -252,7 +258,7 @@ class Process
                     }
                 }
             }
-            //$this->queue->close();
+            $this->queue->close();
         });
     }
 
