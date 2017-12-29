@@ -17,7 +17,9 @@ use Kcloze\Jobs\Utils;
 class YafAction
 {
     private $logger=null;
-
+    
+    private static $application =null;
+    
     public function init()
     {
         $this->logger  = Logs::getLogger(Config::getConfig()['logPath'] ?? '', Config::getConfig()['logSaveFileApp'] ?? '');
@@ -41,12 +43,16 @@ class YafAction
         $action              = $JobObject->jobMethod;
         $params              = $JobObject->jobParams;
         try {
-            //此处yaf配置文件路径自行根据情况设置
-            $app = new \Yaf\Application(APP_PATH . '/conf/application.ini', ini_get('yaf.environ'));
+            if(empty(self::$application)){
+                defined('APPLICATION_PATH')?'':define('APPLICATION_PATH', APP_PATH);
+                \Yaf\Loader::import(APP_PATH . '/application/init.php');
+                self::$application = new \Yaf\Application(APP_PATH . '/conf/application.ini', ini_get('yaf.environ'));
+            }
             //此处params为固定参数名称，在yafAction里进行获取
             //public function methodAction($params){}
             $request  = new \Yaf\Request\Simple('CLI', $module, $controller, $action, ['params'=>$params]);
-            $response = $app->getDispatcher()->returnResponse(true)->dispatch($request);
+            $response = $app->bootstrap()->getDispatcher()->returnResponse(true)->dispatch($request);
+            unset($params);
             $this->logger->log('Action has been done, action content: ' . json_encode($JobObject));
         } catch (\Throwable $e) {
             Utils::catchError($this->logger, $e);
