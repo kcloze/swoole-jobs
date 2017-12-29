@@ -52,7 +52,7 @@ class YafAction
             //public function methodAction($params){}
             $request  = new \Yaf\Request\Simple('CLI', $module, $controller, $action, ['params'=>$params]);
             unset($params);
-            $response = $app->getDispatcher()->returnResponse(true)->dispatch($request);
+            $response = $app->bootstrap()->getDispatcher()->returnResponse(true)->dispatch($request);
             $this->logger->log('Action has been done, action content: ' . json_encode($JobObject));
         } catch (\Throwable $e) {
             Utils::catchError($this->logger, $e);
