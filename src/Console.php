@@ -2,7 +2,7 @@
 
 /*
  * This file is part of PHP CS Fixer.
- * (c) kcloze <pei.greet@qq.com>
+ *  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
@@ -23,7 +23,7 @@ class Console
 
     public function run()
     {
-        $this->getOpt();
+        $this->runOpt();
     }
 
     public function start()
@@ -34,15 +34,16 @@ class Console
     }
 
     /**
-     * 给主进程发送信号：
+     *  给主进程发送信号：
      *  SIGUSR1 自定义信号，让子进程平滑退出
+     *  SIGUSR2 自定义信号2，显示进程状态
      *  SIGTERM 程序终止，让子进程强制退出.
      *
      * @param [type] $signal
      */
-    public function stop($signal=SIGUSR1)
+    public function sendSignal($signal=SIGUSR1)
     {
-        $this->logger->log($signal . ($signal == SIGUSR1) ? ' smooth to exit...' : ' force to exit...');
+        $this->logger->log($signal . (SIGUSR1 == $signal) ? ' smooth to exit...' : ' force to exit...');
 
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             $masterPidFile=$this->config['pidPath'] . '/master.pid';
@@ -55,12 +56,10 @@ class Console
             if ($pid && !@\Swoole\Process::kill($pid, 0)) {
                 exit('service is not running' . PHP_EOL);
             }
-            //macOS 只接受SIGKILL信号,kill之后进程居然直接崩溃类...,还好生产环境也不会用macOS吧
-            //$signal=(PHP_OS == 'Darwin') ? SIGKILL : $signal;
             if (@\Swoole\Process::kill($pid, $signal)) {
-                $this->logger->log('[pid: ' . $pid . '] has been stopped success');
+                $this->logger->log('[master pid: ' . $pid . '] has been received  signal' . $signal);
             } else {
-                $this->logger->log('[pid: ' . $pid . '] has been stopped fail');
+                $this->logger->log('[master pid: ' . $pid . '] has been received signal fail');
             }
         } else {
             exit('service is not running' . PHP_EOL);
@@ -77,10 +76,10 @@ class Console
 
     public function kill()
     {
-        $this->stop(SIGTERM);
+        $this->sendSignal(SIGTERM);
     }
 
-    public function getOpt()
+    public function runOpt()
     {
         global $argv;
         if (empty($argv[1])) {
@@ -93,7 +92,10 @@ class Console
                 $this->start();
                 break;
             case 'stop':
-                $this->stop();
+                $this->sendSignal();
+                break;
+            case 'status':
+                $this->sendSignal(SIGUSR2);
                 break;
             case 'exit':
                 $this->kill();

@@ -2,7 +2,7 @@
 
 /*
  * This file is part of PHP CS Fixer.
- * (c) kcloze <pei.greet@qq.com>
+ *  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
@@ -38,5 +38,43 @@ class Utils
     public static function getMillisecond()
     {
         return microtime(true);
+    }
+
+    /**
+     * Get Server Memory Usage.
+     *
+     * @return string
+     */
+    public static function getServerMemoryUsage()
+    {
+        if (stristr(PHP_OS, 'Linux')) {
+            return static::getServerMemoryUsageForLinux();
+        }
+
+        return (memory_get_usage() / 1048576) . ' MB';
+    }
+
+    /**
+     * Get Server Cpu Usage.
+     *
+     * @return string
+     */
+    public static function getServerCpuUsage()
+    {
+        $load = sys_getloadavg();
+
+        return $load[0];
+    }
+
+    private static function getServerMemoryUsageForLinux()
+    {
+        $free    = shell_exec('free');
+        $free    = (string) trim($free);
+        $freeArr = explode("\n", $free);
+        $mem     = explode(' ', $freeArr[1]);
+        $mem     = array_filter($mem);
+        $mem     = array_merge($mem);
+
+        return $mem[2] / $mem[1] * 100;
     }
 }

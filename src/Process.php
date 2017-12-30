@@ -2,7 +2,7 @@
 
 /*
  * This file is part of PHP CS Fixer.
- * (c) kcloze <pei.greet@qq.com>
+ *  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
@@ -94,7 +94,7 @@ class Process
             foreach ((array) $topics as  $topic) {
                 if (isset($topic['workerMinNum']) && isset($topic['name'])) {
                     //每个topic开启最少个进程消费队列
-                    for ($i = 0; $i < $topic['workerMinNum']; $i++) {
+                    for ($i = 0; $i < $topic['workerMinNum']; ++$i) {
                         $this->reserveQueue($i, $topic['name'], \Kcloze\Jobs\Process::CHILD_PROCESS_CAN_RESTART);
                     }
                 }
@@ -136,7 +136,7 @@ class Process
         $this->workersInfo[$pid]['type']            = $type;
         $this->workersInfo[$pid]['topic']           = $topic;
         $this->logger->log('topic: ' . $topic . ' ' . $type . ' worker id: ' . $num . ' pid: ' . $pid . ' is start...', 'info', $this->logSaveFileWorker);
-        $this->workerNum++;
+        ++$this->workerNum;
     }
 
     //注册信号
@@ -150,6 +150,9 @@ class Process
         });
         \Swoole\Process::signal(SIGUSR1, function ($signo) {
             $this->waitWorkers();
+        });
+        \Swoole\Process::signal(SIGUSR2, function ($signo) {
+            $this->showStatus();
         });
 
         \Swoole\Process::signal(SIGCHLD, function ($signo) {
@@ -169,11 +172,11 @@ class Process
                     $this->logger->log($pid . ',' . $this->status . ',' . Process::STATUS_RUNNING . ',' . $this->workersInfo[$pid]['type'] . ',' . Process::CHILD_PROCESS_CAN_RESTART, 'info', $this->logSaveFileWorker);
 
                     //主进程状态为running并且该子进程是可以重启的
-                    if ($this->status == Process::STATUS_RUNNING && $this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_RESTART) {
+                    if (Process::STATUS_RUNNING == $this->status && $this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_RESTART) {
                         usleep(Process::SLEEP_TIME);
                         try {
                             //子进程重启可能失败，必须启动成功之后，再往下执行;最多尝试10次
-                            for ($i=0; $i < 10; $i++) {
+                            for ($i=0; $i < 10; ++$i) {
                                 $newPid = $childProcess->start();
                                 if ($newPid > 0) {
                                     break;
@@ -188,7 +191,7 @@ class Process
                             $this->workers[$newPid] = $childProcess;
                             $this->workersInfo[$newPid]['type'] = Process::CHILD_PROCESS_CAN_RESTART;
                             $this->workersInfo[$newPid]['topic'] = $topic;
-                            $this->workerNum++;
+                            ++$this->workerNum;
                             $this->logger->log("Worker Restart, kill_signal={$ret['signal']} PID=" . $newPid, 'info', $this->logSaveFileWorker);
                         } catch (\Throwable $e) {
                             $this->logger->log('restartErrorThrow' . $e->getMessage(), 'error', $this->logSaveFileWorker);
@@ -198,15 +201,15 @@ class Process
                     }
                     //某个topic动态变化的子进程，退出之后个数减少一个
                     if ($this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_NOT_RESTART) {
-                        $this->dynamicWorkerNum[$topic]--;
+                        --$this->dynamicWorkerNum[$topic];
                     }
                     $this->logger->log("Worker Exit, kill_signal={$ret['signal']} PID=" . $pid, 'info', $this->logSaveFileWorker);
                     unset($this->workers[$pid], $this->workersInfo[$pid]);
-                    $this->workerNum--;
+                    --$this->workerNum;
 
                     $this->logger->log('Worker count: ' . count($this->workers) . '==' . $this->workerNum, 'info', $this->logSaveFileWorker);
                     //如果$this->workers为空，且主进程状态为wait，说明所有子进程安全退出，这个时候主进程退出
-                    if (empty($this->workers) && $this->status == Process::STATUS_WAIT) {
+                    if (empty($this->workers) && Process::STATUS_WAIT == $this->status) {
                         $this->logger->log('主进程收到所有信号子进程的退出信号，子进程安全退出完成', 'info', $this->logSaveFileWorker);
                         $this->exitMaster();
                     }
@@ -229,7 +232,7 @@ class Process
             }
             $this->queue->setTopics($topics);
 
-            if ($topics && $this->status == Process::STATUS_RUNNING) {
+            if ($topics && Process::STATUS_RUNNING == $this->status) {
                 //遍历topic任务列表
                 foreach ((array) $topics as  $topic) {
                     if (empty($topic['name'])) {
@@ -247,12 +250,12 @@ class Process
                     }
                     $this->status=$this->getMasterData('status');
 
-                    if ($this->status == Process::STATUS_RUNNING && $len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
+                    if (Process::STATUS_RUNNING == $this->status && $len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
                         $max=$topic['workerMaxNum'] - $this->dynamicWorkerNum[$topic['name']];
-                        for ($i=0; $i < $max; $i++) {
+                        for ($i=0; $i < $max; ++$i) {
                             //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
                             $this->reserveQueue($this->dynamicWorkerNum[$topic['name']], $topic['name'], Process::CHILD_PROCESS_CAN_NOT_RESTART);
-                            $this->dynamicWorkerNum[$topic['name']]++;
+                            ++$this->dynamicWorkerNum[$topic['name']];
                             $this->logger->log('topic: ' . $topic['name'] . ' ' . $this->status . ' len: ' . $len . ' for: ' . $i . ' ' . $max, 'info', $this->logSaveFileWorker);
                         }
                     }
@@ -336,5 +339,20 @@ class Process
         }
 
         return $data;
+    }
+
+    private function showStatus()
+    {
+        $statusStr  ='----------------------------------------------GLOBAL STATUS----------------------------------------------------' . PHP_EOL;
+        $statusStr .= '          PHP version:' . PHP_VERSION;
+        $statusStr .= 'System info --- cpu usage: ' . Utils::getServerCpuUsage() . ' --- memory use:' . Utils::getServerMemoryUsageForLinux();
+        if ($this->workers) {
+            foreach ($this->workers as $pid => $value) {
+                // code...
+                var_dump($value);
+                $statusStr .= "$pid " . str_pad('N/A', 7) . ' ' . PHP_EOL;
+            }
+        }
+        echo  $statusStr;
     }
 }
