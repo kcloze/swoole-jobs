@@ -149,7 +149,7 @@ sudo systemctl stop swoole-jobs.service
 
 ## 8. change log
 #### 2017-12-31
-* 挤压队列情况，支持发钉钉等消息提醒；
+* 出现积压队列情况，支持钉钉机器人等消息提醒；
 * 支持status状态显示命令；
 * 静态子进程可能重启失败，增强日志记录；
 

@@ -268,9 +268,9 @@ class Process
             }
             $this->queue->close();
         });
-        //挤压队列提醒
+        //积压队列提醒
         \Swoole\Timer::tick($this->messageTickTimer, function ($timerId) {
-            if ($this->message) {
+            if ($this->message && isset($this->config['message'])) {
                 $message =Message::getMessage($this->config['message']);
                 $message->send($this->message, $this->config['message']['token']);
                 $this->message='';
