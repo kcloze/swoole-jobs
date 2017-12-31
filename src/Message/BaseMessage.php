@@ -15,7 +15,7 @@ abstract class BaseMessage
     {
     }
 
-    public function send($message)
+    public function send(string $message)
     {
     }
 }

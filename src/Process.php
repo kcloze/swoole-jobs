@@ -9,6 +9,7 @@
 
 namespace Kcloze\Jobs;
 
+use Kcloze\Jobs\Message\Message;
 use Kcloze\Jobs\Queue\Queue;
 
 class Process
@@ -29,6 +30,8 @@ class Process
 
     private $queueMaxNum                  =10; //队列达到一定长度，增加子进程个数
     private $queueTickTimer               =2000; //一定时间间隔（毫秒）检查队列长度
+    private $messageTickTimer             =1000 * 180; //一定时间间隔（秒）发送消息提醒
+    private $message                      =''; //提醒消息内容
     private $workerNum                    =0; //固定分配的子进程个数
     private $dynamicWorkerNum             =[]; //动态（不能重启）子进程计数，最大数为每个topic配置workerMaxNum，它的个数是动态变化的
     private $workersInfo                  =[];
@@ -153,7 +156,7 @@ class Process
             $this->waitWorkers();
         });
         \Swoole\Process::signal(SIGUSR2, function ($signo) {
-            $this->showStatus();
+            echo $this->showStatus();
         });
 
         \Swoole\Process::signal(SIGCHLD, function ($signo) {
@@ -252,6 +255,7 @@ class Process
                     $this->status=$this->getMasterData('status');
 
                     if (Process::STATUS_RUNNING == $this->status && $len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
+                        $this->message .= 'topic ' . $topic['name'] . ' 挤压消息个数:' . $len . PHP_EOL;
                         $max=$topic['workerMaxNum'] - $this->dynamicWorkerNum[$topic['name']];
                         for ($i=0; $i < $max; ++$i) {
                             //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
@@ -263,6 +267,14 @@ class Process
                 }
             }
             $this->queue->close();
+        });
+        //挤压队列提醒
+        \Swoole\Timer::tick($this->messageTickTimer, function ($timerId) {
+            if ($this->message) {
+                $message =Message::getMessage($this->config['message']);
+                $message->send($this->message, $this->config['message']['token']);
+                $this->message='';
+            }
         });
     }
 
@@ -357,6 +369,7 @@ class Process
                 $statusStr .= 'Child pid:  ' . $pid . ' ' . $type . ' ' . $topic . PHP_EOL;
             }
         }
-        echo  $statusStr;
+
+        return $statusStr;
     }
 }

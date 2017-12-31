@@ -45,8 +45,12 @@ return $config = [
    //框架类型及装载类
    'framework' => [
        //可以自定义，但是该类必须继承\Kcloze\Jobs\Action\BaseAction
-       'class'=> 'Kcloze\Jobs\Action\SwooleJobsAction',
+       'class'=> '\Kcloze\Jobs\Action\SwooleJobsAction',
 
+   ],
+   'message'=> [
+       'class'  => '\Kcloze\Jobs\Message\DingMessage',
+       'token'  => '***your-dingding-token***',
    ],
 
 ];

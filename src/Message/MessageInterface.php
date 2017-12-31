@@ -13,5 +13,5 @@ interface MessageInterface
 {
     public function init();
 
-    public function send($message);
+    public function send(string $message);
 }
