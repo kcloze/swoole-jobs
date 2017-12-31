@@ -137,13 +137,17 @@ sudo systemctl reload swoole-jobs.service
 sudo systemctl stop swoole-jobs.service
 ```
 
-
+## 7.系统截图
+#### htop截图
 ![实例图](demo.png)
+#### status
 ![status](status.png)
+#### 钉钉提醒
+![message](dingding.png)
 
 
 
-## 7. change log
+## 8. change log
 #### 2017-12-31
 * 挤压队列情况，支持发钉钉等消息提醒；
 * 支持status状态显示命令；
@@ -159,50 +163,36 @@ sudo systemctl stop swoole-jobs.service
 #### 2017-11-30
 * 增加exit启动参数，默认stop等待子进程平滑退出
 
-
 #### 2017-11-29
 * 重构自身和第三方框架装载类实现，降低耦合性；
 * 支持Yii和Phalcon主流框架
-
 
 #### 2017-11-28 16:52:42 
 * topics支持根据key值排序，队列根据这个排序优先消费；
 * 优化启动流程，让PHP进程自身管理，移除服务管理脚本；
 * 重构代码，优化结构；
 
-
-
 #### 2017-11-28 00:27:42 
 
 > by [daydaygo](http://github.com/daydaygo)
-
 - 优化 TopicQueue 实现: `TopicQueueInterface -> BaseTopicQueue -> XxxTopicQueue`
 - 优化 job run() 方式, 增加类静态方法实现, 并实现多参数输入
 - 使用依赖注入方式进行解耦, 比如 `Jobs` 类依赖 `BaseTopicQueue` 抽象类, 不和具体的 `TopicQueue` 实现耦合; 比如配置的解耦, `Jobs` 类只用关系自己业务相关的配置, 不用耦合其他配置
 - 添加 php 进行服务管理
 
 #### 2017-5-19
-
 * 增加使用systemd管理swoole服务,实现故障重启、开机自启动等功能
 
-## 8. 注意事项
-
+## 9. 注意事项
 * 如果嵌入自己的框架，可参考src/Action代码，继承抽象类Kcloze\Jobs\Action\BaseAction
 
-
-
-## 9. 压测
-
+## 10. 压测
 * 瓶颈: redis/rabbitmq队列存储本身和job执行速度
 
-
-
-## 10. 感谢
-
+## 11. 感谢
 * [swoole](http://www.swoole.com/)
 
-## 11. 联系
-
+## 12. 联系
 qq群：141059677
 
 
