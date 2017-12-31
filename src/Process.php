@@ -366,7 +366,7 @@ class Process
                 $type =$this->workersInfo[$pid]['type'];
                 $topic=$this->workersInfo[$pid]['topic'];
 
-                $statusStr .= 'Child pid:  ' . $pid . ' ' . $type . ' ' . $topic . PHP_EOL;
+                $statusStr .= 'worker pid:  ' . $pid . ' ' . $type . ' ' . $topic . PHP_EOL;
             }
         }
 
