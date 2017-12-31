@@ -27,6 +27,7 @@
 * 根据队列积压情况，子进程动态启动进程数，最大子进程个数可配置；
 * 支持composer，可以跟任意框架集成；
 * 日志文件自动切割，默认最大100M，最多5个日志文件，防止日志刷满磁盘；
+* 挤压队列情况，支持发钉钉等消息提醒；
 
 
 ## 4. 安装
@@ -89,6 +90,8 @@ WORKFLOWS
       help [command]
       Show this help, or workflow help for command.
 
+      status [command]
+      Show master and workers status.
 
       restart
       Stop, then start swoole-jobs master and workers.
@@ -136,10 +139,15 @@ sudo systemctl stop swoole-jobs.service
 
 
 ![实例图](demo.png)
+![status](status.png)
 
 
 
 ## 7. change log
+#### 2017-12-31
+* 挤压队列情况，支持发钉钉等消息提醒；
+* 支持status状态显示命令；
+* 静态子进程可能重启失败，增强日志记录；
 
 #### 2017-12-10
 * worker子进程支持个数可以根据队列挤压情况动态变化；
