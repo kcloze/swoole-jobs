@@ -40,14 +40,15 @@ class Process
     private $logger                       = null;
     private $queue                        = null;
     private $topics                       = null;
+    private $beginTime                    = '';
     private $logSaveFileWorker            = 'workers.log';
 
     public function __construct()
     {
-        $this->config  =  Config::getConfig();
-        $this->logger  = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
-        $this->topics  =$this->config['job']['topics'] ?? [];
-
+        $this->config   =  Config::getConfig();
+        $this->logger   = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
+        $this->topics   =$this->config['job']['topics'] ?? [];
+        $this->beginTime=time();
         //该变量需要在多进程共享
         $this->status=self::STATUS_RUNNING;
 
@@ -343,14 +344,17 @@ class Process
 
     private function showStatus()
     {
-        $statusStr  ='----------------------------------------------GLOBAL STATUS----------------------------------------------------' . PHP_EOL;
-        $statusStr .= '          PHP version:' . PHP_VERSION;
-        $statusStr .= 'System info --- cpu usage: ' . Utils::getServerCpuUsage() . ' --- memory use:' . Utils::getServerMemoryUsageForLinux();
+        $statusStr  ='----------------------------------------------' . $this->processName . ' status----------------------------------------------------' . PHP_EOL;
+        $statusStr .= 'PHP version:' . PHP_VERSION . PHP_EOL;
+        $statusStr .= 'start time : ' . date('Y-m-d H:i:s', $this->beginTime) . '   run ' . floor((time() - $this->beginTime) / (24 * 60 * 60)) . ' days ' . floor(((time() - $this->beginTime) % (24 * 60 * 60)) / (60 * 60)) . ' hours   ' . PHP_EOL;
+        $statusStr .= Utils::getSysLoadAvg() . '   memory use:' . Utils::getServerMemoryUsage() . PHP_EOL;
+        $statusStr .= 'Master pid ' . $this->ppid . ' Worker num ' . count($this->workers) . PHP_EOL;
         if ($this->workers) {
             foreach ($this->workers as $pid => $value) {
-                // code...
-                var_dump($value);
-                $statusStr .= "$pid " . str_pad('N/A', 7) . ' ' . PHP_EOL;
+                $type =$this->workersInfo[$pid]['type'];
+                $topic=$this->workersInfo[$pid]['topic'];
+
+                $statusStr .= 'Child pid:  ' . $pid . ' ' . $type . ' ' . $topic . PHP_EOL;
             }
         }
         echo  $statusStr;

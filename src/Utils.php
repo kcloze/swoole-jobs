@@ -47,34 +47,18 @@ class Utils
      */
     public static function getServerMemoryUsage()
     {
-        if (stristr(PHP_OS, 'Linux')) {
-            return static::getServerMemoryUsageForLinux();
-        }
-
-        return (memory_get_usage() / 1048576) . ' MB';
+        return round(memory_get_usage(true) / (1024 * 1024), 2) . ' MB';
     }
 
     /**
-     * Get Server Cpu Usage.
+     * Get Server load avg.
      *
      * @return string
      */
-    public static function getServerCpuUsage()
+    public static function getSysLoadAvg()
     {
-        $load = sys_getloadavg();
+        $loadavg = function_exists('sys_getloadavg') ? array_map('round', sys_getloadavg(), [2]) : ['-', '-', '-'];
 
-        return $load[0];
-    }
-
-    private static function getServerMemoryUsageForLinux()
-    {
-        $free    = shell_exec('free');
-        $free    = (string) trim($free);
-        $freeArr = explode("\n", $free);
-        $mem     = explode(' ', $freeArr[1]);
-        $mem     = array_filter($mem);
-        $mem     = array_merge($mem);
-
-        return $mem[2] / $mem[1] * 100;
+        return 'load average: ' . implode(', ', $loadavg);
     }
 }
