@@ -177,18 +177,20 @@ class Process
 
                     //主进程状态为running并且该子进程是可以重启的
                     if (Process::STATUS_RUNNING == $this->status && $this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_RESTART) {
-                        usleep(Process::SLEEP_TIME);
+                        //usleep(Process::SLEEP_TIME);
                         try {
-                            //子进程重启可能失败，必须启动成功之后，再往下执行;最多尝试10次
-                            for ($i=0; $i < 10; ++$i) {
+                            //子进程重启可能失败，必须启动成功之后，再往下执行;最多尝试30次
+                            for ($i=0; $i < 30; ++$i) {
                                 $newPid = $childProcess->start();
                                 if ($newPid > 0) {
                                     break;
                                 }
+                                sleep(1);
                             }
                             if (!$newPid) {
-                                $this->logger->log('静态子进程重启失败，问题有点严重，需要重启静态子进程', 'error', $this->logSaveFileWorker);
-                                $this->reserveQueue(0, $topic);
+                                $this->logger->log('静态子进程重启失败，问题有点严重，平滑退出重启子进程，主进程会跟着退出', 'error', $this->logSaveFileWorker);
+                                $this->waitWorkers();
+                                //$this->reserveQueue(0, $topic);
                                 continue;
                             }
 
@@ -255,7 +257,7 @@ class Process
                     $this->status=$this->getMasterData('status');
 
                     if (Process::STATUS_RUNNING == $this->status && $len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
-                        $this->message .= 'topic ' . $topic['name'] . ' 挤压消息个数:' . $len . PHP_EOL;
+                        $this->message .= 'Topic ' . $topic['name'] . ' 积压消息个数:' . $len . PHP_EOL;
                         $max=$topic['workerMaxNum'] - $this->dynamicWorkerNum[$topic['name']];
                         for ($i=0; $i < $max; ++$i) {
                             //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
@@ -360,7 +362,7 @@ class Process
         $statusStr .= 'PHP version:' . PHP_VERSION . PHP_EOL;
         $statusStr .= 'start time : ' . date('Y-m-d H:i:s', $this->beginTime) . '   run ' . floor((time() - $this->beginTime) / (24 * 60 * 60)) . ' days ' . floor(((time() - $this->beginTime) % (24 * 60 * 60)) / (60 * 60)) . ' hours   ' . PHP_EOL;
         $statusStr .= Utils::getSysLoadAvg() . '   memory use:' . Utils::getServerMemoryUsage() . PHP_EOL;
-        $statusStr .= '|-- Master pid ' . $this->ppid . ' Worker num ' . count($this->workers) . PHP_EOL;
+        $statusStr .= '|-- Master pid ' . $this->ppid . ' status: '.$this->status.' Worker num: ' . count($this->workers) . PHP_EOL;
         if ($this->workers) {
             foreach ($this->workers as $pid => $value) {
                 $type =$this->workersInfo[$pid]['type'];
