@@ -2,7 +2,7 @@
 
 /*
  * This file is part of PHP CS Fixer.
- *  * (c) kcloze <pei.greet@qq.com>
+ * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
@@ -39,6 +39,7 @@ class Process
     private $config                       = [];
     private $pidFile                      = 'master.pid'; //pid存放文件
     private $pidInfoFile                  = 'master.info'; //pid 序列化信息
+    private $pidStatusFile                = 'status.info'; //pid status信息
     private $status                       = '';
     private $logger                       = null;
     private $queue                        = null;
@@ -57,8 +58,9 @@ class Process
 
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             Utils::mkdir($this->config['pidPath']);
-            $this->pidFile    =$this->config['pidPath'] . '/' . $this->pidFile;
-            $this->pidInfoFile=$this->config['pidPath'] . '/' . $this->pidInfoFile;
+            $this->pidFile      =$this->config['pidPath'] . '/' . $this->pidFile;
+            $this->pidInfoFile  =$this->config['pidPath'] . '/' . $this->pidInfoFile;
+            $this->pidStatusFile=$this->config['pidPath'] . '/' . $this->pidStatusFile;
         } else {
             die('config pidPath must be set!' . PHP_EOL);
         }
@@ -156,7 +158,10 @@ class Process
             $this->waitWorkers();
         });
         \Swoole\Process::signal(SIGUSR2, function ($signo) {
-            echo $this->showStatus();
+            $this->logger->log('[master pid: ' . $this->ppid . '] has been received  signal' . $signo);
+            $result=$this->showStatus();
+            $this->saveSwooleJobsStatus($result);
+            //echo $result;
         });
 
         \Swoole\Process::signal(SIGCHLD, function ($signo) {
@@ -188,7 +193,7 @@ class Process
                                 sleep(1);
                             }
                             if (!$newPid) {
-                                $this->logger->log('静态子进程重启失败，问题有点严重，平滑退出重启子进程，主进程会跟着退出', 'error', $this->logSaveFileWorker);
+                                $this->logger->log('静态子进程重启失败，问题有点严重，平滑退出子进程，主进程会跟着退出', 'error', $this->logSaveFileWorker);
                                 $this->waitWorkers();
                                 //$this->reserveQueue(0, $topic);
                                 continue;
@@ -346,6 +351,11 @@ class Process
         file_put_contents($this->pidInfoFile, serialize($data));
     }
 
+    private function saveSwooleJobsStatus(string $data)
+    {
+        file_put_contents($this->pidStatusFile, $data);
+    }
+
     private function getMasterData($key='')
     {
         $data=unserialize(file_get_contents($this->pidInfoFile));
@@ -362,7 +372,7 @@ class Process
         $statusStr .= 'PHP version:' . PHP_VERSION . PHP_EOL;
         $statusStr .= 'start time : ' . date('Y-m-d H:i:s', $this->beginTime) . '   run ' . floor((time() - $this->beginTime) / (24 * 60 * 60)) . ' days ' . floor(((time() - $this->beginTime) % (24 * 60 * 60)) / (60 * 60)) . ' hours   ' . PHP_EOL;
         $statusStr .= Utils::getSysLoadAvg() . '   memory use:' . Utils::getServerMemoryUsage() . PHP_EOL;
-        $statusStr .= '|-- Master pid ' . $this->ppid . ' status: '.$this->status.' Worker num: ' . count($this->workers) . PHP_EOL;
+        $statusStr .= '|-- Master pid ' . $this->ppid . ' status: ' . $this->status . ' Worker num: ' . count($this->workers) . PHP_EOL;
         if ($this->workers) {
             foreach ($this->workers as $pid => $value) {
                 $type =$this->workersInfo[$pid]['type'];

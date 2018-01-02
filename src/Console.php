@@ -2,7 +2,7 @@
 
 /*
  * This file is part of PHP CS Fixer.
- *  * (c) kcloze <pei.greet@qq.com>
+ * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
@@ -47,6 +47,7 @@ class Console
 
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             $masterPidFile=$this->config['pidPath'] . '/master.pid';
+            $pidStatusFile=$this->config['pidPath'] . '/status.info';
         } else {
             die('config pidPath must be set!' . PHP_EOL);
         }
@@ -58,6 +59,15 @@ class Console
             }
             if (@\Swoole\Process::kill($pid, $signal)) {
                 $this->logger->log('[master pid: ' . $pid . '] has been received  signal' . $signal);
+                sleep(1);
+                $statusStr=file_get_contents($pidStatusFile);
+                if ($statusStr) {
+                    echo $statusStr;
+                    exit;
+                }else{
+                    echo 'sorry,show status fail.';
+                    exit;
+                }
             } else {
                 $this->logger->log('[master pid: ' . $pid . '] has been received signal fail');
             }

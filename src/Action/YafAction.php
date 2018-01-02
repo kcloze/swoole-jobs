@@ -17,9 +17,9 @@ use Kcloze\Jobs\Utils;
 class YafAction
 {
     private $logger=null;
-    
+
     private static $application =null;
-    
+
     public function init()
     {
         $this->logger  = Logs::getLogger(Config::getConfig()['logPath'] ?? '', Config::getConfig()['logSaveFileApp'] ?? '');
@@ -43,8 +43,8 @@ class YafAction
         $action              = $JobObject->jobMethod;
         $params              = $JobObject->jobParams;
         try {
-            if(empty(self::$application)){
-                defined('APPLICATION_PATH')?'':define('APPLICATION_PATH', APP_PATH);
+            if (empty(self::$application)) {
+                defined('APPLICATION_PATH') ? '' : define('APPLICATION_PATH', APP_PATH);
                 \Yaf\Loader::import(APP_PATH . '/application/init.php');
                 self::$application = new \Yaf\Application(APP_PATH . '/conf/application.ini', ini_get('yaf.environ'));
             }
