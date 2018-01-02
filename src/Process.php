@@ -356,17 +356,17 @@ class Process
 
     private function showStatus()
     {
-        $statusStr  ='----------------------------------------------' . $this->processName . ' status----------------------------------------------------' . PHP_EOL;
+        $statusStr  ='-------------------------------------' . $this->processName . ' status--------------------------------------------' . PHP_EOL;
         $statusStr .= 'PHP version:' . PHP_VERSION . PHP_EOL;
         $statusStr .= 'start time : ' . date('Y-m-d H:i:s', $this->beginTime) . '   run ' . floor((time() - $this->beginTime) / (24 * 60 * 60)) . ' days ' . floor(((time() - $this->beginTime) % (24 * 60 * 60)) / (60 * 60)) . ' hours   ' . PHP_EOL;
         $statusStr .= Utils::getSysLoadAvg() . '   memory use:' . Utils::getServerMemoryUsage() . PHP_EOL;
-        $statusStr .= 'Master pid ' . $this->ppid . ' Worker num ' . count($this->workers) . PHP_EOL;
+        $statusStr .= '|-- Master pid ' . $this->ppid . ' Worker num ' . count($this->workers) . PHP_EOL;
         if ($this->workers) {
             foreach ($this->workers as $pid => $value) {
                 $type =$this->workersInfo[$pid]['type'];
                 $topic=$this->workersInfo[$pid]['topic'];
 
-                $statusStr .= 'Worker pid:  ' . $pid . ' ' . $type . ' ' . $topic . PHP_EOL;
+                $statusStr .= '    |---- Worker pid:  ' . $pid . ' ' . $type . ' ' . $topic . PHP_EOL;
             }
         }
 
