@@ -23,11 +23,10 @@ class Process
     const STATUS_HSET_KEY_HASH                        ='status'; //status hash名
     const SLEEP_TIME                                  =1000; //子进程退出之后，自动拉起暂停毫秒数
 
-    public $processName      = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
-    public $jobs             = null;
+    public $processName                   = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
+    public $workers                       = [];
 
-    public $workers                       =[];
-
+    private $version                      = '2.4.5';
     private $queueMaxNum                  =10; //队列达到一定长度，增加子进程个数
     private $queueTickTimer               =2000; //一定时间间隔（毫秒）检查队列长度
     private $messageTickTimer             =1000 * 180; //一定时间间隔（秒）发送消息提醒
@@ -369,7 +368,7 @@ class Process
     private function showStatus()
     {
         $statusStr  ='-------------------------------------' . $this->processName . ' status--------------------------------------------' . PHP_EOL;
-        $statusStr .= 'PHP version:' . PHP_VERSION . PHP_EOL;
+        $statusStr .= 'PHP version:' . PHP_VERSION . '      swoole-jobs version: ' . $this->version . PHP_EOL;
         $statusStr .= 'start time : ' . date('Y-m-d H:i:s', $this->beginTime) . '   run ' . floor((time() - $this->beginTime) / (24 * 60 * 60)) . ' days ' . floor(((time() - $this->beginTime) % (24 * 60 * 60)) / (60 * 60)) . ' hours   ' . PHP_EOL;
         $statusStr .= Utils::getSysLoadAvg() . '   memory use:' . Utils::getServerMemoryUsage() . PHP_EOL;
         $statusStr .= '|-- Master pid ' . $this->ppid . ' status: ' . $this->status . ' Worker num: ' . count($this->workers) . PHP_EOL;
