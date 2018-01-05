@@ -126,7 +126,10 @@ class Process
                 //设置进程名字
                 $this->setProcessName($type . ' ' . $topic . ' job ' . $num . ' ' . $this->processName);
                 $jobs  = new Jobs();
-                $jobs->run($topic);
+                do{
+                    $jobs->run($topic);
+                }
+                while($type == self::CHILD_PROCESS_CAN_RESTART ? time() < $beginTime+3600 : false);
             } catch (\Throwable $e) {
                 Utils::catchError($this->logger, $e);
             } catch (\Exception $e) {
