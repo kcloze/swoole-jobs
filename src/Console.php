@@ -61,16 +61,13 @@ class Console
                 $this->logger->log('[master pid: ' . $pid . '] has been received  signal' . $signal);
                 sleep(1);
                 $statusStr=file_get_contents($pidStatusFile);
-                if ($statusStr) {
-                    echo $statusStr;
-                    exit;
-                }else{
-                    echo 'sorry,show status fail.';
+                //如果是SIGUSR2信号，显示swoole-jobs状态信息
+                if (SIGUSR2 == $signal) {
+                    echo $statusStr ? $statusStr : 'sorry,show status fail.';
                     exit;
                 }
-            } else {
-                $this->logger->log('[master pid: ' . $pid . '] has been received signal fail');
             }
+            $this->logger->log('[master pid: ' . $pid . '] has been received signal fail');
         } else {
             exit('service is not running' . PHP_EOL);
         }

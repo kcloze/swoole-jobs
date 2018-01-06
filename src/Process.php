@@ -14,14 +14,15 @@ use Kcloze\Jobs\Queue\Queue;
 
 class Process
 {
-    const CHILD_PROCESS_CAN_RESTART                   ='staticWorker'; //子进程可以重启,进程个数固定
-    const CHILD_PROCESS_CAN_NOT_RESTART               ='dynamicWorker'; //子进程不可以重启，进程个数根据队列堵塞情况动态分配
-    const STATUS_RUNNING                              ='runnning'; //主进程running状态
-    const STATUS_WAIT                                 ='wait'; //主进程wait状态
-    const STATUS_STOP                                 ='stop'; //主进程stop状态
-    const APP_NAME                                    ='swoole-jobs'; //app name
-    const STATUS_HSET_KEY_HASH                        ='status'; //status hash名
-    const SLEEP_TIME                                  =1000; //子进程退出之后，自动拉起暂停毫秒数
+    const CHILD_PROCESS_CAN_RESTART                    ='staticWorker'; //子进程可以重启,进程个数固定
+    const CHILD_PROCESS_CAN_NOT_RESTART                ='dynamicWorker'; //子进程不可以重启，进程个数根据队列堵塞情况动态分配
+    const STATUS_RUNNING                               ='runnning'; //主进程running状态
+    const STATUS_WAIT                                  ='wait'; //主进程wait状态
+    const STATUS_STOP                                  ='stop'; //主进程stop状态
+    const APP_NAME                                     ='swoole-jobs'; //app name
+    const STATUS_HSET_KEY_HASH                         ='status'; //status hash名
+    const SLEEP_TIME                                   =1000; //子进程退出之后，自动拉起暂停毫秒数
+    const EXCUTE_TIME                                  =3600; //子进程最长执行时间
 
     public $processName                   = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
     public $workers                       = [];
@@ -126,10 +127,11 @@ class Process
                 //设置进程名字
                 $this->setProcessName($type . ' ' . $topic . ' job ' . $num . ' ' . $this->processName);
                 $jobs  = new Jobs();
-                do{
+                do {
                     $jobs->run($topic);
-                }
-                while($type == self::CHILD_PROCESS_CAN_RESTART ? time() < $beginTime+3600 : false);
+                    $this->status=$this->getMasterData('status');
+                    $where = (self::STATUS_RUNNING == $this->status) && (self::CHILD_PROCESS_CAN_RESTART == $type ? time() < ($beginTime + self::EXCUTE_TIME) : false);
+                } while ($where);
             } catch (\Throwable $e) {
                 Utils::catchError($this->logger, $e);
             } catch (\Exception $e) {
@@ -150,15 +152,19 @@ class Process
     //注册信号
     public function registSignal()
     {
+        //强制退出
         \Swoole\Process::signal(SIGTERM, function ($signo) {
             $this->killWorkersAndExitMaster();
         });
+        //强制退出
         \Swoole\Process::signal(SIGKILL, function ($signo) {
             $this->killWorkersAndExitMaster();
         });
+        //平滑退出
         \Swoole\Process::signal(SIGUSR1, function ($signo) {
             $this->waitWorkers();
         });
+        //记录进程状态
         \Swoole\Process::signal(SIGUSR2, function ($signo) {
             $this->logger->log('[master pid: ' . $this->ppid . '] has been received  signal' . $signo);
             $result=$this->showStatus();
