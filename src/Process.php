@@ -245,8 +245,13 @@ class Process
         \Swoole\Timer::tick($this->queueTickTimer, function ($timerId) {
             $topics = $this->topics;
             $this->status  =$this->getMasterData('status');
+            if (empty($this->workers) && Process::STATUS_WAIT == $this->status) {
+                $this->exitMaster();
+            }
             $this->queue   = Queue::getQueue($this->config['job']['queue'], $this->logger);
             if (empty($this->queue)) {
+                $this->logger->log('queue connection is lost', 'info', $this->logSaveFileWorker);
+
                 return;
             }
             $this->queue->setTopics($topics);
