@@ -60,9 +60,10 @@ class Console
             if (@\Swoole\Process::kill($pid, $signal)) {
                 $this->logger->log('[master pid: ' . $pid . '] has been received  signal' . $signal);
                 sleep(1);
-                $statusStr=file_get_contents($pidStatusFile);
                 //如果是SIGUSR2信号，显示swoole-jobs状态信息
                 if (SIGUSR2 == $signal) {
+                    $statusStr=file_get_contents($pidStatusFile);
+
                     echo $statusStr ? $statusStr : 'sorry,show status fail.';
                     exit;
                 }
