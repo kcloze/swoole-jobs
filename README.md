@@ -2,6 +2,7 @@
 
 * 基于swoole类似gearman的分布式任务处理系统
 * 高性能/动态多woker进程消费队列，加速后端耗时服
+* 无需像gearman一个worker配置一条crontab，swoole-jobs负责管理所有worker状态
 
 ## 1. 说明
 
