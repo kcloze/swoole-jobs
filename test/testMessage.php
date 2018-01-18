@@ -16,16 +16,16 @@
 
 // echo $status_str;
 
-define('APP_PATH', __DIR__ . '/..');
+define('SWOOLE_JOBS_ROOT_PATH', __DIR__ . '/..');
 
 date_default_timezone_set('Asia/Shanghai');
 
-require APP_PATH . '/vendor/autoload.php';
+require SWOOLE_JOBS_ROOT_PATH . '/vendor/autoload.php';
 
 use Kcloze\Jobs\Config;
 use Kcloze\Jobs\Message\Message;
 
-$config = require_once APP_PATH . '/config.php';
+$config = require_once SWOOLE_JOBS_ROOT_PATH . '/config.php';
 Config::setConfig($config);
 
 $content ='测试机器人吧';

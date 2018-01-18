@@ -44,9 +44,9 @@ class YafAction
         $params              = $JobObject->jobParams;
         try {
             if (empty(self::$application)) {
-                defined('APPLICATION_PATH') ? '' : define('APPLICATION_PATH', APP_PATH);
-                \Yaf\Loader::import(APP_PATH . '/application/init.php');
-                self::$application = new \Yaf\Application(APP_PATH . '/conf/application.ini', ini_get('yaf.environ'));
+                defined('APPLICATION_PATH') ? '' : define('APPLICATION_PATH', SWOOLE_JOBS_ROOT_PATH);
+                \Yaf\Loader::import(SWOOLE_JOBS_ROOT_PATH . '/application/init.php');
+                self::$application = new \Yaf\Application(SWOOLE_JOBS_ROOT_PATH . '/conf/application.ini', ini_get('yaf.environ'));
             }
             //此处params为固定参数名称，在yafAction里进行获取
             //public function methodAction($params){}

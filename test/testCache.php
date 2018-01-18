@@ -7,11 +7,11 @@
  * with this source code in the file LICENSE.
  */
 
-define('APP_PATH', __DIR__ . '/..');
+define('SWOOLE_JOBS_ROOT_PATH', __DIR__ . '/..');
 
 date_default_timezone_set('Asia/Shanghai');
 
-require APP_PATH . '/vendor/autoload.php';
+require SWOOLE_JOBS_ROOT_PATH . '/vendor/autoload.php';
 
 use Kcloze\Jobs\Cache;
 

@@ -7,18 +7,18 @@
  * with this source code in the file LICENSE.
  */
 
-define('APP_PATH', __DIR__ . '/..');
+define('SWOOLE_JOBS_ROOT_PATH', __DIR__ . '/..');
 
 date_default_timezone_set('Asia/Shanghai');
 
-require APP_PATH . '/vendor/autoload.php';
+require SWOOLE_JOBS_ROOT_PATH . '/vendor/autoload.php';
 
 use Kcloze\Jobs\JobObject;
 use Kcloze\Jobs\Logs;
 use Kcloze\Jobs\Queue\BaseTopicQueue;
 use Kcloze\Jobs\Queue\Queue;
 
-$config        = require_once APP_PATH . '/config.php';
+$config        = require_once SWOOLE_JOBS_ROOT_PATH . '/config.php';
 $logger        = Logs::getLogger($config['logPath'] ?? '', $config['logSaveFileApp'] ?? '');
 $queue         =Queue::getQueue($config['job']['queue'], $logger);
 

@@ -7,18 +7,18 @@
  * with this source code in the file LICENSE.
  */
 
-define('APP_PATH', __DIR__ . '/..');
+define('SWOOLE_JOBS_ROOT_PATH', __DIR__ . '/..');
 
 date_default_timezone_set('Asia/Shanghai');
 
-require APP_PATH . '/vendor/autoload.php';
+require SWOOLE_JOBS_ROOT_PATH . '/vendor/autoload.php';
 
 use Enqueue\AmqpExt\AmqpConnectionFactory;
 use Interop\Amqp\AmqpQueue;
 use Interop\Amqp\AmqpTopic;
 use Interop\Amqp\Impl\AmqpBind;
 
-$config = require_once APP_PATH . '/config.php';
+$config = require_once SWOOLE_JOBS_ROOT_PATH . '/config.php';
 
 $factory = new AmqpConnectionFactory($config['job']['queue']);
 $context = $factory->createContext();

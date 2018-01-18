@@ -30,9 +30,9 @@ class PhalconAction
             $arguments['action']=$JobObject->jobMethod;
             $arguments['params']=$JobObject->jobParams;
 
-            $config = include APP_PATH . '/../ycf_config/' . YII_ENV_APP_NAME . '/config.php';
-            include APP_PATH . '/app/config/loader.php';
-            include APP_PATH . '/app/config/mainCli.php';
+            $config = include SWOOLE_JOBS_ROOT_PATH . '/../ycf_config/' . YII_ENV_APP_NAME . '/config.php';
+            include SWOOLE_JOBS_ROOT_PATH . '/app/config/loader.php';
+            include SWOOLE_JOBS_ROOT_PATH . '/app/config/mainCli.php';
 
             $console            = new ConsoleApp($di);
             $console->handle($arguments);

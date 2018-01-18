@@ -33,7 +33,7 @@ class Yii1Action
                 $name = 'console.php';
             }
             $config =  YCF_CONFIG_PATH . '/' . $name;
-            require_once APP_PATH . '/../../framework/yii.php';
+            require_once SWOOLE_JOBS_ROOT_PATH . '/../../framework/yii.php';
             // Console Application
             $argv               = ['yiic', $JobObject->jobClass, $JobObject->jobMethod];
             $_SERVER['argv']    = array_merge($argv, $JobObject->jobParams);
