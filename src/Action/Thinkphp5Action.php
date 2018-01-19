@@ -32,7 +32,7 @@ class Thinkphp5Action extends BaseAction
         try {
             if (empty(self::$application)) {
                 // 加载ThinkPHP基础文件
-                require_once SWOOLE_JOBS_ROOT_PATH . '/thinkphp/base.php';
+                //require_once SWOOLE_JOBS_ROOT_PATH . '/thinkphp/base.php';
                 // 定义应用目录
                 defined('APP_PATH') ? '' : define('APP_PATH', SWOOLE_JOBS_ROOT_PATH . '/application/');
                 // 执行应用
