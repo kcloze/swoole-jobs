@@ -4,12 +4,16 @@
 * 高性能/动态多woker进程消费队列，加速后端耗时服
 * 无需像gearman一个worker配置一条crontab，swoole-jobs负责管理所有worker状态
 
+
 ## 1. 说明
 
 * web中较慢的逻辑，比如统计/email/短信/图片处理等；
 * 支持redis/rabbitmq/zeromq等任何一种做队列消息存储；
 * 比yii／laravel等框架自带队列更稳定更快[消费进程可动态变化]
-* 自带yii2/phalcon/yaf集成示例，其他框架可参考src/Action代码，[yii2完整示例](https://github.com/kcloze/swoole-jobs-yii2)
+* 自带yii2/phalcon/yaf/ThinkPHP5集成示例，其他框架可参考src/Action代码，
+* [yii2完整示例](https://github.com/kcloze/swoole-jobs-yii2)
+* [ThinkPHP5完整示例](https://github.com/kcloze/swoole-jobs-tp5)
+
 
 ## 2. 架构图
 
@@ -186,6 +190,7 @@ sudo systemctl stop swoole-jobs.service
 
 ## 9. 注意事项
 * 如果嵌入自己的框架，可参考src/Action代码，继承抽象类Kcloze\Jobs\Action\BaseAction
+* 各种框架服务启动会稍有不同，具体参考：`example/bin`项目的代码
 
 ## 10. 压测
 * 瓶颈: redis/rabbitmq队列存储本身和job执行速度
