@@ -290,11 +290,13 @@ class Process
         });
         //积压队列提醒
         \Swoole\Timer::tick($this->messageTickTimer, function ($timerId) {
+            $this->logger->log('Warning Message: ' . $this->message, 'warning', $this->logSaveFileWorker);
             if ($this->message && isset($this->config['message'])) {
                 $message =Message::getMessage($this->config['message']);
                 $message->send($this->message, $this->config['message']['token']);
-                $this->message='';
-            }
+            } 
+            $this->message='';
+            
         });
     }
 
