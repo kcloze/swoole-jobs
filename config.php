@@ -14,14 +14,15 @@ return $config = [
     'logSaveFileWorker' => 'crontab.log', // 进程启动相关log存储名字
     'pidPath'           => __DIR__ . '/log',
     'sleep'             => 2, // 队列没消息时，暂停秒数
+    'queueMaxNum'       => 10, // 队列达到一定长度，启动动态子进程个数发和送消息提醒
     'maxPopNum'         => 100, // 子进程启动后每个循环最多取多少个job
     'excuteTime'        => 3600, // 子进程最长执行时间，防止内存泄漏
     'processName'       => ':swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
     //job任务相关
     'job'         => [
         'topics'  => [
-            ['name'=>'MyJob', 'workerMinNum'=>1, 'workerMaxNum'=>1],
-            ['name'=> 'MyJob2', 'workerMinNum'=>3, 'workerMaxNum'=>3],
+            ['name'=>'MyJob', 'workerMinNum'=>3, 'workerMaxNum'=>10],
+            ['name'=> 'MyJob2', 'workerMinNum'=>3, 'workerMaxNum'=>10],
             ['name'=> 'MyJob3', 'workerMinNum'=>1, 'workerMaxNum'=>1],
         ],
         // redis

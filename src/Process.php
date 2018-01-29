@@ -27,10 +27,10 @@ class Process
 
     private $version                      = '2.5';
     private $excuteTime                   =3600; //子进程最长执行时间,单位：秒
-    private $queueMaxNum                  =10; //队列达到一定长度，增加子进程个数
-    private $queueTickTimer               =2000; //一定时间间隔（毫秒）检查队列长度
-    private $messageTickTimer             =1000 * 180; //一定时间间隔（秒）发送消息提醒
-    private $message                      =''; //提醒消息内容
+    private $queueMaxNum                  =10; //队列达到一定长度，启动动态子进程个数发和送消息提醒
+    private $queueTickTimer               =2000; //一定时间间隔（毫秒）检查队列长度;默认2秒钟
+    private $messageTickTimer             =1000 * 180; //一定时间间隔（秒）发送消息提醒;默认3分钟
+    private $message                      =[]; //提醒消息内容
     private $workerNum                    =0; //固定分配的子进程个数
     private $dynamicWorkerNum             =[]; //动态（不能重启）子进程计数，最大数为每个topic配置workerMaxNum，它的个数是动态变化的
     private $workersInfo                  =[];
@@ -68,6 +68,9 @@ class Process
         }
         if (isset($this->config['excuteTime']) && !empty($this->config['excuteTime'])) {
             $this->excuteTime = $this->config['excuteTime'];
+        }
+        if (isset($this->config['queueMaxNum']) && !empty($this->config['queueMaxNum'])) {
+            $this->queueMaxNum = $this->config['queueMaxNum'];
         }
         if (isset($this->config['logSaveFileWorker']) && !empty($this->config['logSaveFileWorker'])) {
             $this->logSaveFileWorker = $this->config['logSaveFileWorker'];
@@ -274,9 +277,12 @@ class Process
                         $this->logger->log('queueError: ' . $e->getMessage(), 'error', $this->logSaveFileWorker);
                     }
                     $this->status=$this->getMasterData('status');
+                    //消息提醒：消息体收集
+                    if ($len > $this->queueMaxNum && count($this->message) <= count($topics)) {
+                        $this->message[]= 'Topic ' . $topic['name'] . ' 积压消息个数:' . $len . PHP_EOL;
+                    }
 
                     if ($topic['workerMaxNum'] > $topic['workerMinNum'] && Process::STATUS_RUNNING == $this->status && $len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
-                        $this->message .= 'Topic ' . $topic['name'] . ' 积压消息个数:' . $len . PHP_EOL;
                         $max=$topic['workerMaxNum'] - $this->dynamicWorkerNum[$topic['name']];
                         for ($i=0; $i < $max; ++$i) {
                             //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
@@ -294,10 +300,10 @@ class Process
             !empty($this->message) && $this->logger->log('Warning Message: ' . $this->message, 'warning', $this->logSaveFileWorker);
             if ($this->message && isset($this->config['message'])) {
                 $message =Message::getMessage($this->config['message']);
-                $message->send($this->message, $this->config['message']['token']);
+                $message->send(implode('', $this->message), $this->config['message']['token']);
             }
             //重置message，防止message不断变长
-            $this->message='';
+            $this->message=[];
         });
     }
 

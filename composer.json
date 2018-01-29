@@ -7,7 +7,8 @@
     "require": {
         "php": ">=7.0",
         "ext-swoole": ">=1.8.9",
-        "ext-redis": "*"
+        "ext-redis": "*",
+        "guzzlehttp/guzzle": "^6.3"
     },
     "authors": [
         {
