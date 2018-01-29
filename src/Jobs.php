@@ -13,18 +13,19 @@ use Kcloze\Jobs\Queue\Queue;
 
 class Jobs
 {
-    const MAX_POP          = 100; // 单个topic进程启动后每次最多取多少次，超过之后自然推出，防内存泄漏
+    public $logger              = null;
+    public $queue               = null;
+    public $sleep               = 2; //单个topic如果没有任务，该进程暂停秒数，不能低于1秒，数值太小无用进程会频繁拉起
+    public $config              = [];
 
-    public $logger  = null;
-    public $queue   = null;
-    public $sleep   = 2; //单个topic如果没有任务，该进程暂停秒数，不能低于1秒，数值太小无用进程会频繁拉起
-    public $config  = [];
+    private $maxPopNum          = 100; // 子进程启动后每个循环最多取多少个job
 
     public function __construct()
     {
-        $this->config  = Config::getConfig(); //读取配置文件
-        $this->sleep   = $this->config['sleep'] ?? $this->sleep;
-        $this->logger  = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
+        $this->config      = Config::getConfig(); //读取配置文件
+        $this->sleep       = $this->config['sleep'] ?? $this->sleep;
+        $this->maxPopNum   = $this->config['maxPopNum'] ?? $this->maxPopNum;
+        $this->logger      = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
     }
 
     public function run($topic='')
@@ -41,8 +42,8 @@ class Jobs
             $len = $this->queue->len($topic);
             $this->logger->log($topic . ' pop len: ' . $len, 'info');
             if ($len > 0) {
-                //每次最多取MAX_POP个任务执行
-                for ($i = 0; $i < self::MAX_POP; $i++) {
+                //每次最多取maxPopNum个任务执行
+                for ($i = 0; $i < $this->maxPopNum; ++$i) {
                     $data = $this->queue->pop($topic);
                     $this->logger->log('pop data: ' . print_r($data, true), 'info');
                     if (!empty($data) && is_object($data)) {

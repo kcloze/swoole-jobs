@@ -21,13 +21,12 @@ class Process
     const STATUS_STOP                                  ='stop'; //主进程stop状态
     const APP_NAME                                     ='swoole-jobs'; //app name
     const STATUS_HSET_KEY_HASH                         ='status'; //status hash名
-    const SLEEP_TIME                                   =1000; //子进程退出之后，自动拉起暂停毫秒数
-    const EXCUTE_TIME                                  =3600; //子进程最长执行时间
 
     public $processName                   = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
     public $workers                       = [];
 
-    private $version                      = '2.4.5';
+    private $version                      = '2.5';
+    private $excuteTime                   =3600; //子进程最长执行时间,单位：秒
     private $queueMaxNum                  =10; //队列达到一定长度，增加子进程个数
     private $queueTickTimer               =2000; //一定时间间隔（毫秒）检查队列长度
     private $messageTickTimer             =1000 * 180; //一定时间间隔（秒）发送消息提醒
@@ -66,6 +65,9 @@ class Process
         }
         if (isset($this->config['processName']) && !empty($this->config['processName'])) {
             $this->processName = $this->config['processName'];
+        }
+        if (isset($this->config['excuteTime']) && !empty($this->config['excuteTime'])) {
+            $this->excuteTime = $this->config['excuteTime'];
         }
         if (isset($this->config['logSaveFileWorker']) && !empty($this->config['logSaveFileWorker'])) {
             $this->logSaveFileWorker = $this->config['logSaveFileWorker'];
@@ -130,7 +132,7 @@ class Process
                 do {
                     $jobs->run($topic);
                     $this->status=$this->getMasterData('status');
-                    $where = (self::STATUS_RUNNING == $this->status) && (self::CHILD_PROCESS_CAN_RESTART == $type ? time() < ($beginTime + self::EXCUTE_TIME) : false);
+                    $where = (self::STATUS_RUNNING == $this->status) && (self::CHILD_PROCESS_CAN_RESTART == $type ? time() < ($beginTime + $this->excuteTime) : false);
                 } while ($where);
             } catch (\Throwable $e) {
                 Utils::catchError($this->logger, $e);
@@ -190,7 +192,6 @@ class Process
 
                     //主进程状态为running并且该子进程是可以重启的
                     if (Process::STATUS_RUNNING == $this->status && $this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_RESTART) {
-                        //usleep(Process::SLEEP_TIME);
                         try {
                             //子进程重启可能失败，必须启动成功之后，再往下执行;最多尝试30次
                             for ($i=0; $i < 30; ++$i) {
@@ -274,7 +275,7 @@ class Process
                     }
                     $this->status=$this->getMasterData('status');
 
-                    if (Process::STATUS_RUNNING == $this->status && $len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
+                    if ($topic['workerMaxNum'] > $topic['workerMinNum'] && Process::STATUS_RUNNING == $this->status && $len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
                         $this->message .= 'Topic ' . $topic['name'] . ' 积压消息个数:' . $len . PHP_EOL;
                         $max=$topic['workerMaxNum'] - $this->dynamicWorkerNum[$topic['name']];
                         for ($i=0; $i < $max; ++$i) {
@@ -295,9 +296,8 @@ class Process
                 $message =Message::getMessage($this->config['message']);
                 $message->send($this->message, $this->config['message']['token']);
             }
-            //重置message，防止message不断变长 
+            //重置message，防止message不断变长
             $this->message='';
-            
         });
     }
 
