@@ -21,8 +21,8 @@ return $config = [
     //job任务相关
     'job'         => [
         'topics'  => [
-            ['name'=>'MyJob', 'workerMinNum'=>3, 'workerMaxNum'=>10],
-            ['name'=> 'MyJob2', 'workerMinNum'=>3, 'workerMaxNum'=>10],
+            ['name'=>'MyJob', 'workerMinNum'=>3, 'workerMaxNum'=>30],
+            ['name'=> 'MyJob2', 'workerMinNum'=>3, 'workerMaxNum'=>20],
             ['name'=> 'MyJob3', 'workerMinNum'=>1, 'workerMaxNum'=>1],
         ],
         // redis

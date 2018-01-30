@@ -17,8 +17,8 @@
 
 ## 2. 架构图
 
-![架构图](jobs-archi.png)
-![进程模型](jobs-process.png)
+![架构图](docs/images/jobs-archi.png)
+![进程模型](docs/images/jobs-process.png)
 
 
 ## 3. 特性
@@ -130,7 +130,7 @@ WORKFLOWS
 [更多systemd介绍](https://www.swoole.com/wiki/page/699.html)
 
 ```
-1. 根据自己项目路径,修改 systemd/swoole-jobs.service
+1. 根据自己项目路径,修改 docs/systemd/swoole-jobs.service
 2. sudo cp -f systemd/swoole-jobs.service /etc/systemd/system/
 3. sudo systemctl --system daemon-reload
 4. 服务管理
@@ -144,49 +144,16 @@ sudo systemctl stop swoole-jobs.service
 
 ## 7.系统截图
 #### htop截图
-![实例图](demo.png)
+![实例图](docs/images/demo.png)
 #### status
-![status](status.png)
+![status](docs/images/status.png)
 #### 钉钉提醒
-![message](dingding.png)
+![message](docs/images/dingding.png)
 
 
 
 ## 8. change log
-#### 2017-12-31
-* 出现积压队列情况，支持钉钉机器人等消息提醒；
-* 支持status状态显示命令；
-* 静态子进程可能重启失败，增强日志记录；
-
-#### 2017-12-10
-* worker子进程支持个数可以根据队列挤压情况动态变化；
-* worker子进程最大和最小启动个数可配置；
-
-#### 2017-12-4
-* 子进程启动模式变更：单独给每个topic启动对应数量的子进程，杜绝不同topic之间相互影响
-
-#### 2017-11-30
-* 增加exit启动参数，默认stop等待子进程平滑退出
-
-#### 2017-11-29
-* 重构自身和第三方框架装载类实现，降低耦合性；
-* 支持Yii和Phalcon主流框架
-
-#### 2017-11-28 16:52:42 
-* topics支持根据key值排序，队列根据这个排序优先消费；
-* 优化启动流程，让PHP进程自身管理，移除服务管理脚本；
-* 重构代码，优化结构；
-
-#### 2017-11-28 00:27:42 
-
-> by [daydaygo](http://github.com/daydaygo)
-- 优化 TopicQueue 实现: `TopicQueueInterface -> BaseTopicQueue -> XxxTopicQueue`
-- 优化 job run() 方式, 增加类静态方法实现, 并实现多参数输入
-- 使用依赖注入方式进行解耦, 比如 `Jobs` 类依赖 `BaseTopicQueue` 抽象类, 不和具体的 `TopicQueue` 实现耦合; 比如配置的解耦, `Jobs` 类只用关系自己业务相关的配置, 不用耦合其他配置
-- 添加 php 进行服务管理
-
-#### 2017-5-19
-* 增加使用systemd管理swoole服务,实现故障重启、开机自启动等功能
+* [change log](docs/ChangeLog.md)
 
 ## 9. 注意事项
 * 如果嵌入自己的框架，可参考src/Action代码，继承抽象类Kcloze\Jobs\Action\BaseAction
