@@ -17,6 +17,8 @@ return $config = [
     'queueMaxNum'       => 10, // 队列达到一定长度，启动动态子进程个数发和送消息提醒
     'maxPopNum'         => 100, // 子进程启动后每个循环最多取多少个job
     'excuteTime'        => 3600, // 子进程最长执行时间，防止内存泄漏
+    'queueTickTimer'    =>1000 * 15,//一定时间间隔（毫秒）检查队列长度;默认10秒钟
+    'messageTickTimer'  =>1000 * 180, //一定时间间隔（毫秒）发送消息提醒;默认3分钟
     'processName'       => ':swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
     //job任务相关
     'job'         => [

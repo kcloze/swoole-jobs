@@ -40,7 +40,7 @@ class Jobs
             $this->queue->setTopics($this->config['job']['topics'] ?? []);
 
             $len = $this->queue->len($topic);
-            $this->logger->log($topic . ' pop len: ' . $len, 'info');
+            //$this->logger->log($topic . ' pop len: ' . $len, 'info');
             if ($len > 0) {
                 //每次最多取maxPopNum个任务执行
                 for ($i = 0; $i < $this->maxPopNum; ++$i) {
@@ -62,9 +62,9 @@ class Jobs
                     }
                 }
             } else {
-                $this->logger->log($topic . ' no work to do!', 'info');
+                //$this->logger->log($topic . ' no work to do!', 'info');
                 sleep($this->sleep);
-                $this->logger->log('sleep ' . $this->sleep . ' second!', 'info');
+                //$this->logger->log('sleep ' . $this->sleep . ' second!', 'info');
             }
             $this->queue->close();
         } else {

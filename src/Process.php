@@ -28,8 +28,8 @@ class Process
     private $version                      = '2.5';
     private $excuteTime                   =3600; //子进程最长执行时间,单位：秒
     private $queueMaxNum                  =10; //队列达到一定长度，启动动态子进程个数发和送消息提醒
-    private $queueTickTimer               =2000; //一定时间间隔（毫秒）检查队列长度;默认2秒钟
-    private $messageTickTimer             =1000 * 180; //一定时间间隔（秒）发送消息提醒;默认3分钟
+    private $queueTickTimer               =1000 * 10; //一定时间间隔（毫秒）检查队列长度;默认10秒钟
+    private $messageTickTimer             =1000 * 180; //一定时间间隔（毫秒）发送消息提醒;默认3分钟
     private $message                      =[]; //提醒消息内容
     private $workerNum                    =0; //固定分配的子进程个数
     private $dynamicWorkerNum             =[]; //动态（不能重启）子进程计数，最大数为每个topic配置workerMaxNum，它的个数是动态变化的
@@ -71,6 +71,12 @@ class Process
         }
         if (isset($this->config['queueMaxNum']) && !empty($this->config['queueMaxNum'])) {
             $this->queueMaxNum = $this->config['queueMaxNum'];
+        }
+        if (isset($this->config['queueTickTimer']) && !empty($this->config['queueTickTimer'])) {
+            $this->queueTickTimer = $this->config['queueTickTimer'];
+        }
+        if (isset($this->config['messageTickTimer']) && !empty($this->config['messageTickTimer'])) {
+            $this->messageTickTimer = $this->config['messageTickTimer'];
         }
         if (isset($this->config['logSaveFileWorker']) && !empty($this->config['logSaveFileWorker'])) {
             $this->logSaveFileWorker = $this->config['logSaveFileWorker'];
