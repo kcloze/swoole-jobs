@@ -49,14 +49,6 @@
 * 30分钟之后状态
 ![任务开始状态](images/testing/test3.png)
 
-* 60分钟之后状态
-![任务开始状态](images/testing/test4.png)
-
-* 2个小时分钟之后状态
-![任务开始状态](images/testing/test5.png)
-
-* 队列消费完成状态
-![任务开始状态](images/testing/test6.png)
 
 
 #### 结论
