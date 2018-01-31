@@ -54,6 +54,7 @@ class Jobs
                         $baseAction->start($jobObject);
                         $endTime=microtime(true);
                         $this->logger->log('job id ' . $jobObject->uuid . ' done, spend time: ' . ($endTime - $beginTime), 'info');
+                        unset($jobObject, $baseAction);
                     } else {
                         $this->logger->log('pop error data: ' . print_r($data, true), 'error');
                     }

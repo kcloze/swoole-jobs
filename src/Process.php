@@ -151,6 +151,7 @@ class Process
 
             $endTime=microtime(true);
             $this->logger->log($topic . ' worker id: ' . $num . ' is done!!! Timing: ' . ($endTime - $beginTime), 'info', $this->logSaveFileWorker);
+            unset($num, $topic, $type);
         });
         $pid                                        = $reserveProcess->start();
         $this->workers[$pid]                        = $reserveProcess;
