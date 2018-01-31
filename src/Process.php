@@ -137,7 +137,7 @@ class Process
             try {
                 //设置进程名字
                 $this->setProcessName($type . ' ' . $topic . ' job ' . $num . ' ' . $this->processName);
-                $jobs  = new Jobs();
+                $jobs  = new Jobs($this->pidInfoFile);
                 do {
                     $jobs->run($topic);
                     $this->status=$this->getMasterData('status');

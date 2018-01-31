@@ -15,7 +15,7 @@ class MyJob2
     {
         sleep(1);
         $client = new \GuzzleHttp\Client();
-        $res    = $client->request('GET', 'https://www.baidu.com');
+        $res    = $client->request('GET', 'https://www.baidu.com', ['timeout' => 3]);
 
         echo $res->getStatusCode() . ' test1| title: ' . $a . ' time: ' . $b . PHP_EOL;
     }
@@ -24,7 +24,7 @@ class MyJob2
     {
         sleep(2);
         $client         = new \GuzzleHttp\Client();
-        $res            = $client->request('GET', 'https://www.baidu.com');
+        $res            = $client->request('GET', 'https://www.baidu.com', ['timeout' => 3]);
 
         echo $res->getStatusCode() . ' test2| title: ' . $a . ' time: ' . $b . ' ' . print_r($c, true) . PHP_EOL;
     }

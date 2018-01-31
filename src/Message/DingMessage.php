@@ -11,6 +11,7 @@ namespace Kcloze\Jobs\Message;
 
 use Kcloze\Jobs\Config;
 use Kcloze\Jobs\Logs;
+use Kcloze\Jobs\Utils;
 
 class DingMessage
 {
@@ -27,13 +28,20 @@ class DingMessage
         if (!$token || !$content) {
             return false;
         }
+        try{
+            $message      = ['msgtype' => 'text', 'text' => ['content' => $content], 'at' => ['atMobiles' => [], 'isAtAll' => false]];
+            $apiUrl       = $this->apiUrl . '?access_token=' . $token;
+            $client       = new \GuzzleHttp\Client();
+            $res          = $client->request('POST', $apiUrl, ['json' => $message, 'timeout' => 5]);
+            $httpCode     =$res->getStatusCode();
+            $body         =$res->getBody();
 
-        $message      = ['msgtype' => 'text', 'text' => ['content' => $content], 'at' => ['atMobiles' => [], 'isAtAll' => false]];
-        $apiUrl       = $this->apiUrl . '?access_token=' . $token;
-        $client       = new \GuzzleHttp\Client();
-        $res          = $client->request('POST', $apiUrl, ['json' => $message]);
-        $httpCode     =$res->getStatusCode();
-        $body         =$res->getBody();
+        } catch (\Throwable $e) {
+            Utils::catchError($this->logger, $e);
+        } catch (\Exception $e) {
+            Utils::catchError($this->logger, $e);
+        }
+
 
         $this->logger->log('[钉钉接口]请求自定义机器人消息接口,请求地址：' . var_export($apiUrl, true) . ',请求参数:' . var_export($message, true) . ',返回结果:' . $body . '  httpcode: ' . $httpCode, 'info');
 

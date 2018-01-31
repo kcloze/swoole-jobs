@@ -19,10 +19,12 @@ class Jobs
     public $config              = [];
 
     private $maxPopNum          = 100; // 子进程启动后每个循环最多取多少个job
+    private $pidInfoFile        = ''; // 主进程pid信息文件路径
 
-    public function __construct()
+    public function __construct($pidInfoFile)
     {
         $this->config      = Config::getConfig(); //读取配置文件
+        $this->pidInfoFile = $pidInfoFile;
         $this->sleep       = $this->config['sleep'] ?? $this->sleep;
         $this->maxPopNum   = $this->config['maxPopNum'] ?? $this->maxPopNum;
         $this->logger      = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
@@ -44,6 +46,10 @@ class Jobs
             if ($len > 0) {
                 //每次最多取maxPopNum个任务执行
                 for ($i = 0; $i < $this->maxPopNum; ++$i) {
+                    //主进程状态不是running状态，退出循环
+                    if (Process::STATUS_RUNNING != $this->getMasterData('status')) {
+                        break;
+                    }
                     $data = $this->queue->pop($topic);
                     $this->logger->log('pop data: ' . print_r($data, true), 'info');
                     if (!empty($data) && is_object($data)) {
@@ -96,5 +102,15 @@ class Jobs
         }
 
         return fasle;
+    }
+
+    private function getMasterData($key='')
+    {
+        $data=unserialize(file_get_contents($this->pidInfoFile));
+        if ($key) {
+            return $data[$key] ?? null;
+        }
+
+        return $data;
     }
 }
