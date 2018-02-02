@@ -286,7 +286,13 @@ class Process
                     $this->status=$this->getMasterData('status');
                     //消息提醒：消息体收集
                     if ($len > $this->queueMaxNum && count($this->message) <= count($topics)) {
-                        $this->message[]= 'Topic ' . $topic['name'] . ' 积压消息个数:' . $len . PHP_EOL;
+                        $this->message[]= strtr('Time:{time} Pid:{pid} ProName:{pname} Topic:{topic} Message:{message}', [
+                                                '{time}'   => date('Y-m-d H:i:s'),
+                                                '{pid}'    => $this->ppid,
+                                                '{pname}'  => $this->processName,
+                                                '{topic}'  => $topic['name'],
+                                                '{message}'=> '积压消息个数:' . $len . PHP_EOL,
+                                            ]);
                     }
 
                     if ($topic['workerMaxNum'] > $topic['workerMinNum'] && Process::STATUS_RUNNING == $this->status && $len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {

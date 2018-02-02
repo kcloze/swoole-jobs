@@ -42,7 +42,7 @@ addTest4($queue);
 //往topic为MyJob的任务增加执行job
 function addTest1($queue)
 {
-    for ($i = 0; $i < 100000; $i++) {
+    for ($i = 0; $i < 1000; $i++) {
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_1;
