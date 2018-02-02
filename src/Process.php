@@ -48,12 +48,21 @@ class Process
 
     public function __construct()
     {
-        $this->config   =  Config::getConfig();
-        $this->logger   = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
-        $this->topics   =$this->config['job']['topics'] ?? [];
+        $this->config                    =  Config::getConfig();
+        $this->logger                    = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
+        $this->topics                    =$this->config['job']['topics'] ?? [];
+        $this->processName               = $this->config['processName'] ?? $this->processName;
+        $this->excuteTime                = $this->config['excuteTime'] ?? $this->excuteTime;
+        $this->queueMaxNum               = $this->config['queueMaxNum'] ?? $this->queueMaxNum;
+        $this->queueTickTimer            = $this->config['queueTickTimer'] ?? $this->queueTickTimer;
+        $this->messageTickTimer          = $this->config['messageTickTimer'] ?? $this->messageTickTimer;
+        $this->logSaveFileWorker         = $this->config['logSaveFileWorker'] ?? $this->logSaveFileWorker;
+
         $this->beginTime=time();
         //该变量需要在多进程共享
         $this->status=self::STATUS_RUNNING;
+
+
 
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             Utils::mkdir($this->config['pidPath']);
@@ -63,24 +72,7 @@ class Process
         } else {
             die('config pidPath must be set!' . PHP_EOL);
         }
-        if (isset($this->config['processName']) && !empty($this->config['processName'])) {
-            $this->processName = $this->config['processName'];
-        }
-        if (isset($this->config['excuteTime']) && !empty($this->config['excuteTime'])) {
-            $this->excuteTime = $this->config['excuteTime'];
-        }
-        if (isset($this->config['queueMaxNum']) && !empty($this->config['queueMaxNum'])) {
-            $this->queueMaxNum = $this->config['queueMaxNum'];
-        }
-        if (isset($this->config['queueTickTimer']) && !empty($this->config['queueTickTimer'])) {
-            $this->queueTickTimer = $this->config['queueTickTimer'];
-        }
-        if (isset($this->config['messageTickTimer']) && !empty($this->config['messageTickTimer'])) {
-            $this->messageTickTimer = $this->config['messageTickTimer'];
-        }
-        if (isset($this->config['logSaveFileWorker']) && !empty($this->config['logSaveFileWorker'])) {
-            $this->logSaveFileWorker = $this->config['logSaveFileWorker'];
-        }
+
         /*
          * master.pid 文件记录 master 进程 pid, 方便之后进程管理
          * 请管理好此文件位置, 使用 systemd 管理进程时会用到此文件
