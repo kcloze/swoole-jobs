@@ -20,7 +20,7 @@ class Queue
             //最多尝试连接3次
             for ($i=0; $i < 3; $i++) {
                 $connection=$classQueue::getConnection($config, $logger);
-                if (is_object($connection)) {
+                if ($connection && is_object($connection)) {
                     break;
                 }
             }
