@@ -17,7 +17,15 @@ class Queue
     {
         $classQueue=$config['class'] ?? '\Kcloze\Jobs\Queue\RedisTopicQueue';
         if (is_callable([$classQueue, 'getConnection'])) {
-            return $classQueue::getConnection($config, $logger);
+            //最多尝试连接3次
+            for ($i=0; $i < 3; $i++) {
+                $connection=$classQueue::getConnection($config, $logger);
+                if (is_object($connection)) {
+                    break;
+                }
+            }
+
+            return $connection;
         }
         echo 'you must add queue config' . PHP_EOL;
         exit;

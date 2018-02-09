@@ -49,6 +49,10 @@ class RabbitmqTopicQueue extends BaseTopicQueue
             $factory          = new AmqpConnectionFactory($config);
             $context          = $factory->createContext();
             $connection       = new self($context, $config['exchange'] ?? null, $logger);
+        } catch (\AMQPConnectionException $e) {
+            Utils::catchError($logger, $e);
+
+            return false;
         } catch (\Throwable $e) {
             Utils::catchError($logger, $e);
 
