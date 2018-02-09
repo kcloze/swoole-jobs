@@ -22,6 +22,8 @@ class Queue
                 $connection=$classQueue::getConnection($config, $logger);
                 if ($connection && is_object($connection)) {
                     break;
+                }else{
+                    $logger->log("connect...,retry=".($i+1), 'error');
                 }
             }
 
