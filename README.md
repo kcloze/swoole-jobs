@@ -169,6 +169,12 @@ sudo systemctl stop swoole-jobs.service
 qq群：141059677
 
 
+## 13. 捐赠
+* 如何这个项目真的帮助到你，可以友情鼓励下
+
+![微信](docs/images/weixin-pay.jpg)
+![支付宝](docs/images/alipay-pay.jpg)
+
 
 
 
