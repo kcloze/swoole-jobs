@@ -27,7 +27,7 @@ class Jobs
         $this->pidInfoFile = $pidInfoFile;
         $this->sleep       = $this->config['sleep'] ?? $this->sleep;
         $this->maxPopNum   = $this->config['maxPopNum'] ?? $this->maxPopNum;
-        $this->logger      = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
+        $this->logger      = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '', $this->config['system'] ?? '');
     }
 
     public function run($topic='')

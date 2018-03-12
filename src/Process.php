@@ -49,7 +49,7 @@ class Process
     public function __construct()
     {
         $this->config                    =  Config::getConfig();
-        $this->logger                    = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
+        $this->logger                    = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '', $this->config['system'] ?? '');
         $this->topics                    =$this->config['job']['topics'] ?? [];
         $this->processName               = $this->config['processName'] ?? $this->processName;
         $this->excuteTime                = $this->config['excuteTime'] ?? $this->excuteTime;

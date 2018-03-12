@@ -22,6 +22,9 @@ class Logs
     public $maxLogFiles        = 5;
     public $maxFileSize        = 100; // in MB
 
+    //系统日志标识
+    private $logSystem       = 'swoole-jobs';
+
     private $logPath      = '';
     //单个类型log
     private $logs                 = [];
@@ -31,7 +34,7 @@ class Logs
 
     private static $instance=null;
 
-    public function __construct($logPath, $logSaveFileApp='')
+    public function __construct($logPath, $logSaveFileApp='', $logSystem = '')
     {
         if (empty($logPath)) {
             die('config logPath must be set!' . PHP_EOL);
@@ -41,6 +44,8 @@ class Logs
         if ($logSaveFileApp) {
             $this->logSaveFileApp = $logSaveFileApp;
         }
+
+        $logSystem && $this->logSystem = $logSystem;
     }
 
     /**
@@ -51,12 +56,12 @@ class Logs
      * @param mixed $logPath
      * @param mixed $logSaveFileApp
      */
-    public static function getLogger($logPath='', $logSaveFileApp='')
+    public static function getLogger($logPath='', $logSaveFileApp='', $logSystem = '')
     {
         if (isset(self::$instance) && self::$instance !== null) {
             return self::$instance;
         }
-        self::$instance=new self($logPath, $logSaveFileApp);
+        self::$instance=new self($logPath, $logSaveFileApp, $logSystem);
 
         return self::$instance;
     }
@@ -71,7 +76,7 @@ class Logs
      */
     public function formatLogMessage($message, $level, $category, $time)
     {
-        return @date('Y/m/d H:i:s', $time) . " [$level] [$category] $message\n";
+        return @date('Y/m/d H:i:s', $time) . "$this->logSystem [$level] [$category] \n$message\n";
     }
 
     /**
