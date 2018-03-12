@@ -76,7 +76,7 @@ class Logs
      */
     public function formatLogMessage($message, $level, $category, $time)
     {
-        return @date('Y/m/d H:i:s', $time) . "$this->logSystem [$level] [$category] \n$message\n";
+        return @date('Y/m/d H:i:s', $time) . "$this->logSystem [$level] [$category] \n $message \n";
     }
 
     /**
