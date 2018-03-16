@@ -18,7 +18,7 @@ class Console
     {
         Config::setConfig($config);
         $this->config  = Config::getConfig();
-        $this->logger  = new Logs($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
+        $this->logger  = new Logs($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '', $this->config['system'] ?? '');
     }
 
     public function run()

@@ -20,7 +20,7 @@ class SwooleJobsAction extends BaseAction
 
     public function init()
     {
-        $this->logger  = Logs::getLogger(Config::getConfig()['logPath'] ?? '', Config::getConfig()['logSaveFileApp'] ?? '');
+        $this->logger  = Logs::getLogger(Config::getConfig()['logPath'] ?? '', Config::getConfig()['logSaveFileApp'] ?? '', Config::getConfig()['system'] ?? '');
     }
 
     public function start(JobObject $JobObject)
