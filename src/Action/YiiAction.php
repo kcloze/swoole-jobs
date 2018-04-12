@@ -19,20 +19,22 @@ class YiiAction extends BaseAction
 {
     private $logger=null;
 
+    private static $application=null;
+
     public function init()
     {
-        $this->logger  = Logs::getLogger(Config::getConfig()['logPath'] ?? '', Config::getConfig()['logSaveFileApp'] ?? '', Config::getConfig()['system'] ?? '');
+        $this->logger  = Logs::getLogger(Config::getConfig()['logPath'] ?? '', Config::getConfig()['logSaveFileApp'] ?? '');
     }
 
     public function start(JobObject $JobObject)
     {
         $this->init();
-
-        $application         = new Application(Config::getConfig()['framework']['config'] ?? []);
+        $application         = self::getApplication();
         $route               = strtolower($JobObject->jobClass) . '/' . $JobObject->jobMethod;
         $params              = $JobObject->jobParams;
         try {
             $application->runAction($route, $params);
+            \Yii::getLogger()->flush(true);
             $this->logger->log('Action has been done, action content: ' . json_encode($JobObject));
         } catch (\Throwable $e) {
             Utils::catchError($this->logger, $e);
@@ -40,5 +42,15 @@ class YiiAction extends BaseAction
             Utils::catchError($this->logger, $e);
         }
         unset($application, $JobObject);
+    }
+
+    private static function getApplication()
+    {
+        if (self::$application === null) {
+            $config            =  Config::getConfig()['framework']['config'] ?? [];
+            self::$application = new Application($config);
+        }
+
+        return self::$application;
     }
 }
