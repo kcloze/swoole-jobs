@@ -18,7 +18,7 @@ class Jobs
     public $sleep               = 2; //单个topic如果没有任务，该进程暂停秒数，不能低于1秒，数值太小无用进程会频繁拉起
     public $config              = [];
 
-    private $maxPopNum          = 100; // 子进程启动后每个循环最多取多少个job
+    //private $maxPopNum          = 100; // 子进程启动后每个循环最多取多少个job，该参数已经删除
     private $pidInfoFile        = ''; // 主进程pid信息文件路径
 
     public function __construct($pidInfoFile)
@@ -26,7 +26,7 @@ class Jobs
         $this->config      = Config::getConfig(); //读取配置文件
         $this->pidInfoFile = $pidInfoFile;
         $this->sleep       = $this->config['sleep'] ?? $this->sleep;
-        $this->maxPopNum   = $this->config['maxPopNum'] ?? $this->maxPopNum;
+        //$this->maxPopNum   = $this->config['maxPopNum'] ?? $this->maxPopNum;
         $this->logger      = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '', $this->config['system'] ?? '');
     }
 
@@ -44,13 +44,12 @@ class Jobs
             $len = $this->queue->len($topic);
             //$this->logger->log($topic . ' pop len: ' . $len, 'info');
             if ($len > 0) {
-                //每次最多取maxPopNum个任务执行
-                for ($i = 0; $i < $this->maxPopNum; ++$i) {
+                //循环拿出队列消息
+                while ($data = $this->queue->pop($topic)) {
                     //主进程状态不是running状态，退出循环
                     if (Process::STATUS_RUNNING != $this->getMasterData('status')) {
                         break;
                     }
-                    $data = $this->queue->pop($topic);
                     $this->logger->log('pop data: ' . print_r($data, true), 'info');
                     if (!empty($data) && is_object($data)) {
                         $beginTime=microtime(true);
@@ -64,9 +63,9 @@ class Jobs
                     } else {
                         $this->logger->log('pop error data: ' . print_r($data, true), 'error');
                     }
-                    if ($this->queue->len($topic) <= 0) {
-                        break;
-                    }
+                    // if ($this->queue->len($topic) <= 0) {
+                    //     break;
+                    // }
                 }
             } else {
                 //$this->logger->log($topic . ' no work to do!', 'info');
