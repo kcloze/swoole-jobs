@@ -80,8 +80,14 @@ class Process
          */
         if (file_exists($this->pidFile)) {
             $pid=$this->getMasterData('pid');
-            if ($pid && @\Swoole\Process::kill($pid, 0)) {
-                die('已有进程运行中,请先结束或重启' . PHP_EOL);
+            if ($pid) {
+                //尝试三次确定是否进程还存在，存在就退出
+                for ($i=0; $i < 3; ++$i) {
+                    if (@\Swoole\Process::kill($pid, 0)) {
+                        die('已有进程运行中,请先结束或重启' . PHP_EOL);
+                    }
+                    sleep(1);
+                }
             }
         }
 

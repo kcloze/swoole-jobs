@@ -20,7 +20,7 @@ class Logs
 
     public $rotateByCopy       = true;
     public $maxLogFiles        = 5;
-    public $maxFileSize        = 100; // in MB
+    public $maxFileSize        = 1000; // in MB
 
     //系统日志标识
     private $logSystem       = 'swoole-jobs';
