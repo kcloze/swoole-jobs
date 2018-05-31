@@ -11,6 +11,7 @@ namespace Kcloze\Jobs\Queue;
 
 use Kcloze\Jobs\JobObject;
 use Kcloze\Jobs\Logs;
+use Kcloze\Jobs\Serialize;
 use Kcloze\Jobs\Utils;
 
 class RedisTopicQueue extends BaseTopicQueue
@@ -56,19 +57,20 @@ class RedisTopicQueue extends BaseTopicQueue
      *
      * @param [type]    $topic
      * @param JobObject $job
+     * @param mixed     $serializeFunc
      */
-    public function push($topic, JobObject $job): string
+    public function push($topic, JobObject $job, $serializeFunc='php'): string
     {
         if (!$this->isConnected()) {
             return '';
         }
 
-        $this->queue->lPush($topic, serialize($job));
+        $this->queue->lPush($topic, Serialize::serialize($job, $serializeFunc));
 
         return $job->uuid ?? '';
     }
 
-    public function pop($topic)
+    public function pop($topic, $unSerializeFunc='php')
     {
         if (!$this->isConnected()) {
             return;
@@ -76,7 +78,7 @@ class RedisTopicQueue extends BaseTopicQueue
 
         $result = $this->queue->lPop($topic);
 
-        return !empty($result) ? unserialize($result) : null;
+        return !empty($result) ? Serialize::unSerialize($result, $unSerializeFunc) : null;
     }
 
     public function len($topic): int

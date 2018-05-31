@@ -50,7 +50,7 @@ class Jobs
                     if (Process::STATUS_RUNNING != $this->getMasterData('status')) {
                         break;
                     }
-                    $this->logger->log('pop data: ' . print_r($data, true), 'info');
+                    $this->logger->log('pop data: ' . json_encode($data), 'info');
                     if (!empty($data) && is_object($data)) {
                         $beginTime=microtime(true);
                         // 根据自己的业务需求改写此方法
