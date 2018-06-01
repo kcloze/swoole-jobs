@@ -20,11 +20,11 @@ class JobObject
 
     public function __construct(string $topic, string $jobClass, string $jobMethod, array $jobParams=[], array $jobExtras=[], $uuid='')
     {
-        $this->uuid       =$uuid ?? uniqid($topic) . '.' . Utils::getMillisecond();
-        $this->topic      =$topic;
-        $this->jobClass   =$jobClass;
-        $this->jobMethod  =$jobMethod;
-        $this->jobParams  =$jobParams;
-        $this->jobExtras  =$jobExtras;
+        $this->uuid          =empty($uuid) ? uniqid($topic) . '.' . Utils::getMillisecond() : $uuid;
+        $this->topic         =$topic;
+        $this->jobClass      =$jobClass;
+        $this->jobMethod     =$jobMethod;
+        $this->jobParams     =$jobParams;
+        $this->jobExtras     =$jobExtras;
     }
 }

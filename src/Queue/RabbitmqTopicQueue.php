@@ -133,14 +133,16 @@ class RabbitmqTopicQueue extends BaseTopicQueue
 
         $queue    = $this->createQueue($topic);
         $consumer = $this->context->createConsumer($queue);
+
         if ($m = $consumer->receive(1)) {
             $result=$m->getBody();
             $consumer->acknowledge($m);
-        }
-        //判断字符串是否是php序列化的字符串，目前只允许serialzie和json两种
-        $unSerializeFunc=Serialize::isSerial($result) ? 'php' : 'json';
 
-        return !empty($result) ? Serialize::unserialize($result, $unSerializeFunc) : null;
+            //判断字符串是否是php序列化的字符串，目前只允许serialzie和json两种
+            $unSerializeFunc=Serialize::isSerial($result) ? 'php' : 'json';
+
+            return !empty($result) ? Serialize::unserialize($result, $unSerializeFunc) : null;
+        }
     }
 
     //这里的topic跟rabbitmq不一样，其实就是队列名字
