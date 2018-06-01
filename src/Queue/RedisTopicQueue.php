@@ -58,8 +58,9 @@ class RedisTopicQueue extends BaseTopicQueue
      * @param [type]    $topic
      * @param JobObject $job
      * @param mixed     $serializeFunc
+     * @param mixed     $delayStrategy redis这个参数没有用，用于跟rabbitmq传参一致性
      */
-    public function push($topic, JobObject $job, $serializeFunc='php'): string
+    public function push($topic, JobObject $job, $delayStrategy=1, $serializeFunc='php'): string
     {
         if (!$this->isConnected()) {
             return '';
@@ -77,6 +78,9 @@ class RedisTopicQueue extends BaseTopicQueue
         }
 
         $result = $this->queue->lPop($topic);
+
+        //判断字符串是否是php序列化的字符串，目前只允许serialzie和json两种
+        $unSerializeFunc=Serialize::isSerial($result) ? 'php' : 'json';
 
         return !empty($result) ? Serialize::unSerialize($result, $unSerializeFunc) : null;
     }

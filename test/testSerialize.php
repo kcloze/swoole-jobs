@@ -19,9 +19,14 @@ use Kcloze\Jobs\Serialize;
 $jobObj=new JobObject('MyJob', '\Kcloze\Jobs\Jobs\MyJob', 'test1', ['kcloze', time()], $jobExtras=[]);
 
 $str=Serialize::serialize($jobObj, 'php');
+
 $obj=Serialize::unSerialize($str, 'php');
 var_dump($obj);
 
 $str=Serialize::serialize($jobObj, 'json');
 $obj=Serialize::unSerialize($str, 'json');
+var_dump($obj);
+
+$str2='{"uuid":"MyJob5b10cd256b53a.1527827749.4396","topic":"MyJob","jobClass":"\\Kcloze\\Jobs\\Jobs\\MyJob","jobMethod":"test1","jobParams":["kcloze",1527827749],"jobExtras":{"delay":84000,"priority":1}}';
+$obj =Serialize::unSerialize($str, 'json');
 var_dump($obj);

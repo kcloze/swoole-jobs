@@ -48,7 +48,7 @@ class Serialize
                 $str=unserialize($str);
                 break;
             case 'json':
-                $str=json_decode($str);
+                $str=json_decode($str, true);
                 break;
 
             default:

@@ -51,7 +51,7 @@ class Jobs
                         break;
                     }
                     $this->logger->log('pop data: ' . json_encode($data), 'info');
-                    if (!empty($data) && is_object($data)) {
+                    if (!empty($data) && (is_object($data) || is_array($data))) {
                         $beginTime=microtime(true);
                         // 根据自己的业务需求改写此方法
                         $jobObject               =  $this->loadObject($data);
@@ -97,7 +97,9 @@ class Jobs
     private function loadObject($data)
     {
         if (is_object($data)) {
-            return new JobObject($data->topic, $data->jobClass, $data->jobMethod, [$data->jobParams], [$data->jobExtras], $data->uuid);
+            return new JobObject($data->topic ?? '', $data->jobClass ?? '', $data->jobMethod ?? '', $data->jobParams ?? [], $data->jobExtras ?? [], $data->uuid ?? '');
+        } elseif (is_array($data)) {
+            return new JobObject($data['topic'] ?? '', $data['jobClass'] ?? '', $data['jobMethod'] ?? '', $data['jobParams'] ?? [], $data['jobExtras'] ?? [], $data['uuid'] ?? '');
         }
 
         return fasle;
