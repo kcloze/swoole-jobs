@@ -58,4 +58,14 @@ class Serialize
 
         return $str;
     }
+
+    /**
+     * Check if a string is serialized.
+     *
+     * @param mixed $str
+     */
+    public static function isSerial($str)
+    {
+        return   $str == serialize(false) || false !== @unserialize($str);
+    }
 }

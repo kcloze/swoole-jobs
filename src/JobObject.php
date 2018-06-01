@@ -18,9 +18,9 @@ class JobObject
     public $jobParams   =[]; //job参数
     public $jobExtras   =[]; //附件信息，delay/expiration/priority等
 
-    public function __construct(string $topic, string $jobClass, string $jobMethod, array $jobParams=[], array $jobExtras=[])
+    public function __construct(string $topic, string $jobClass, string $jobMethod, array $jobParams=[], array $jobExtras=[], $uuid='')
     {
-        $this->uuid       =uniqid($topic) . '.' . Utils::getMillisecond();
+        $this->uuid       =$uuid ?? uniqid($topic) . '.' . Utils::getMillisecond();
         $this->topic      =$topic;
         $this->jobClass   =$jobClass;
         $this->jobMethod  =$jobMethod;

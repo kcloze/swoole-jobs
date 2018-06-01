@@ -97,7 +97,7 @@ class Jobs
     private function loadObject($data)
     {
         if (is_object($data)) {
-            return $data;
+            return new JobObject($data->topic, $data->jobClass, $data->jobMethod, [$data->jobParams], [$data->jobExtras], $data->uuid);
         }
 
         return fasle;

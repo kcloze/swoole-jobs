@@ -137,6 +137,8 @@ class RabbitmqTopicQueue extends BaseTopicQueue
             $result=$m->getBody();
             $consumer->acknowledge($m);
         }
+        //判断字符串是否是php序列化的字符串，目前只允许serialzie和json两种
+        $unSerializeFunc=Serialize::isSerial($result) ? 'php' : 'json';
 
         return !empty($result) ? Serialize::unserialize($result, $unSerializeFunc) : null;
     }
