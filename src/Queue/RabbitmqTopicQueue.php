@@ -17,6 +17,7 @@ use Interop\Amqp\AmqpQueue;
 use Interop\Amqp\AmqpTopic;
 use Kcloze\Jobs\JobObject;
 use Kcloze\Jobs\Logs;
+use Kcloze\Jobs\Serialize;
 use Kcloze\Jobs\Utils;
 
 class RabbitmqTopicQueue extends BaseTopicQueue
@@ -82,22 +83,23 @@ class RabbitmqTopicQueue extends BaseTopicQueue
      * @param [type]    $topic
      * @param JobObject $job
      * @param int       $delayStrategy
+     * @param mixed     $serializeFunc
      */
-    public function push($topic, JobObject $job, $delayStrategy=1): string
+    public function push($topic, JobObject $job, $delayStrategy=1, $serializeFunc='php'): string
     {
         if (!$this->isConnected()) {
             return '';
         }
 
         $queue        = $this->createQueue($topic);
-        $message      = $this->context->createMessage(serialize($job));
+        $message      = $this->context->createMessage(Serialize::serialize($job, $serializeFunc));
         $producer     =$this->context->createProducer();
         $delay        = $job->jobExtras['delay'] ?? 0;
         $priority     = $job->jobExtras['priority'] ?? BaseTopicQueue::HIGH_LEVEL_1;
         $expiration   = $job->jobExtras['expiration'] ?? 0;
         if ($delay > 0) {
             //有两种策略实现延迟队列：rabbitmq插件,对消息创建延迟队列；自带队列延迟，变像实现，每个不同的过期时间都会创建队列(不推荐)
-            if ($delayStrategy == 1) {
+            if (1 == $delayStrategy) {
                 $delayStrategyObj= new RabbitMqDelayPluginDelayStrategy();
             } else {
                 $delayStrategyObj= new RabbitMqDlxDelayStrategy();
@@ -117,7 +119,13 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         return $job->uuid ?? '';
     }
 
-    public function pop($topic)
+    /**
+     * 入队列 .
+     *
+     * @param [type] $topic
+     * @param string $unSerializeFunc 反序列化类型
+     */
+    public function pop($topic, $unSerializeFunc='php')
     {
         if (!$this->isConnected()) {
             return;
@@ -125,12 +133,16 @@ class RabbitmqTopicQueue extends BaseTopicQueue
 
         $queue    = $this->createQueue($topic);
         $consumer = $this->context->createConsumer($queue);
+
         if ($m = $consumer->receive(1)) {
             $result=$m->getBody();
             $consumer->acknowledge($m);
-        }
 
-        return !empty($result) ? unserialize($result) : null;
+            //判断字符串是否是php序列化的字符串，目前只允许serialzie和json两种
+            $unSerializeFunc=Serialize::isSerial($result) ? 'php' : 'json';
+
+            return !empty($result) ? Serialize::unserialize($result, $unSerializeFunc) : null;
+        }
     }
 
     //这里的topic跟rabbitmq不一样，其实就是队列名字
@@ -144,6 +156,28 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         $len   =$this->context->declareQueue($queue);
 
         return $len ?? 0;
+    }
+
+    //清空mq队列数据
+    public function purge($topic)
+    {
+        if (!$this->isConnected()) {
+            return 0;
+        }
+        $queue = $this->createQueue($topic);
+
+        return $this->context->purgeQueue($queue);
+    }
+
+    //删除mq队列
+    public function delete($topic)
+    {
+        if (!$this->isConnected()) {
+            return 0;
+        }
+        $queue = $this->createQueue($topic);
+
+        return $this->context->deleteQueue($queue);
     }
 
     public function close()

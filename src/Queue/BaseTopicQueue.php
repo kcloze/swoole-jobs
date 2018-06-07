@@ -49,6 +49,14 @@ abstract class BaseTopicQueue implements TopicQueueInterface
     {
     }
 
+    public function purge($topic)
+    {
+    }
+
+    public function delete($topic)
+    {
+    }
+
     public function len($topic): int
     {
     }
