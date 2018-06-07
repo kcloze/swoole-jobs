@@ -158,6 +158,28 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         return $len ?? 0;
     }
 
+    //清空mq队列数据
+    public function purge($topic)
+    {
+        if (!$this->isConnected()) {
+            return 0;
+        }
+        $queue = $this->createQueue($topic);
+
+        return $this->context->purgeQueue($queue);
+    }
+
+    //删除mq队列
+    public function delete($topic)
+    {
+        if (!$this->isConnected()) {
+            return 0;
+        }
+        $queue = $this->createQueue($topic);
+
+        return $this->context->deleteQueue($queue);
+    }
+
     public function close()
     {
         if (!$this->isConnected()) {

@@ -94,6 +94,24 @@ class RedisTopicQueue extends BaseTopicQueue
         return (int) $this->queue->lSize($topic) ?? 0;
     }
 
+    public function purge($topic)
+    {
+        if (!$this->isConnected()) {
+            return 0;
+        }
+
+        return (int) $this->queue->ltrim($topic, 1, 0) ?? 0;
+    }
+
+    public function delete($topic)
+    {
+        if (!$this->isConnected()) {
+            return 0;
+        }
+
+        return (int) $this->queue->delete($topic) ?? 0;
+    }
+
     public function close()
     {
         if (!$this->isConnected()) {
