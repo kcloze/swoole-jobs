@@ -15,7 +15,7 @@ use Kcloze\Jobs\Queue\BaseTopicQueue;
 use Kcloze\Jobs\Queue\Queue;
 use PHPUnit\Framework\TestCase;
 
-class Test extends TestCase
+class QueueTest extends TestCase
 {
     private $queue=null;
 
@@ -28,18 +28,28 @@ class Test extends TestCase
 
     public function testQueue()
     {
+        $this->assertTrue(is_object($this->queue));
+
         $len                   =$this->queue->len('MyJob');
 
         $rand                   =mt_rand(0, 100);
         $delay                  =$rand * 1000;
         $priority               =BaseTopicQueue::HIGH_LEVEL_1;
-        $jobExtras['delay']     =$delay;
-        $jobExtras['priority']  =$priority;
-        $job                    =new JobObject('MyJob', '\Kcloze\Jobs\Jobs\MyJob', 'test1', ['kcloze', time()], $jobExtras);
+        // $jobExtras['delay']     =$delay;
+        // $jobExtras['priority']  =$priority;
+        $job                    =new JobObject('MyJob', '\Kcloze\Jobs\Jobs\MyJob', 'test1', ['kcloze', time()]);
         $result                 =$this->queue->push('MyJob', $job, 1, 'json');
         $len2                   =$this->queue->len('MyJob');
-
         $this->assertGreaterThan($len, $len2);
+        //删除队列
+        $this->queue->purge('MyJob');
+        $len = $this->queue->len('MyJob');
+        $this->assertSame(0, $len);
+        //清空队列
+        $result         = $this->queue->push('MyJob', $job, 1, 'json');
+        $this->queue->delete('MyJob');
+        $len                   =$this->queue->len('MyJob');
+        $this->assertSame(0, $len);
     }
 
     public function testPushAndPop()

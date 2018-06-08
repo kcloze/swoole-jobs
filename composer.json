@@ -8,7 +8,8 @@
         "php": ">=7.0",
         "ext-swoole": ">=1.8.9",
         "ext-redis": "*",
-        "guzzlehttp/guzzle": "^6.3"
+        "guzzlehttp/guzzle": "^6.3",
+        "enqueue/amqp-ext": "0.8.9"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8.35 || ^5.7"
