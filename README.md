@@ -60,10 +60,10 @@ composer install
 #### 4.2 docker
 * git clone https://github.com/kcloze/swoole-jobs.git
 * cd swoole-jobs and composer install
-* 根据根目录Dockerfile构建镜像
+* Building a mirror based on the root directory Dockerfile
 * docker build -t swoole-jobs .
 * docker run  -it  -v ~/data/code/php:/data swoole-jobs /bin/bash
-* 进入容器之后，进入项目目录：php swoole-jobs.php start
+* After entering the docker container, enter the project directory:php swoole-jobs.php start
 
 ## 5. How to running
 
@@ -130,15 +130,15 @@ WORKFLOWS
 [more](https://www.swoole.com/wiki/page/699.html)
 
 ```
-1. 根据自己项目路径,修改 docs/systemd/swoole-jobs.service
+1. According to your own project path, modify： docs/systemd/swoole-jobs.service
 2. sudo cp -f systemd/swoole-jobs.service /etc/systemd/system/
 3. sudo systemctl --system daemon-reload
-4. 服务管理
-#启动服务
+4. Service management
+#start service
 sudo systemctl start swoole-jobs.service
-#reload服务
+#reload service
 sudo systemctl reload swoole-jobs.service
-#关闭服务
+#stop service
 sudo systemctl stop swoole-jobs.service
 ```
 
