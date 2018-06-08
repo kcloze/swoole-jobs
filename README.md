@@ -1,5 +1,5 @@
 # swoole-jobs
-# [中文介绍](https://www.swoole.com/wiki/page/699.html)
+# [中文介绍](https://github.com/kcloze/swoole-jobs/blob/master/README.zh.md)
 * Distributed task processing system,similar to gearman,based on swoole
 * High performance / dynamic multi woker process consumption queue to accelerate backend time consuming service
 * There is no need to configure a crontab like gearman worker, swoole-jobs is responsible for managing all worker states
