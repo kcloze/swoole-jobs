@@ -45,7 +45,7 @@ class Jobs
             //$this->logger->log($topic . ' pop len: ' . $len, 'info');
             if ($len > 0) {
                 //循环拿出队列消息
-                while ($data = $this->queue->pop($topic)) {
+                while ($this->queue && $data = $this->queue->pop($topic)) {
                     //主进程状态不是running状态，退出循环
                     if (Process::STATUS_RUNNING != $this->getMasterData('status')) {
                         break;
@@ -72,7 +72,7 @@ class Jobs
                 sleep($this->sleep);
                 //$this->logger->log('sleep ' . $this->sleep . ' second!', 'info');
             }
-            $this->queue->close();
+            //$this->queue->close();
         } else {
             $this->logger->log('All topic no work to do!', 'info');
         }

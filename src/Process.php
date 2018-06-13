@@ -62,8 +62,6 @@ class Process
         //该变量需要在多进程共享
         $this->status=self::STATUS_RUNNING;
 
-
-
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             Utils::mkdir($this->config['pidPath']);
             $this->pidFile      =$this->config['pidPath'] . '/' . $this->pidFile;
@@ -199,7 +197,7 @@ class Process
                     $this->logger->log($pid . ',' . $this->status . ',' . Process::STATUS_RUNNING . ',' . $this->workersInfo[$pid]['type'] . ',' . Process::CHILD_PROCESS_CAN_RESTART, 'info', $this->logSaveFileWorker);
 
                     //主进程状态为running并且该子进程是可以重启的
-                    if (Process::STATUS_RUNNING == $this->status && $this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_RESTART) {
+                    if (Process::STATUS_RUNNING == $this->status && Process::CHILD_PROCESS_CAN_RESTART == $this->workersInfo[$pid]['type']) {
                         try {
                             //子进程重启可能失败，必须启动成功之后，再往下执行;最多尝试30次
                             for ($i=0; $i < 30; ++$i) {
@@ -228,7 +226,7 @@ class Process
                         }
                     }
                     //某个topic动态变化的子进程，退出之后个数减少一个
-                    if ($this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_NOT_RESTART) {
+                    if (Process::CHILD_PROCESS_CAN_NOT_RESTART == $this->workersInfo[$pid]['type']) {
                         --$this->dynamicWorkerNum[$topic];
                     }
                     $this->logger->log("Worker Exit, kill_signal={$ret['signal']} PID=" . $pid, 'info', $this->logSaveFileWorker);
@@ -304,7 +302,7 @@ class Process
                     }
                 }
             }
-            $this->queue->close();
+            //$this->queue->close();
         });
         //积压队列提醒
         \Swoole\Timer::tick($this->messageTickTimer, function ($timerId) {

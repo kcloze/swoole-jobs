@@ -28,7 +28,7 @@ return $config = [
             ['name'=> 'MyJob2', 'workerMinNum'=>3, 'workerMaxNum'=>20],
             ['name'=> 'MyJob3', 'workerMinNum'=>1, 'workerMaxNum'=>1],
             //不需要swoole-jobs消费的队列，只往队列里面写数据
-            ['name'=> 'TojavaConsumer'],
+            //['name'=> 'TojavaConsumer'],
         ],
         // redis
         // 'queue'   => [
