@@ -14,19 +14,20 @@ class MyJob2
     public static function test1($a, $b)
     {
         sleep(1);
-        $client = new \GuzzleHttp\Client();
-        $res    = $client->request('GET', 'https://www.baidu.com', ['timeout' => 3]);
+        // $client = new \GuzzleHttp\Client();
+        // $res    = $client->request('GET', 'https://www.baidu.com', ['timeout' => 3]);
+        // echo $res->getStatusCode() . ' test1| title: ' . $a . ' time: ' . $b . PHP_EOL;
 
-        echo $res->getStatusCode() . ' test1| title: ' . $a . ' time: ' . $b . PHP_EOL;
+        echo ' test1| title: ' . $a . ' time: ' . $b . PHP_EOL;
     }
 
     public function test2($a, $b, $c)
     {
         sleep(2);
-        $client         = new \GuzzleHttp\Client();
-        $res            = $client->request('GET', 'https://www.baidu.com', ['timeout' => 3]);
-
-        echo $res->getStatusCode() . ' test2| title: ' . $a . ' time: ' . $b . ' ' . print_r($c, true) . PHP_EOL;
+        // $client         = new \GuzzleHttp\Client();
+        // $res            = $client->request('GET', 'https://www.baidu.com', ['timeout' => 3]);
+        // echo $res->getStatusCode() . ' test2| title: ' . $a . ' time: ' . $b . ' ' . print_r($c, true) . PHP_EOL;
+        echo ' test2| title: ' . $a . ' time: ' . $b . ' ' . print_r($c, true) . PHP_EOL;
     }
 
     public function testError($a, $b)

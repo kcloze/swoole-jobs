@@ -271,7 +271,15 @@ class Process
                     }
                     $this->dynamicWorkerNum[$topic['name']]=$this->dynamicWorkerNum[$topic['name']] ?? 0;
                     $topic['workerMaxNum']                       =$topic['workerMaxNum'] ?? 0;
+
+                    $len=0;
                     try {
+                        $this->queue   = Queue::getQueue($this->config['job']['queue'], $this->logger);
+                        if (empty($this->queue)) {
+                            $this->logger->log('queue connection is lost', 'info', $this->logSaveFileWorker);
+
+                            return;
+                        }
                         $len=$this->queue->len($topic['name']);
                         $this->logger->log('topic: ' . $topic['name'] . ' ' . $this->status . ' len: ' . $len, 'info', $this->logSaveFileWorker);
                     } catch (\Throwable $e) {
