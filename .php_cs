@@ -15,8 +15,8 @@ return PhpCsFixer\Config::create()
         'combine_consecutive_unsets' => true,
         // one should use PHPUnit methods to set up expected exception instead of annotations
         'general_phpdoc_annotation_remove'      => ['expectedException', 'expectedExceptionMessage', 'expectedExceptionMessageRegExp'],
-        'header_comment'                        => ['header' => $header],
-        'heredoc_to_nowdoc'                     => true,
+        //'header_comment'                        => ['header' => $header],
+        //'heredoc_to_nowdoc'                     => true,
         'no_extra_consecutive_blank_lines'      => ['break', 'continue', 'extra', 'return', 'throw', 'use', 'parenthesis_brace_block', 'square_brace_block', 'curly_brace_block'],
         'no_unreachable_default_argument_value' => true,
         'no_useless_else'                       => true,

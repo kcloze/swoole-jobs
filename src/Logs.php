@@ -20,7 +20,7 @@ class Logs
 
     public $rotateByCopy       = true;
     public $maxLogFiles        = 5;
-    public $maxFileSize        = 100; // in MB
+    public $maxFileSize        = 1000; // in MB
 
     //系统日志标识
     private $logSystem       = 'swoole-jobs';
@@ -55,10 +55,11 @@ class Logs
      *
      * @param mixed $logPath
      * @param mixed $logSaveFileApp
+     * @param mixed $logSystem
      */
     public static function getLogger($logPath='', $logSaveFileApp='', $logSystem = '')
     {
-        if (isset(self::$instance) && self::$instance !== null) {
+        if (isset(self::$instance) && null !== self::$instance) {
             return self::$instance;
         }
         self::$instance=new self($logPath, $logSaveFileApp, $logSystem);
@@ -76,7 +77,7 @@ class Logs
      */
     public function formatLogMessage($message, $level, $category, $time)
     {
-        return @date('Y/m/d H:i:s', $time) . "$this->logSystem [$level] [$category] \n $message \n";
+        return @date('Y/m/d H:i:s', $time) . " [$this->logSystem] [$level] [$category] \n $message \n";
     }
 
     /**
@@ -93,7 +94,7 @@ class Logs
             $category=$this->logSaveFileApp;
         }
         $this->logs[$category][]      = [$message, $level, $category, microtime(true)];
-        $this->logCount++;
+        ++$this->logCount;
         if ($this->logCount >= self::MAX_LOGS || true == $flush) {
             $this->flush($category);
         }
@@ -151,7 +152,7 @@ class Logs
             }
             $fileName = $this->logPath . '/' . $key;
 
-            if (($fp = @fopen($fileName, 'a')) === false) {
+            if (false === ($fp = @fopen($fileName, 'a'))) {
                 throw new \Exception("Unable to append to log file: {$fileName}");
             }
             @flock($fp, LOCK_EX);
@@ -174,7 +175,7 @@ class Logs
     {
         for ($i = $this->maxLogFiles; $i >= 0; --$i) {
             // $i == 0 is the original log file
-            $rotateFile = $file . ($i === 0 ? '' : '.' . $i);
+            $rotateFile = $file . (0 === $i ? '' : '.' . $i);
             //var_dump($rotateFile);
             if (is_file($rotateFile)) {
                 // suppress errors because it's possible multiple processes enter into this section

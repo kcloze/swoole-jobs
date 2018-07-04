@@ -49,10 +49,20 @@ abstract class BaseTopicQueue implements TopicQueueInterface
     {
     }
 
+    /**
+     * 清空队列，保留队列名.
+     *
+     * @param [type] $topic
+     */
     public function purge($topic)
     {
     }
 
+    /**
+     * 删除队列.
+     *
+     * @param [type] $topic
+     */
     public function delete($topic)
     {
     }

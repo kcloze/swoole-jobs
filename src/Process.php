@@ -62,8 +62,6 @@ class Process
         //该变量需要在多进程共享
         $this->status=self::STATUS_RUNNING;
 
-
-
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
             Utils::mkdir($this->config['pidPath']);
             $this->pidFile      =$this->config['pidPath'] . '/' . $this->pidFile;
@@ -80,8 +78,14 @@ class Process
          */
         if (file_exists($this->pidFile)) {
             $pid=$this->getMasterData('pid');
-            if ($pid && @\Swoole\Process::kill($pid, 0)) {
-                die('已有进程运行中,请先结束或重启' . PHP_EOL);
+            if ($pid) {
+                //尝试三次确定是否进程还存在，存在就退出
+                for ($i=0; $i < 3; ++$i) {
+                    if (@\Swoole\Process::kill($pid, 0)) {
+                        die('已有进程运行中,请先结束或重启' . PHP_EOL);
+                    }
+                    sleep(1);
+                }
             }
         }
 
@@ -193,7 +197,7 @@ class Process
                     $this->logger->log($pid . ',' . $this->status . ',' . Process::STATUS_RUNNING . ',' . $this->workersInfo[$pid]['type'] . ',' . Process::CHILD_PROCESS_CAN_RESTART, 'info', $this->logSaveFileWorker);
 
                     //主进程状态为running并且该子进程是可以重启的
-                    if (Process::STATUS_RUNNING == $this->status && $this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_RESTART) {
+                    if (Process::STATUS_RUNNING == $this->status && Process::CHILD_PROCESS_CAN_RESTART == $this->workersInfo[$pid]['type']) {
                         try {
                             //子进程重启可能失败，必须启动成功之后，再往下执行;最多尝试30次
                             for ($i=0; $i < 30; ++$i) {
@@ -222,7 +226,7 @@ class Process
                         }
                     }
                     //某个topic动态变化的子进程，退出之后个数减少一个
-                    if ($this->workersInfo[$pid]['type'] == Process::CHILD_PROCESS_CAN_NOT_RESTART) {
+                    if (Process::CHILD_PROCESS_CAN_NOT_RESTART == $this->workersInfo[$pid]['type']) {
                         --$this->dynamicWorkerNum[$topic];
                     }
                     $this->logger->log("Worker Exit, kill_signal={$ret['signal']} PID=" . $pid, 'info', $this->logSaveFileWorker);
@@ -267,7 +271,15 @@ class Process
                     }
                     $this->dynamicWorkerNum[$topic['name']]=$this->dynamicWorkerNum[$topic['name']] ?? 0;
                     $topic['workerMaxNum']                       =$topic['workerMaxNum'] ?? 0;
+
+                    $len=0;
                     try {
+                        $this->queue   = Queue::getQueue($this->config['job']['queue'], $this->logger);
+                        if (empty($this->queue)) {
+                            $this->logger->log('queue connection is lost', 'info', $this->logSaveFileWorker);
+
+                            return;
+                        }
                         $len=$this->queue->len($topic['name']);
                         $this->logger->log('topic: ' . $topic['name'] . ' ' . $this->status . ' len: ' . $len, 'info', $this->logSaveFileWorker);
                     } catch (\Throwable $e) {
@@ -298,7 +310,7 @@ class Process
                     }
                 }
             }
-            $this->queue->close();
+            //$this->queue->close();
         });
         //积压队列提醒
         \Swoole\Timer::tick($this->messageTickTimer, function ($timerId) {
