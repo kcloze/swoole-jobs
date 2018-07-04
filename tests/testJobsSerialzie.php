@@ -46,7 +46,7 @@ function addTest1($queue)
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_1;
-        $jobExtras['delay']    =$delay;
+        ////$jobExtras['delay']    =$delay;
         $jobExtras['priority'] =$priority;
         $job                   =new JobObject('MyJob', '\Kcloze\Jobs\Jobs\MyJob', 'test1', ['kcloze', time()], $jobExtras);
         // var_dump($job);
@@ -62,7 +62,7 @@ function addTest2($queue)
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_2;
-        $jobExtras['delay']    =$delay;
+        //$jobExtras['delay']    =$delay;
         $jobExtras['priority'] =$priority;
         $job                   =new JobObject('MyJob', '\Kcloze\Jobs\Jobs\MyJob', 'test2', ['kcloze', time(), 'oop'], $jobExtras);
         $result                =$queue->push('MyJob', $job, 1, 'php');
@@ -76,7 +76,7 @@ function addTest3($queue)
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_3;
-        $jobExtras['delay']    =$delay;
+        //$jobExtras['delay']    =$delay;
         $jobExtras['priority'] =$priority;
         $job                   =new JobObject('MyJob', '\Kcloze\Jobs\Jobs\MyJob', 'testError', ['kcloze', time()], $jobExtras);
         $result                =$queue->push('MyJob', $job, 1, 'php');
@@ -90,7 +90,7 @@ function addTest4($queue)
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_2;
-        $jobExtras['delay']    =$delay;
+        //$jobExtras['delay']    =$delay;
         $jobExtras['priority'] =$priority;
         $job                   =new JobObject('MyJob2', '\Kcloze\Jobs\Jobs\MyJob2', 'test1', ['kcloze', time()], $jobExtras);
         $result                =$queue->push('MyJob2', $job, 1, 'php');
@@ -100,7 +100,7 @@ function addTest4($queue)
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_2;
-        $jobExtras['delay']    =$delay;
+        //$jobExtras['delay']    =$delay;
         $jobExtras['priority'] =$priority;
         $job                   =new JobObject('MyJob2', '\Kcloze\Jobs\Jobs\MyJob2', 'test2', ['kcloze', time(), 'oop'], $jobExtras);
         $result                =$queue->push('MyJob2', $job, 1, 'php');
@@ -110,7 +110,7 @@ function addTest4($queue)
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_2;
-        $jobExtras['delay']    =$delay;
+        //$jobExtras['delay']    =$delay;
         $jobExtras['priority'] =$priority;
         $job                   =new JobObject('MyJob2', '\Kcloze\Jobs\Jobs\MyJob2', 'testError', ['kcloze', time()], $jobExtras);
         $result                =$queue->push('MyJob2', $job, 1, 'php');

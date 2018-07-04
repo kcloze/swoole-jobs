@@ -137,7 +137,7 @@ class Process
                 do {
                     $jobs->run($topic);
                     $this->status=$this->getMasterData('status');
-                    $where = (self::STATUS_RUNNING == $this->status) && (self::CHILD_PROCESS_CAN_RESTART == $type ? time() < ($beginTime + $this->excuteTime) : false);
+                    $where = (self::STATUS_RUNNING == $this->status) && ($jobs->popNum <= $jobs->maxPopNum) && (self::CHILD_PROCESS_CAN_RESTART == $type ? time() < ($beginTime + $this->excuteTime) : false);
                 } while ($where);
             } catch (\Throwable $e) {
                 Utils::catchError($this->logger, $e);
@@ -146,7 +146,7 @@ class Process
             }
 
             $endTime=microtime(true);
-            $this->logger->log($topic . ' worker id: ' . $num . ' is done!!! Timing: ' . ($endTime - $beginTime), 'info', $this->logSaveFileWorker);
+            $this->logger->log($type.' '.$topic . ' worker id: ' . $num . ', pid: '.getmypid().' is done!!! popNum: '.$jobs->popNum.', Timing: ' . ($endTime - $beginTime), 'info', $this->logSaveFileWorker);
             unset($num, $topic, $type);
         });
         $pid                                        = $reserveProcess->start();
