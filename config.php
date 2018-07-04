@@ -21,7 +21,7 @@ return $config = [
     'queueTickTimer'     => 1000 * 15, //一定时间间隔（毫秒）检查队列长度;默认10秒钟
     'messageTickTimer'   => 1000 * 180, //一定时间间隔（毫秒）发送消息提醒;默认3分钟
     'processName'        => ':swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
-    'eachJobExit'        => false, // true 开启； false 关闭；每个job执行完之后，主动exit,防止业务代码出现（正常不需要开启）
+    //'eachJobExit'        => false, // true 开启； false 关闭；每个job执行完之后，主动exit,防止业务代码出现（正常不需要开启）
     //job任务相关
     'job'         => [
         'topics'  => [

@@ -67,7 +67,7 @@ class Jobs
                         $this->logger->log('pop error data: ' . print_r($data, true), 'error');
                     }
                     //防止内存泄漏，每次执行一个job就退出[极端情况才需要开启]
-                    if (true == $this->config['eachJobExit']) {
+                    if (isset($this->config['eachJobExit']) && true == $this->config['eachJobExit']) {
                         exit('Each Job Exit' . PHP_EOL);
                     }
                     if ($this->queue->len($topic) <= 0) {
