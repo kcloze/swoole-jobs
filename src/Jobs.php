@@ -18,7 +18,7 @@ class Jobs
     public $sleep               = 2; //单个topic如果没有任务，该进程暂停秒数，不能低于1秒，数值太小无用进程会频繁拉起
     public $config              = [];
 
-    private $maxPopNum          = 1000; // 子进程启动后每个循环最多取多少个job，该参数已经删除
+    private $maxPopNum          = 500; // 子进程启动后每个循环最多取多少个job，该参数已经删除
     private $pidInfoFile        = ''; // 主进程pid信息文件路径
 
     public function __construct($pidInfoFile)
