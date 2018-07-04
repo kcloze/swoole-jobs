@@ -92,6 +92,10 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         }
 
         $queue        = $this->createQueue($topic);
+        if (!is_object($queue)) {
+            //对象有误 则直接返回空
+            return '';
+        }
         $message      = $this->context->createMessage(Serialize::serialize($job, $serializeFunc));
         $producer     =$this->context->createProducer();
         $delay        = $job->jobExtras['delay'] ?? 0;
@@ -153,6 +157,10 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         }
 
         $queue = $this->createQueue($topic);
+        if (!is_object($queue)) {
+            //对象有误 则直接返回空
+            return -1;
+        }
         $len   =$this->context->declareQueue($queue);
 
         return $len ?? 0;
@@ -197,7 +205,16 @@ class RabbitmqTopicQueue extends BaseTopicQueue
     private function createQueue($topic)
     {
         try {
-            $queue = $this->context->createQueue($topic);
+            $i = 0;
+            do {
+                $queue = $this->context->createQueue($topic);
+                $i++;
+                if (($queue && $this->isConnected()) || $i >= 3) {
+                    //成功 或 链接超过3次则跳出
+                    break;
+                }
+                sleep(1); //延迟1秒
+            } while (!$queue);
             $queue->addFlag(AmqpQueue::FLAG_DURABLE);
             $len   =$this->context->declareQueue($queue);
         } catch (\Throwable $e) {
