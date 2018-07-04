@@ -57,7 +57,8 @@ class Jobs
 
                     $this->queue && $data = $this->queue->pop($topic);
                     if(empty($data)){
-                        sleep(1);
+                        //暂停1毫秒
+                        usleep(1000);
                         continue;
                     }
                     $this->logger->log('pop data: ' . json_encode($data), 'info');
