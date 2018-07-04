@@ -25,12 +25,13 @@ class SwooleJobsAction extends BaseAction
 
     public function start(JobObject $JobObject)
     {
-        $this->init();
-        $jobClass =$JobObject->jobClass;
-        $jobMethod=$JobObject->jobMethod;
-        $jobParams=$JobObject->jobParams;
         try {
-            $obj      =new $jobClass();
+            $this->init();
+            $jobClass =$JobObject->jobClass;
+            $jobMethod=$JobObject->jobMethod;
+            $jobParams=$JobObject->jobParams;
+
+            $obj=new $jobClass();
             if (is_object($obj) && method_exists($obj, $jobMethod)) {
                 call_user_func_array([$obj, $jobMethod], $jobParams);
             } else {

@@ -18,7 +18,7 @@ class Jobs
     public $sleep               = 2; //单个topic如果没有任务，该进程暂停秒数，不能低于1秒，数值太小无用进程会频繁拉起
     public $config              = [];
 
-    //private $maxPopNum          = 100; // 子进程启动后每个循环最多取多少个job，该参数已经删除
+    private $maxPopNum          = 1000; // 子进程启动后每个循环最多取多少个job，该参数已经删除
     private $pidInfoFile        = ''; // 主进程pid信息文件路径
 
     public function __construct($pidInfoFile)
@@ -45,11 +45,14 @@ class Jobs
             //$this->logger->log($topic . ' pop len: ' . $len, 'info');
             if ($len > 0) {
                 //循环拿出队列消息
-                while ($this->queue && $data = $this->queue->pop($topic)) {
+                //每次最多取maxPopNum个任务执行
+                for ($i = 0; $i < $this->maxPopNum; ++$i) {
                     //主进程状态不是running状态，退出循环
                     if (Process::STATUS_RUNNING != $this->getMasterData('status')) {
                         break;
                     }
+
+                    $this->queue && $data = $this->queue->pop($topic);
                     $this->logger->log('pop data: ' . json_encode($data), 'info');
                     if (!empty($data) && (is_object($data) || is_array($data))) {
                         $beginTime=microtime(true);
@@ -63,9 +66,13 @@ class Jobs
                     } else {
                         $this->logger->log('pop error data: ' . print_r($data, true), 'error');
                     }
-                    // if ($this->queue->len($topic) <= 0) {
-                    //     break;
-                    // }
+                    //防止内存泄漏，每次执行一个job就退出[极端情况才需要开启]
+                    if (true == $this->config['eachJobExit']) {
+                        exit('Each Job Exit' . PHP_EOL);
+                    }
+                    if ($this->queue->len($topic) <= 0) {
+                        break;
+                    }
                 }
             } else {
                 //$this->logger->log($topic . ' no work to do!', 'info');
