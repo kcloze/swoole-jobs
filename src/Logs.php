@@ -77,7 +77,9 @@ class Logs
      */
     public function formatLogMessage($message, $level, $category, $time)
     {
-        return @date('Y/m/d H:i:s', $time) . " [$this->logSystem] [$level] [$category] \n $message \n";
+        $pid    = getmypid();
+
+        return @date('Y/m/d H:i:s', $time) . " YCFLOG [$this->logSystem] [$level] [$category] [PID$pid] \n $message \n";
     }
 
     /**
