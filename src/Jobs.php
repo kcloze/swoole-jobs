@@ -45,8 +45,11 @@ class Jobs
             $len = $this->queue->len($topic);
             //$this->logger->log($topic . ' pop len: ' . $len, 'info');
             if ($len > 0) {
-                //循环拿出队列消息
-                //每次最多取maxPopNum个任务执行
+                /*
+                * 循环拿出队列消息
+                * 每次最多取maxPopNum个任务执行
+                */
+                $slpTimes=0; //空消息达到一定次数，说明队列确实没有消息
                 do {
                     ++$this->popNum;
 
@@ -57,6 +60,11 @@ class Jobs
 
                     $this->queue && $data = $this->queue->pop($topic);
                     if (empty($data)) {
+                        ++$slpTimes;
+                        if ($slpTimes > 10) {
+                            //空消息达到一定次数，说明队列确实没有消息
+                            break;
+                        }
                         //暂停1毫秒
                         usleep(1000);
                         continue;
