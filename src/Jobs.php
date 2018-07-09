@@ -56,7 +56,7 @@ class Jobs
                     }
 
                     $this->queue && $data = $this->queue->pop($topic);
-                    if(empty($data)){
+                    if (empty($data)) {
                         //暂停1毫秒
                         usleep(1000);
                         continue;
@@ -81,12 +81,9 @@ class Jobs
                     // if ($this->queue->len($topic) <= 0) {
                     //     break;
                     // }
-                    
                 } while ($this->popNum <= $this->maxPopNum);
             } else {
-                //$this->logger->log($topic . ' no work to do!', 'info');
                 sleep($this->sleep);
-                //$this->logger->log('sleep ' . $this->sleep . ' second!', 'info');
             }
             //$this->queue->close();
         } else {

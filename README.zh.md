@@ -66,7 +66,7 @@ composer install
 php ./swoole-jobs.php start >> log/system.log 2>&1
 
 3.往队列推送任务
-php ./tests/testJobs.php
+php ./tests/testJobsSerialzie.php
 
 ```
 

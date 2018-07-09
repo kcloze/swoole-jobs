@@ -146,7 +146,7 @@ class Process
             }
 
             $endTime=microtime(true);
-            $this->logger->log($type.' '.$topic . ' worker id: ' . $num . ', pid: '.getmypid().' is done!!! popNum: '.$jobs->popNum.', Timing: ' . ($endTime - $beginTime), 'info', $this->logSaveFileWorker);
+            $this->logger->log($type . ' ' . $topic . ' worker id: ' . $num . ', pid: ' . getmypid() . ' is done!!! popNum: ' . $jobs->popNum . ', Timing: ' . ($endTime - $beginTime), 'info', $this->logSaveFileWorker);
             unset($num, $topic, $type);
         });
         $pid                                        = $reserveProcess->start();

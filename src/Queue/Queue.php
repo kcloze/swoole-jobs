@@ -13,6 +13,8 @@ use Kcloze\Jobs\Logs;
 
 class Queue
 {
+    public static $_instance=[];
+
     public static function getQueue(array $config, Logs $logger)
     {
         $classQueue=$config['class'] ?? '\Kcloze\Jobs\Queue\RedisTopicQueue';
@@ -21,6 +23,7 @@ class Queue
             for ($i=0; $i < 3; ++$i) {
                 $connection=static::getInstance($classQueue, $config, $logger);
                 if ($connection && is_object($connection)) {
+                    // $logger->log('connect...,retry=' . ($i + 1), 'info');
                     break;
                 }
                 $logger->log('connect...,retry=' . ($i + 1), 'error');
@@ -44,25 +47,21 @@ class Queue
      */
     public static function getInstance($class, $config, $logger)
     {
-        static $_instance=[];
+        //static $_instance=[];
         $pid             =getmypid();
         $key             = md5($pid . $class . serialize($config));
-        if (!isset($_instance[$key])) {
-            $_instance[$key]=$class::getConnection($config, $logger);
-            // echo $pid . ' 111 ' . $key . PHP_EOL;
-            if (!is_object($_instance[$key])) {
+        if (!isset(static::$_instance[$key])) {
+            static::$_instance[$key]=$class::getConnection($config, $logger);
+            if (!is_object(static::$_instance[$key])) {
                 //异常抛出
                 throw new Exception('class name:' . $class . ' not exists');
             }
         }
-        if ($_instance[$key]->isConnected()) {
-            // echo $pid . ' 222 ' . $key . PHP_EOL;
-
-            return $_instance[$key];
+        if (static::$_instance[$key]->isConnected()) {
+            return static::$_instance[$key];
         }
-        // echo $pid . ' 333 ' . $key . PHP_EOL;
-
-        $_instance[$key]=null;
+        static::$_instance[$key]=null;
+        $logger->log('queue instance is null', 'error');
 
         return false;
     }
