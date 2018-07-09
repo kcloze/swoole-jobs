@@ -310,7 +310,9 @@ class Process
                     }
                 }
             }
-            //$this->queue->close();
+            //断开连接，释放对象；
+            $this->queue->close();
+            Queue::$_instance=null;
         });
         //积压队列提醒
         \Swoole\Timer::tick($this->messageTickTimer, function ($timerId) {
