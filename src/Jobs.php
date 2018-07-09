@@ -61,6 +61,7 @@ class Jobs
                         usleep(1000);
                         continue;
                     }
+
                     $this->logger->log('pop data: ' . json_encode($data), 'info');
                     if (!empty($data) && (is_object($data) || is_array($data))) {
                         $beginTime=microtime(true);
@@ -85,7 +86,8 @@ class Jobs
             } else {
                 sleep($this->sleep);
             }
-            //$this->queue->close();
+            // $this->queue->close();
+            // Queue::$_instance=null;
         } else {
             $this->logger->log('All topic no work to do!', 'info');
         }

@@ -109,6 +109,7 @@ class Logs
     {
         $logsAll=[];
         foreach ((array) $this->logs as $key => $logs) {
+            $key           =  strtr($key, ['.log'=>'']) . '-' . date('Ymd', time()) . '.log';
             $logsAll[$key] = '';
             foreach ((array) $logs as $log) {
                 $logsAll[$key] .= $this->formatLogMessage($log[0], $log[1], $log[2], $log[3]);
