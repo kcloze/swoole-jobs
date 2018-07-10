@@ -109,7 +109,6 @@ class Logs
     {
         $logsAll=[];
         foreach ((array) $this->logs as $key => $logs) {
-            $key           =  strtr($key, ['.log'=>'']) . '-' . date('Ymd', time()) . '.log';
             $logsAll[$key] = '';
             foreach ((array) $logs as $log) {
                 $logsAll[$key] .= $this->formatLogMessage($log[0], $log[1], $log[2], $log[3]);
@@ -153,7 +152,15 @@ class Logs
             if (empty($key)) {
                 continue;
             }
-            $fileName = $this->logPath . '/' . $key;
+            //日志分类文件夹
+            $keyCat        =  strtr($key, ['.log'=>'']);
+            //日志文件名
+            $key           =  strtr($key, ['.log'=>'']) . '-' . date('Ymd', time()) . '.log';
+            if (!is_dir($this->logPath . '/' . $keyCat)) {
+                self::mkdir($this->logPath . '/' . $keyCat, [], true);
+            }
+
+            $fileName = $this->logPath . '/' . $keyCat . '/' . $key;
 
             if (false === ($fp = @fopen($fileName, 'a'))) {
                 throw new \Exception("Unable to append to log file: {$fileName}");
