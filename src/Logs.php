@@ -18,7 +18,7 @@ class Logs
     const LEVEL_PROFILE        = 'profile';
     const MAX_LOGS             = 10000;
 
-    public $rotateByCopy       = true;
+    public $rotateByCopy       = false;
     public $maxLogFiles        = 5;
     public $maxFileSize        = 1000; // in MB
 
