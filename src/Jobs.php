@@ -77,8 +77,18 @@ class Jobs
                         $jobObject               =  $this->loadObject($data);
                         $baseAction              =  $this->loadFrameworkAction();
                         $baseAction->start($jobObject);
-                        $endTime=microtime(true);
-                        $this->logger->log('pid: ' . getmypid() . ', job id: ' . $jobObject->uuid . ' done, spend time: ' . ($endTime - $beginTime), 'info');
+                        $endTime =microtime(true);
+                        $execTime=$endTime - $beginTime;
+                        $this->logger->log('pid: ' . getmypid() . ', job id: ' . $jobObject->uuid . ' done, spend time: ' . $execTime, 'info');
+                        //黑科技：实践中发现有可能进不到业务代码，造成消息丢失,job执行太快或者太慢(业务出现异常)，worker进程都安全退出
+                        $minTimeJob=$this->config['job']['profile']['minTime'] ?? 0.0001;
+                        $maxTimeJob=$this->config['job']['profile']['maxTime'] ?? 10;
+                        if ($execTime < $minTimeJob || $execTime > $maxTimeJob) {
+                            //$this->queue->push($topic, $jobObject);
+                            $this->logger->log('framework work exect too fast or too slow,  uuid: ' . $jobObject->uuid, 'error');
+                            //太快了，进程退出
+                            exit('framework work exect too fast or too slow!!!' . PHP_EOL);
+                        }
                         unset($jobObject, $baseAction);
                     } else {
                         $this->logger->log('pop error data: ' . print_r($data, true), 'error');

@@ -13,7 +13,7 @@ class MyJob
 {
     public static function test1($a, $b)
     {
-        sleep(1);
+        //sleep(1);
         // $client = new \GuzzleHttp\Client();
         // $res    = $client->request('GET', 'https://www.oschina.net/', ['timeout' => 3]);
         // echo $res->getStatusCode() . ' test1| title: ' . $a . ' time: ' . $b . PHP_EOL;
