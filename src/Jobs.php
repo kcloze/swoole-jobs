@@ -13,6 +13,9 @@ use Kcloze\Jobs\Queue\Queue;
 
 class Jobs
 {
+    const MinTimeJob            =0.0001; //job最少执行时间，少于这个时间不正常，用于worker安全进程退出依据
+    const MaxTimeJob            =15; //job最大执行时间，大于这个时间不正常，用于worker安全进程退出依据
+
     public $logger              = null;
     public $queue               = null;
     public $sleep               = 2; //单个topic如果没有任务，该进程暂停秒数，不能低于1秒，数值太小无用进程会频繁拉起
@@ -81,14 +84,16 @@ class Jobs
                         $execTime=$endTime - $beginTime;
                         $this->logger->log('pid: ' . getmypid() . ', job id: ' . $jobObject->uuid . ' done, spend time: ' . $execTime, 'info');
                         //黑科技：实践中发现有可能进不到业务代码，造成消息丢失,job执行太快或者太慢(业务出现异常)，worker进程都安全退出
-                        $minTimeJob=$this->config['job']['profile']['minTime'] ?? 0.0001;
-                        $maxTimeJob=$this->config['job']['profile']['maxTime'] ?? 10;
+                        $minTimeJob=$this->config['job']['profile']['minTime'] ?? self::MinTimeJob;
+                        $maxTimeJob=$this->config['job']['profile']['maxTime'] ?? self::MaxTimeJob;
                         if ($execTime < $minTimeJob || $execTime > $maxTimeJob) {
                             //$this->queue->push($topic, $jobObject);
-                            $this->logger->log('framework work exect too fast or too slow,  uuid: ' . $jobObject->uuid, 'error');
-                            //太快了，进程退出
-                            exit('framework work exect too fast or too slow!!!' . PHP_EOL);
+                            $msgJobError=($execTime < $minTimeJob) ? 'too fast' : 'too slow';
+                            $this->logger->log('job execute ' . $msgJobError . ',  uuid: ' . $jobObject->uuid . ', execTime:' . $execTime, 'error');
+                            //进程安全退出
+                            exit('job execute ' . $msgJobError . '!!!' . PHP_EOL);
                         }
+
                         unset($jobObject, $baseAction);
                     } else {
                         $this->logger->log('pop error data: ' . print_r($data, true), 'error');
