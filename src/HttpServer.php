@@ -22,17 +22,14 @@ class HttpServer
     public $response = null;
     private $application;
 
-    public function __construct()
+    public function __construct($config=[])
     {
-        $http = new \Swoole\Http\Server('0.0.0.0', 9501);
+        $host=$config['httpServer']['host']??'0.0.0.0';
+        $port=$config['httpServer']['port']??9501;
+        $http = new \Swoole\Http\Server($host, $port);
 
         $http->set(
-            [
-                'worker_num'    => 5,
-                'daemonize'     => false,
-                'max_request'   => 10,
-                'dispatch_mode' => 1,
-            ]
+            $config['httpServer']['settings']
         );
 
         $http->on('WorkerStart', [$this, 'onWorkerStart']);
@@ -156,10 +153,10 @@ class HttpServer
         // session_start();
     }
 
-    public static function getInstance()
+    public static function getInstance($config)
     {
         if (!self::$instance) {
-            self::$instance = new self();
+            self::$instance = new self($config);
         }
 
         return self::$instance;

@@ -27,15 +27,15 @@ class PushJobs
         }
         $pushJobs=new PushJobs();
         $result=$pushJobs->push($data['topic'], $data['jobClass'], $data['jobMethod'], $data['jobParams'], $data['jobExtras'], $data['serializeFunc']);
+        $data['uuid']=$result;
         if ($result) {
-            return \json_encode(['code'=>100,'message'=>'ok,job has been pushed success.','content'=>[]]);
+            return \json_encode(['code'=>100,'message'=>'ok,job has been pushed success.','content'=>$data]);
         } else {
-            return \json_encode(['code'=>-1,'message'=>'no,job has been pushed fail.','content'=>[]]);
+            return \json_encode(['code'=>-1,'message'=>'no,job has been pushed fail.','content'=>$data]);
         }
     }
     public function push($topic, $jobClass, $jobMethod, $jobParams=[], $jobExtras=[], $serializeFunc='php')
     {
-        var_dump(SWOOLE_JOBS_ROOT_PATH . '/config.php');
         $config        = require SWOOLE_JOBS_ROOT_PATH . '/config.php';
         $logger        = Logs::getLogger($config['logPath'] ?? '', $config['logSaveFileApp'] ?? '');
         $queue         =Queue::getQueue($config['job']['queue'], $logger);
