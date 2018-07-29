@@ -35,6 +35,8 @@ class HttpServer
         $http->on('WorkerStart', [$this, 'onWorkerStart']);
 
         $http->on('request', function ($request, $response) {
+            date_default_timezone_set('Asia/Shanghai');
+
             //define('SWOOLE_JOBS_ROOT_PATH', __DIR__ . '/..');
             //捕获异常
             register_shutdown_function([$this, 'handleFatal']);
@@ -67,19 +69,7 @@ class HttpServer
             ob_start();
             //实例化slim对象
             try {
-                $router = new \Bramus\Router\Router();
-                // Static route: /hello
-                $router->get('/hello', function () {
-                    echo 'hello,swoole-jobs!';
-                });
-                $router->get('/pushJobs', function () {
-                    $object=new \Kcloze\Jobs\Api\Controller\Index();
-                    $object->push();
-                });
-                $router->get('/demo', function () {
-                    $object=new \Kcloze\Jobs\Api\Controller\Index();
-                    $object->demo();
-                });
+                $router = new \Kcloze\Jobs\Router();
                 $router->run();
             } catch (Exception $e) {
                 var_dump($e);
@@ -87,7 +77,7 @@ class HttpServer
             $result = ob_get_contents();
             ob_end_clean();
             $response->end($result);
-            unset($result, $router);
+            unset($result, $router,$_GET,$_POST,$_SERVER);
         });
 
         $http->start();

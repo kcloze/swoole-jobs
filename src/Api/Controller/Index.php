@@ -8,7 +8,7 @@ class Index
 {
     public function push()
     {
-        $data=$_GET['jobData'] ?? $_POST['jobData'];
+        $data=$_GET['jobData'] ?? $_POST['jobData'] ?? '';
         $pushJobs=new PushJobs();
         echo $pushJobs->pushSimple($data);
     }
