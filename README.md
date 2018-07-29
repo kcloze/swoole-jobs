@@ -6,6 +6,9 @@
 * Distributed task processing system,similar to gearman,based on swoole
 * High performance / dynamic multi woker process consumption queue to accelerate backend time consuming service
 * There is no need to configure a crontab like gearman worker, swoole-jobs is responsible for managing all worker states
+* Support for pushing queues by HTTP API（swoole http server） , does not depend on php-fpm
+
+
 
 
 ## 1. Explain
@@ -80,6 +83,11 @@ php ./swoole-jobs.php start >> log/system.log 2>&1
 3.push jobs
 php ./tests/testJobsSerialzie.php
 
+4.start api server
+php ./swoole-jobs.php start http
+
+5.stop api server
+php ./swoole-jobs.php stop http
 ```
 
 ### 5.2 Start parameter description
@@ -95,11 +103,9 @@ SYNOPSIS
 WORKFLOWS
 
 
+
       help [command]
       Show this help, or workflow help for command.
-
-      status [command]
-      Show master and workers status.
 
       restart
       Stop, then start swoole-jobs master and workers.
@@ -107,11 +113,20 @@ WORKFLOWS
       start
       Start swoole-jobs master and workers.
 
+      start http
+      Start swoole http server for apis.
+
       stop
       Wait all running workers smooth exit, please check swoole-jobs status for a while.
+      
+      stop http
+      Stop swoole http server for api.
 
       exit
       Kill all running workers and master PIDs.
+
+      exit http
+      Stop swoole http server for api.
 
 
 ```

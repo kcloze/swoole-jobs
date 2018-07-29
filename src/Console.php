@@ -132,6 +132,13 @@ class Console
         sleep(3);
         $this->start();
     }
+    public function restartHttpServer()
+    {
+        $this->logger->log('api server restarting...');
+        $this->killHttpServer();
+        sleep(3);
+        $this->startHttpServer();
+    }
 
     public function kill()
     {
@@ -179,6 +186,12 @@ class Console
                 $this->kill();
                 break;
             case 'restart':
+                $op2=$argv[2];
+                if ($op2=='http') {
+                    $this->restartHttpServer();
+                    break;
+                }
+
                 $this->restart();
                 break;
             case 'help':
@@ -212,11 +225,20 @@ WORKFLOWS
       start
       Start swoole-jobs master and workers.
 
+      start http
+      Start swoole http server for apis.
+
       stop
       Wait all running workers smooth exit, please check swoole-jobs status for a while.
+      
+      stop http
+      Stop swoole http server for api.
 
       exit
       Kill all running workers and master PIDs.
+
+      exit http
+      Stop swoole http server for api.
 
 
 EOF;

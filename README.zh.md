@@ -3,6 +3,7 @@
 * 基于swoole类似gearman的分布式任务处理系统
 * 高性能/动态多woker进程消费队列，加速后端耗时服
 * 无需像gearman一个worker配置一条crontab，swoole-jobs负责管理所有worker状态
+* 独立的swoole http api 入队列，api不依赖php-fpm
 
 
 ## 1. 说明
@@ -68,6 +69,14 @@ php ./swoole-jobs.php start >> log/system.log 2>&1
 3.往队列推送任务
 php ./tests/testJobsSerialzie.php
 
+4.启动api服务
+php ./swoole-jobs.php start http
+
+5.停止api服务
+php ./swoole-jobs.php stop http
+
+
+
 ```
 
 ### 5.2 启动参数说明
@@ -86,20 +95,26 @@ WORKFLOWS
       help [command]
       Show this help, or workflow help for command.
 
-      status [command]
-      Show master and workers status.
-
       restart
       Stop, then start swoole-jobs master and workers.
 
       start
       Start swoole-jobs master and workers.
 
+      start http
+      Start swoole http server for apis.
+
       stop
       Wait all running workers smooth exit, please check swoole-jobs status for a while.
+      
+      stop http
+      Stop swoole http server for api.
 
       exit
       Kill all running workers and master PIDs.
+
+      exit http
+      Stop swoole http server for api.
 
 
 ```
