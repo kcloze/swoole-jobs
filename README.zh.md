@@ -119,6 +119,19 @@ WORKFLOWS
 
 ```
 
+### 5.3 api参数说明
+
+#### 5.3.1 api url
+* http://localhost:9501/pushJobs
+
+#### 5.3.2 api params:
+
+| Params       | Type           | Demo  |
+| ------------- |:-------------:| -----:|
+|   jobData    | json | {"topic":"MyJob","jobClass":"\\Kcloze\\Jobs\\Jobs\\MyJob","jobMethod":"test2","jobParams":["kcloze",1532857253,"oop"],"jobExtras":[],"serializeFunc":"php"} |
+
+
+
 
 ## 6. 服务管理
 ### 线上启动和关闭服务,有两种方式:
@@ -155,6 +168,7 @@ sudo systemctl stop swoole-jobs.service
 ![status](docs/images/status.png)
 #### 钉钉提醒
 ![message](docs/images/dingding.png)
+
 
 
 

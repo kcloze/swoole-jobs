@@ -130,7 +130,16 @@ WORKFLOWS
 
 
 ```
+### 5.3 API parameter description
 
+#### 5.3.1 api url
+* http://localhost:9501/pushJobs
+
+#### 5.3.2 api params:
+
+| Params       | Type           | Demo  |
+| ------------- |:-------------:| -----:|
+|   jobData    | json | {"topic":"MyJob","jobClass":"\\Kcloze\\Jobs\\Jobs\\MyJob","jobMethod":"test2","jobParams":["kcloze",1532857253,"oop"],"jobExtras":[],"serializeFunc":"php"} |
 
 ## 6. Service management
 ### There are two ways to start and close the service online:
