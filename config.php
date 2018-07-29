@@ -75,6 +75,7 @@ return $config = [
                     'max_request'   => 10,
                     'dispatch_mode' => 1,
                     'pid_file' => __DIR__ . '/log/server.pid',
+                    'log_file' => __DIR__.'/log/server.log',
 
             ],
                 

@@ -13,6 +13,10 @@ class PushJobs
      */
     public function pushSimple(string $jobData='')
     {
+        if (!$jobData) {
+            return \json_encode(['code'=>-3,'message'=>'sorry,jobData params is wrong.','content'=>$data]);
+        }
+
         $data=\json_decode($jobData, true);
         $data['topic']=$data['topic']??'';
         $data['jobClass']=$data['jobClass']??'';
@@ -20,10 +24,9 @@ class PushJobs
         $data['jobParams']=$data['jobParams']??'';
         $data['jobExtras']=$data['jobExtras']??'';
         $data['serializeFunc']=$data['serializeFunc']??'php';
-
         //检查参数是否有误
         if (!$data['topic'] || !$data['jobClass'] || !$data['jobClass'] || !$data['jobParams']) {
-            throw new \Exception("Error Job Params: ".$_REQUEST['jobData'], 1);
+            return \json_encode(['code'=>-2,'message'=>'no,jobData params is wrong.','content'=>$data]);
         }
         $pushJobs=new PushJobs();
         $result=$pushJobs->push($data['topic'], $data['jobClass'], $data['jobMethod'], $data['jobParams'], $data['jobExtras'], $data['serializeFunc']);
@@ -31,7 +34,7 @@ class PushJobs
         if ($result) {
             return \json_encode(['code'=>100,'message'=>'ok,job has been pushed success.','content'=>$data]);
         } else {
-            return \json_encode(['code'=>-1,'message'=>'no,job has been pushed fail.','content'=>$data]);
+            return \json_encode(['code'=>-1,'message'=>'sorry,job has been pushed fail.','content'=>$data]);
         }
     }
     public function push($topic, $jobClass, $jobMethod, $jobParams=[], $jobExtras=[], $serializeFunc='php')

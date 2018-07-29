@@ -74,7 +74,7 @@ class HttpServer
                 });
                 $router->get('/pushJobs', function () {
                     $object=new \Kcloze\Jobs\Api\Controller\Index();
-                    $object->index();
+                    $object->push();
                 });
                 $router->get('/demo', function () {
                     $object=new \Kcloze\Jobs\Api\Controller\Index();
