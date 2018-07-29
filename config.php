@@ -39,23 +39,23 @@ return $config = [
             //['name'=> 'TojavaConsumer'],
         ],
         // redis
-        // 'queue'   => [
-        //     'class'    => '\Kcloze\Jobs\Queue\RedisTopicQueue',
-        //     'host'     => '127.0.0.1',
-        //     'port'     => 6379,
-        //     //'password'=> 'pwd',
-        // ],
+        'queue'   => [
+            'class'    => '\Kcloze\Jobs\Queue\RedisTopicQueue',
+            'host'     => '192.168.3.9',
+            'port'     => 6379,
+            //'password'=> 'pwd',
+        ],
 
         // rabbitmq
-        'queue'   => [
-            'class'         => '\Kcloze\Jobs\Queue\RabbitmqTopicQueue',
-            'host'          => '192.168.9.24',
-            'user'          => 'phpadmin',
-            'pass'          => 'phpadmin',
-            'port'          => '5671',
-            'vhost'         => 'php',
-            'exchange'      => 'php.amqp.ext',
-        ],
+        // 'queue'   => [
+        //     'class'         => '\Kcloze\Jobs\Queue\RabbitmqTopicQueue',
+        //     'host'          => '192.168.9.24',
+        //     'user'          => 'phpadmin',
+        //     'pass'          => 'phpadmin',
+        //     'port'          => '5671',
+        //     'vhost'         => 'php',
+        //     'exchange'      => 'php.amqp.ext',
+        // ],
    ],
    //框架类型及装载类
    'framework' => [
@@ -65,5 +65,18 @@ return $config = [
    'message'=> [
        'class'  => '\Kcloze\Jobs\Message\DingMessage',
        'token'  => '***your-dingding-token***',
+   ],
+   'httpServer' =>[
+                'host'  =>'0.0.0.0',
+                'port'  =>9501,
+                'settings'=>[
+                    'worker_num'    => 3,
+                    'daemonize'     => true,
+                    'max_request'   => 10,
+                    'dispatch_mode' => 1,
+                    'pid_file' => __DIR__ . '/log/server.pid',
+
+            ],
+                
    ],
 ];

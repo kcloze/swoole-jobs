@@ -29,8 +29,14 @@ class Console
     public function start()
     {
         //启动
-        // $process = new Process();
-        // $process->start();
+        $process = new Process();
+        $process->start();
+    }
+
+
+    public function startHttpServer()
+    {
+        //启动
         if (isset($this->config['httpServer'])) {
             HttpServer::getInstance($this->config);
         }
@@ -146,6 +152,11 @@ class Console
         $opt=$argv[1];
         switch ($opt) {
             case 'start':
+                $op2=$argv[2];
+                if ($op2=='http') {
+                    $this->startHttpServer();
+                    break;
+                }
                 $this->start();
                 break;
             case 'stop':
