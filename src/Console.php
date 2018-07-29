@@ -29,8 +29,10 @@ class Console
     public function start()
     {
         //启动
-        $process = new Process();
-        $process->start();
+        // $process = new Process();
+        // $process->start();
+
+        HttpServer::getInstance();
     }
 
     /**
