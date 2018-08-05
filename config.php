@@ -32,7 +32,7 @@ return $config = [
             'minTime'=> 0.0001, //单个job最少执行时间
         ],
         'topics'  => [
-            ['name'=>'MyJob', 'workerMinNum'=>3, 'workerMaxNum'=>30],
+            ['name'=>'MyJob', 'workerMinNum'=>3, 'workerMaxNum'=>30, 'queueMaxNum'=>10000],
             ['name'=> 'MyJob2', 'workerMinNum'=>3, 'workerMaxNum'=>20],
             ['name'=> 'MyJob3', 'workerMinNum'=>1, 'workerMaxNum'=>1],
             //不需要swoole-jobs消费的队列，只往队列里面写数据
@@ -64,20 +64,21 @@ return $config = [
    ],
    'message'=> [
        'class'  => '\Kcloze\Jobs\Message\DingMessage',
-       'token'  => '***your-dingding-token***',
+        //'token'  => '***your-dingding-token***',
+       'token'  => '6f5bf4dedc7698cdf3567f29ce5ebe5308a02b743d0f21cbe9c78e5417312206',
    ],
-   'httpServer' =>[
-                'host'  =>'0.0.0.0',
-                'port'  =>9501,
-                'settings'=>[
+   'httpServer' => [
+                'host'    => '0.0.0.0',
+                'port'    => 9501,
+                'settings'=> [
                     'worker_num'    => 3,
                     'daemonize'     => true,
                     'max_request'   => 10,
                     'dispatch_mode' => 1,
-                    'pid_file' => __DIR__ . '/log/server.pid',
-                    'log_file' => __DIR__.'/log/server.log',
+                    'pid_file'      => __DIR__ . '/log/server.pid',
+                    'log_file'      => __DIR__ . '/log/server.log',
 
             ],
-                
+
    ],
 ];

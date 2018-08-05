@@ -25,7 +25,7 @@ class Process
     public $processName                   = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
     public $workers                       = [];
 
-    private $version                      = '2.6';
+    private $version                      = '3.0';
     private $excuteTime                   =600; //子进程最长执行时间,单位：秒
     private $queueMaxNum                  =10; //队列达到一定长度，启动动态子进程个数发和送消息提醒
     private $queueTickTimer               =1000 * 10; //一定时间间隔（毫秒）检查队列长度;默认10秒钟
@@ -290,12 +290,18 @@ class Process
                     $this->status=$this->getMasterData('status');
                     //消息提醒：消息体收集
                     if ($len > $this->queueMaxNum && count($this->message) <= count($topics)) {
-                        $this->message[]= strtr('Time:{time} Pid:{pid} ProName:{pname} Topic:{topic} Message:{message}', [
-                                                '{time}'   => date('Y-m-d H:i:s'),
-                                                '{pid}'    => $this->ppid,
-                                                '{pname}'  => $this->processName,
-                                                '{topic}'  => $topic['name'],
-                                                '{message}'=> '积压消息个数:' . $len . PHP_EOL,
+                        $addMesg=true; //用来控制是否加到警告消息体
+                        //如果当个队列设置了queueMaxNum项，以这个值作为是否警告的标识；
+                        if (isset($topic['queueMaxNum']) && $len < $topic['queueMaxNum']) {
+                            $addMesg=false;
+                        }
+                        $addMesg && $this->message[]= strtr('Hostname: {hostname} Time:{time} Pid:{pid} ProName:{pname} Topic:{topic} Message:{message}' . PHP_EOL, [
+                                                '{time}'        => date('Y-m-d H:i:s'),
+                                                '{pid}'         => $this->ppid,
+                                                '{hostname}'    => gethostname(),
+                                                '{pname}'       => $this->processName,
+                                                '{topic}'       => $topic['name'],
+                                                '{message}'     => '积压消息个数:' . $len,
                                             ]);
                     }
 
@@ -410,7 +416,7 @@ class Process
     private function showStatus()
     {
         $statusStr  ='-------------------------------------' . $this->processName . ' status--------------------------------------------' . PHP_EOL;
-        $statusStr .= 'PHP version:' . PHP_VERSION . '      swoole-jobs version: ' . $this->version . PHP_EOL;
+        $statusStr .= 'Now: ' . date('Y-m-d H:i:s') . '      PHP version:' . PHP_VERSION . '      Swoole-jobs version: ' . $this->version . PHP_EOL;
         $statusStr .= 'start time : ' . date('Y-m-d H:i:s', $this->beginTime) . '   run ' . floor((time() - $this->beginTime) / (24 * 60 * 60)) . ' days ' . floor(((time() - $this->beginTime) % (24 * 60 * 60)) / (60 * 60)) . ' hours   ' . PHP_EOL;
         $statusStr .= Utils::getSysLoadAvg() . '   memory use:' . Utils::getServerMemoryUsage() . PHP_EOL;
         $statusStr .= '|-- Master pid ' . $this->ppid . ' status: ' . $this->status . ' Worker num: ' . count($this->workers) . PHP_EOL;

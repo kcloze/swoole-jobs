@@ -31,13 +31,14 @@ class Console
         //启动
         $process = new Process();
         $process->start();
+        echo 'swoole-jobs is starting.' . PHP_EOL;
     }
-
 
     public function startHttpServer()
     {
         //启动
         if (isset($this->config['httpServer'])) {
+            echo 'swoole-jobs http server is starting.' . PHP_EOL;
             HttpServer::getInstance($this->config);
         }
     }
@@ -84,15 +85,17 @@ class Console
                     //尝试5次发送信号
                     $i=0;
                     do {
-                        $i++;
-                        $this->logger->log('[master pid: ' . $pid . '] has been received  signal' . $signal.' times: '.$i);
+                        ++$i;
+                        $this->logger->log('[master pid: ' . $pid . '] has been received  signal' . $signal . ' times: ' . $i);
                         if (!@\Swoole\Process::kill($pid, 0)) {
-                            exit('swoole-jobs status is stopped' . PHP_EOL);
-                        } else {
-                            @\Swoole\Process::kill($pid, $signal);
+                            exit('swoole-jobs kill successful, status is stopped.' . PHP_EOL);
                         }
+                        @\Swoole\Process::kill($pid, $signal);
+
                         sleep(3);
                     } while ($i <= 5);
+
+                    echo 'swoole-jobs kill failed.' . PHP_EOL;
                 }
             }
             $this->logger->log('[master pid: ' . $pid . '] has been received signal fail');
@@ -111,17 +114,18 @@ class Console
             //尝试5次发送信号
             $i=0;
             do {
-                $i++;
-                $this->logger->log('[httpServerPid : ' . $httpServerPid . '] has been received  signal' . $signal.' times: '.$i);
+                ++$i;
+                $this->logger->log('[httpServerPid : ' . $httpServerPid . '] has been received  signal' . $signal . ' times: ' . $i);
                 if (!@\Swoole\Process::kill($httpServerPid, 0)) {
                     exit('http server status is stopped' . PHP_EOL);
-                } else {
-                    @\Swoole\Process::kill($httpServerPid, $signal);
                 }
+                @\Swoole\Process::kill($httpServerPid, $signal);
+
                 sleep(1);
             } while ($i <= 5);
+            echo 'swoole-jobs kill failed.' . PHP_EOL;
         } else {
-            exit('configs with http server not settting'.PHP_EOL);
+            exit('configs with http server not settting' . PHP_EOL);
         }
     }
 
@@ -132,6 +136,7 @@ class Console
         sleep(3);
         $this->start();
     }
+
     public function restartHttpServer()
     {
         $this->logger->log('api server restarting...');
@@ -144,6 +149,7 @@ class Console
     {
         $this->sendSignal(SIGTERM);
     }
+
     public function killHttpServer()
     {
         $this->sendSignalHttpServer(SIGTERM);
@@ -160,15 +166,16 @@ class Console
         switch ($opt) {
             case 'start':
                 $op2=$argv[2];
-                if ($op2=='http') {
+                if ('http' == $op2) {
                     $this->startHttpServer();
                     break;
                 }
                 $this->start();
+
                 break;
             case 'stop':
                 $op2=$argv[2];
-                if ($op2=='http') {
+                if ('http' == $op2) {
                     $this->killHttpServer();
                     break;
                 }
@@ -179,7 +186,7 @@ class Console
                 break;
             case 'exit':
                 $op2=$argv[2];
-                if ($op2=='http') {
+                if ('http' == $op2) {
                     $this->killHttpServer();
                     break;
                 }
@@ -187,7 +194,7 @@ class Console
                 break;
             case 'restart':
                 $op2=$argv[2];
-                if ($op2=='http') {
+                if ('http' == $op2) {
                     $this->restartHttpServer();
                     break;
                 }
