@@ -39,23 +39,23 @@ return $config = [
             //['name'=> 'TojavaConsumer'],
         ],
         // redis
-        'queue'   => [
-            'class'    => '\Kcloze\Jobs\Queue\RedisTopicQueue',
-            'host'     => '192.168.3.9',
-            'port'     => 6379,
-            //'password'=> 'pwd',
-        ],
+        // 'queue'   => [
+        //     'class'    => '\Kcloze\Jobs\Queue\RedisTopicQueue',
+        //     'host'     => '192.168.3.9',
+        //     'port'     => 6379,
+        //     //'password'=> 'pwd',
+        // ],
 
         // rabbitmq
-        // 'queue'   => [
-        //     'class'         => '\Kcloze\Jobs\Queue\RabbitmqTopicQueue',
-        //     'host'          => '192.168.9.24',
-        //     'user'          => 'phpadmin',
-        //     'pass'          => 'phpadmin',
-        //     'port'          => '5671',
-        //     'vhost'         => 'php',
-        //     'exchange'      => 'php.amqp.ext',
-        // ],
+        'queue'   => [
+            'class'         => '\Kcloze\Jobs\Queue\RabbitmqTopicQueue',
+            'host'          => '192.168.9.24',
+            'user'          => 'phpadmin',
+            'pass'          => 'phpadmin',
+            'port'          => '5671',
+            'vhost'         => 'php',
+            'exchange'      => 'php.amqp.ext',
+        ],
    ],
    //框架类型及装载类
    'framework' => [
@@ -76,8 +76,6 @@ return $config = [
                     'dispatch_mode' => 1,
                     'pid_file'      => __DIR__ . '/log/server.pid',
                     'log_file'      => __DIR__ . '/log/server.log',
-
             ],
-
    ],
 ];

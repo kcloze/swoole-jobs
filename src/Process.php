@@ -295,7 +295,7 @@ class Process
                         if (isset($topic['queueMaxNum']) && $len < $topic['queueMaxNum']) {
                             $addMesg=false;
                         }
-                        $addMesg && $this->message[]= strtr('Hostname: {hostname} Time:{time} Pid:{pid} ProName:{pname} Topic:{topic} Message:{message}' . PHP_EOL, [
+                        $addMesg && $this->message[]= strtr('Hostname: {hostname} Time:{time} Pid:{pid} ProName:{pname} Topic:{topic} Message:{message}' . PHP_EOL . '--------------' . PHP_EOL, [
                                                 '{time}'        => date('Y-m-d H:i:s'),
                                                 '{pid}'         => $this->ppid,
                                                 '{hostname}'    => gethostname(),

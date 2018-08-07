@@ -165,7 +165,7 @@ class Console
         $opt=$argv[1];
         switch ($opt) {
             case 'start':
-                $op2=$argv[2];
+                $op2=$argv[2] ?? '';
                 if ('http' == $op2) {
                     $this->startHttpServer();
                     break;
@@ -174,7 +174,7 @@ class Console
 
                 break;
             case 'stop':
-                $op2=$argv[2];
+                $op2=$argv[2] ?? '';
                 if ('http' == $op2) {
                     $this->killHttpServer();
                     break;
@@ -185,7 +185,7 @@ class Console
                 $this->sendSignal(SIGUSR2);
                 break;
             case 'exit':
-                $op2=$argv[2];
+                $op2=$argv[2] ?? '';
                 if ('http' == $op2) {
                     $this->killHttpServer();
                     break;
@@ -193,7 +193,7 @@ class Console
                 $this->kill();
                 break;
             case 'restart':
-                $op2=$argv[2];
+                $op2=$argv[2] ?? '';
                 if ('http' == $op2) {
                     $this->restartHttpServer();
                     break;
