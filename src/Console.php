@@ -118,6 +118,7 @@ class Console
     public function sendSignalHttpServer($signal=SIGTERM)
     {
         if (isset($this->config['httpServer']) && isset($this->config['httpServer']['settings']['pid_file'])) {
+            $httpServerPid                                                                       =null;
             file_exists($this->config['httpServer']['settings']['pid_file']) && $httpServerPid   =file_get_contents($this->config['httpServer']['settings']['pid_file']);
             if (!$httpServerPid) {
                 echo 'http server pid is null' . PHP_EOL;
