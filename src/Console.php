@@ -59,17 +59,23 @@ class Console
             $masterPidFile=$this->config['pidPath'] . '/master.pid';
             $pidStatusFile=$this->config['pidPath'] . '/status.info';
         } else {
-            die('config pidPath must be set!' . PHP_EOL);
+            echo 'config pidPath must be set!' . PHP_EOL;
+
+            return;
         }
 
         if (file_exists($masterPidFile)) {
             $pid   =file_get_contents($masterPidFile);
             if (!$pid) {
-                exit('swoole-jobs pid is null' . PHP_EOL);
+                echo 'swoole-jobs pid is null' . PHP_EOL;
+
+                return;
             }
 
             if ($pid && !@\Swoole\Process::kill($pid, 0)) {
-                exit('service is not running' . PHP_EOL);
+                echo 'service is not running' . PHP_EOL;
+
+                return;
             }
             if (@\Swoole\Process::kill($pid, $signal)) {
                 $this->logger->log('[master pid: ' . $pid . '] has been received  signal' . $signal);
@@ -80,7 +86,8 @@ class Console
 
                     echo $statusStr ? $statusStr : 'sorry,show status fail.';
                     @unlink($pidStatusFile);
-                    exit;
+
+                    return;
                 } elseif (SIGTERM == $signal) {
                     //尝试5次发送信号
                     $i=0;
@@ -88,7 +95,9 @@ class Console
                         ++$i;
                         $this->logger->log('[master pid: ' . $pid . '] has been received  signal' . $signal . ' times: ' . $i);
                         if (!@\Swoole\Process::kill($pid, 0)) {
-                            exit('swoole-jobs kill successful, status is stopped.' . PHP_EOL);
+                            echo 'swoole-jobs kill successful, status is stopped.' . PHP_EOL;
+
+                            return;
                         }
                         @\Swoole\Process::kill($pid, $signal);
 
@@ -97,11 +106,13 @@ class Console
 
                     echo 'swoole-jobs kill failed.' . PHP_EOL;
                 }
+                echo 'swoole-jobs stop success.' . PHP_EOL;
             }
             $this->logger->log('[master pid: ' . $pid . '] has been received signal fail');
-        } else {
-            exit('service is not running' . PHP_EOL);
+
+            return;
         }
+        echo 'service is not running' . PHP_EOL;
     }
 
     public function sendSignalHttpServer($signal=SIGTERM)
@@ -109,7 +120,9 @@ class Console
         if (isset($this->config['httpServer']) && isset($this->config['httpServer']['settings']['pid_file'])) {
             file_exists($this->config['httpServer']['settings']['pid_file']) && $httpServerPid   =file_get_contents($this->config['httpServer']['settings']['pid_file']);
             if (!$httpServerPid) {
-                exit('http server pid is null' . PHP_EOL);
+                echo 'http server pid is null' . PHP_EOL;
+
+                return;
             }
             //尝试5次发送信号
             $i=0;
@@ -117,7 +130,9 @@ class Console
                 ++$i;
                 $this->logger->log('[httpServerPid : ' . $httpServerPid . '] has been received  signal' . $signal . ' times: ' . $i);
                 if (!@\Swoole\Process::kill($httpServerPid, 0)) {
-                    exit('http server status is stopped' . PHP_EOL);
+                    echo 'http server status is stopped' . PHP_EOL;
+
+                    return;
                 }
                 @\Swoole\Process::kill($httpServerPid, $signal);
 
@@ -125,7 +140,9 @@ class Console
             } while ($i <= 5);
             echo 'swoole-jobs kill failed.' . PHP_EOL;
         } else {
-            exit('configs with http server not settting' . PHP_EOL);
+            echo 'configs with http server not settting' . PHP_EOL;
+
+            return;
         }
     }
 

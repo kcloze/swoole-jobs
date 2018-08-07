@@ -289,7 +289,7 @@ class Process
                     }
                     $this->status=$this->getMasterData('status');
                     //消息提醒：消息体收集
-                    if ($len > $this->queueMaxNum && count($this->message) <= count($topics)) {
+                    if ($len > $this->queueMaxNum && count($this->message) <= count($topics) && count($this->message) <= 5) {
                         $addMesg=true; //用来控制是否加到警告消息体
                         //如果当个队列设置了queueMaxNum项，以这个值作为是否警告的标识；
                         if (isset($topic['queueMaxNum']) && $len < $topic['queueMaxNum']) {
