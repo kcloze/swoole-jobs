@@ -24,8 +24,8 @@ class HttpServer
 
     public function __construct($config=[])
     {
-        $host=$config['httpServer']['host']??'0.0.0.0';
-        $port=$config['httpServer']['port']??9501;
+        $host =$config['httpServer']['host'] ?? '0.0.0.0';
+        $port =$config['httpServer']['port'] ?? 9501;
         $http = new \Swoole\Http\Server($host, $port);
 
         $http->set(
@@ -41,7 +41,7 @@ class HttpServer
             //捕获异常
             register_shutdown_function([$this, 'handleFatal']);
             //请求过滤
-            if ($request->server['path_info'] == '/favicon.ico' || $request->server['request_uri'] == '/favicon.ico') {
+            if ('/favicon.ico' == $request->server['path_info'] || '/favicon.ico' == $request->server['request_uri']) {
                 return $response->end();
             }
             $this->response = $response;
@@ -71,7 +71,7 @@ class HttpServer
             try {
                 $router = new \Kcloze\Jobs\Router();
                 $router->run();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 var_dump($e);
             }
             $result = ob_get_contents();

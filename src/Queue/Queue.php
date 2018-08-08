@@ -54,7 +54,7 @@ class Queue
             static::$_instance[$key]=$class::getConnection($config, $logger);
             if (!is_object(static::$_instance[$key])) {
                 //异常抛出
-                throw new Exception('class name:' . $class . ' not exists');
+                throw new \Exception('class name:' . $class . ' not exists');
             }
         }
         if (static::$_instance[$key]->isConnected()) {
