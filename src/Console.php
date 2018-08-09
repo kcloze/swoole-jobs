@@ -38,7 +38,7 @@ class Console
     {
         //启动
         if (isset($this->config['httpServer'])) {
-            echo 'swoole-jobs http server is starting.' . PHP_EOL;
+            //echo 'swoole-jobs http server is starting.' . PHP_EOL;
             HttpServer::getInstance($this->config);
         }
     }
