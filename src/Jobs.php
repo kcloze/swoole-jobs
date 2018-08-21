@@ -91,7 +91,7 @@ class Jobs
                             $msgJobError=($execTime < $minTimeJob) ? 'too fast' : 'too slow';
                             $this->logger->log('job execute ' . $msgJobError . ',  uuid: ' . $jobObject->uuid . ', execTime:' . $execTime, 'error');
                             //进程安全退出
-                            exit('job execute ' . $msgJobError . '!!!' . PHP_EOL);
+                            exit;
                         }
 
                         unset($jobObject, $baseAction);
@@ -100,7 +100,8 @@ class Jobs
                     }
                     //防止内存泄漏，每次执行一个job就退出[极端情况才需要开启]
                     if (isset($this->config['eachJobExit']) && true == $this->config['eachJobExit']) {
-                        exit('Each Job Exit' . PHP_EOL);
+                        $this->logger->log('Each Job Exit' . PHP_EOL);
+                        exit;
                     }
                     // if ($this->queue->len($topic) <= 0) {
                     //     break;

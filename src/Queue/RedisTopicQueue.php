@@ -66,7 +66,7 @@ class RedisTopicQueue extends BaseTopicQueue
             return '';
         }
 
-        $this->queue->lPush($topic, Serialize::serialize($job, $serializeFunc));
+        $this->queue->rPush($topic, Serialize::serialize($job, $serializeFunc));
 
         return $job->uuid ?? '';
     }
