@@ -185,7 +185,7 @@ class Process
                 try {
                     $ret = \Swoole\Process::wait(false);
                 } catch (\Exception $e) {
-                    $this->logger->log('signoError: ' . $signo . $e->getMessage(), 'error', $this->logSaveFileWorker);
+                    $this->logger->log('signoError: ' . $signo . $e->getMessage(), 'error', 'error');
                 }
                 if ($ret) {
                     $pid           = $ret['pid'];
@@ -208,7 +208,7 @@ class Process
                                 sleep(1);
                             }
                             if (!$newPid) {
-                                $this->logger->log('静态子进程重启失败，问题有点严重，平滑退出子进程，主进程会跟着退出', 'error', $this->logSaveFileWorker);
+                                $this->logger->log('静态子进程重启失败，问题有点严重，平滑退出子进程，主进程会跟着退出', 'error', 'error');
                                 $this->waitWorkers();
                                 //$this->reserveQueue(0, $topic);
                                 continue;
@@ -220,9 +220,9 @@ class Process
                             ++$this->workerNum;
                             $this->logger->log("Worker Restart, kill_signal={$ret['signal']} PID=" . $newPid, 'info', $this->logSaveFileWorker);
                         } catch (\Throwable $e) {
-                            $this->logger->log('restartErrorThrow' . $e->getMessage(), 'error', $this->logSaveFileWorker);
+                            $this->logger->log('restartErrorThrow' . $e->getMessage(), 'error', 'error');
                         } catch (\Exception $e) {
-                            $this->logger->log('restartError: ' . $e->getMessage(), 'error', $this->logSaveFileWorker);
+                            $this->logger->log('restartError: ' . $e->getMessage(), 'error', 'error');
                         }
                     }
                     //某个topic动态变化的子进程，退出之后个数减少一个
@@ -283,9 +283,9 @@ class Process
                         $len=$this->queue->len($topic['name']);
                         $this->logger->log('topic: ' . $topic['name'] . ' ' . $this->status . ' len: ' . $len, 'info', $this->logSaveFileWorker);
                     } catch (\Throwable $e) {
-                        $this->logger->log('queueError' . $e->getMessage(), 'error', $this->logSaveFileWorker);
+                        $this->logger->log('queueError' . $e->getMessage(), 'error', 'error');
                     } catch (\Exception $e) {
-                        $this->logger->log('queueError: ' . $e->getMessage(), 'error', $this->logSaveFileWorker);
+                        $this->logger->log('queueError: ' . $e->getMessage(), 'error', 'error');
                     }
                     $this->status=$this->getMasterData('status');
                     //消息提醒：消息体收集

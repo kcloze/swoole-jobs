@@ -26,12 +26,12 @@ class Queue
                     // $logger->log('connect...,retry=' . ($i + 1), 'info');
                     break;
                 }
-                $logger->log('connect...,retry=' . ($i + 1), 'error');
+                $logger->log('connect...,retry=' . ($i + 1), 'error', 'error');
             }
 
             return $connection;
         }
-        $logger->log('queue connection is lost', 'error');
+        $logger->log('queue connection is lost', 'error', 'error');
 
         return false;
     }
@@ -61,7 +61,7 @@ class Queue
             return static::$_instance[$key];
         }
         static::$_instance[$key]=null;
-        $logger->log('queue instance is null', 'error');
+        $logger->log('queue instance is null', 'error', 'error');
 
         return false;
     }

@@ -89,14 +89,14 @@ class Jobs
                         if ($execTime < $minTimeJob || $execTime > $maxTimeJob) {
                             //$this->queue->push($topic, $jobObject);
                             $msgJobError=($execTime < $minTimeJob) ? 'too fast' : 'too slow';
-                            $this->logger->log('job execute ' . $msgJobError . ',  uuid: ' . $jobObject->uuid . ', execTime:' . $execTime, 'error');
+                            $this->logger->log('job execute ' . $msgJobError . ',  uuid: ' . $jobObject->uuid . ', execTime:' . $execTime, 'error', 'error');
                             //进程安全退出
                             exit;
                         }
 
                         unset($jobObject, $baseAction);
                     } else {
-                        $this->logger->log('pop error data: ' . print_r($data, true), 'error');
+                        $this->logger->log('pop error data: ' . print_r($data, true), 'error', 'error');
                     }
                     //防止内存泄漏，每次执行一个job就退出[极端情况才需要开启]
                     if (isset($this->config['eachJobExit']) && true == $this->config['eachJobExit']) {
