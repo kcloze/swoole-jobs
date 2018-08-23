@@ -10,7 +10,7 @@
         "ext-redis": "*",
         "guzzlehttp/guzzle": "^6.3",
         "bramus/router":"^1.3",
-        "enqueue/amqp-ext": "0.8.9"
+        "enqueue/amqp-ext": "^0.8"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8.35 || ^5.7"
