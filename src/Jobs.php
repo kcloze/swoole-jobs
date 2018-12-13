@@ -141,7 +141,7 @@ class Jobs
             return new JobObject($data['topic'] ?? '', $data['jobClass'] ?? '', $data['jobMethod'] ?? '', $data['jobParams'] ?? [], $data['jobExtras'] ?? [], $data['uuid'] ?? '');
         }
 
-        return fasle;
+        return false;
     }
 
     private function getMasterData($key='')
