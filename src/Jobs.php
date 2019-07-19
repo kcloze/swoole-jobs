@@ -125,7 +125,7 @@ class Jobs
      *
      * @param JobObject $jobObject
      * @param string    $topic
-     * @param mixed    $data
+     * @param mixed     $data
      *
      * @return JobObject
      */
@@ -149,7 +149,7 @@ class Jobs
                 if ('' == $jobObject->jobMethod) {
                     $jobObject->jobMethod = $topicConfigObject->getDefaultJobMethod();
                 }
-                if ($jobObject->jobParams == []){
+                if ($jobObject->jobParams == []) {
                     $jobObject->jobParams = $data;
                 }
             }

@@ -4,7 +4,6 @@ use PHPUnit\Framework\TestCase;
 
 class TopicConfigObjectTest extends TestCase
 {
-
     public function testEmpty()
     {
         $config = [
