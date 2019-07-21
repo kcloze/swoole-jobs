@@ -35,6 +35,8 @@ return $config = [
             ['name'=>'MyJob', 'workerMinNum'=>3, 'workerMaxNum'=>30, 'queueMaxNum'=>10000],
             ['name'=> 'MyJob2', 'workerMinNum'=>3, 'workerMaxNum'=>20],
             ['name'=> 'MyJob3', 'workerMinNum'=>1, 'workerMaxNum'=>1],
+            ['name'=> 'DefaultClassMethod.test1', 'workerMinNum'=>1, 'workerMaxNum'=>2, 'defaultJobClass'=>'DefaultClassMethod', 'defaultJobMethod'=>'test1'],
+            ['name'=> 'DefaultClassMethod.test2', 'workerMinNum'=>1, 'workerMaxNum'=>2, 'defaultJobClass'=>'DefaultClassMethod', 'defaultJobMethod'=>'test2'],
             //不需要swoole-jobs消费的队列，只往队列里面写数据
             //['name'=> 'TojavaConsumer'],
         ],

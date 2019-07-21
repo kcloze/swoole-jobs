@@ -78,6 +78,9 @@ class Jobs
                         $beginTime=microtime(true);
                         // 根据自己的业务需求改写此方法
                         $jobObject               =  $this->loadObject($data);
+                        if ($jobObject instanceof JobObject) {
+                            $jobObject = $this->formatJobObjectByTopicConfig($jobObject, $topic, $data);
+                        }
                         $baseAction              =  $this->loadFrameworkAction();
                         $baseAction->start($jobObject);
                         $endTime =microtime(true);
@@ -115,6 +118,61 @@ class Jobs
         } else {
             $this->logger->log('All topic no work to do!', 'info');
         }
+    }
+
+    /**
+     * 获取topic配置对象，格式化JobObject.
+     *
+     * @param JobObject $jobObject
+     * @param string    $topic
+     * @param mixed     $data
+     *
+     * @return JobObject
+     */
+    public function formatJobObjectByTopicConfig(JobObject $jobObject, $topic, $data)
+    {
+        $topicConfigObject = new TopicConfigObject();
+        if ('' == $topic) {
+            return $jobObject;
+        }
+        if ('' === $jobObject->topic) {
+            $jobObject->topic = $topic;
+        }
+        //如果消息体对象的callback class或method为空，则尝试读取配置的默认class和method
+        if ('' == $jobObject->jobClass || '' == $jobObject->jobMethod) {
+            $topicConfig = $this->getConfigByTopic($topic);
+            if ($topicConfig != []) {
+                $topicConfigObject->initAttributes($topicConfig);
+                if ('' == $jobObject->jobClass) {
+                    $jobObject->jobClass = $topicConfigObject->getDefaultJobClass();
+                }
+                if ('' == $jobObject->jobMethod) {
+                    $jobObject->jobMethod = $topicConfigObject->getDefaultJobMethod();
+                }
+                if ($jobObject->jobParams == []) {
+                    $jobObject->jobParams = $data;
+                }
+            }
+        }
+
+        return $jobObject;
+    }
+
+    /**
+     * 获取对应topic的配置数组.
+     *
+     * @param string $topic
+     *
+     * @return array
+     */
+    public function getConfigByTopic($topic)
+    {
+        $topicsConfig = $this->config['job']['topics'] ?? [];
+        $topicConfig  = array_filter($topicsConfig, function ($config) use ($topic) {
+            return $config['name'] == $topic;
+        });
+
+        return $topicConfig != [] ? reset($topicConfig) : [];
     }
 
     //根据配置装入不同的框架
