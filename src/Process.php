@@ -48,6 +48,8 @@ class Process
 
     public function __construct()
     {
+
+
         $this->config                    =  Config::getConfig();
         $this->logger                    = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '', $this->config['system'] ?? '');
         $this->topics                    =$this->config['job']['topics'] ?? [];
@@ -94,6 +96,8 @@ class Process
         $data['pid']   =$this->ppid;
         $data['status']=$this->status;
         $this->saveMasterData($data);
+        //主进程禁用协程
+        $this->disableCoroutine();
         $this->setProcessName(self::APP_NAME . ' master ' . $this->ppid . $this->processName);
     }
 
@@ -127,6 +131,7 @@ class Process
      */
     public function reserveQueue($num, $topic, $type=self::CHILD_PROCESS_CAN_RESTART)
     {
+        $this->disableCoroutine();
         $reserveProcess = new \Swoole\Process(function ($worker) use ($num, $topic, $type) {
             $this->checkMpid($worker);
             $beginTime=microtime(true);
@@ -249,6 +254,7 @@ class Process
     //增加定时器，检查队列积压情况；
     public function registTimer()
     {
+        
         \Swoole\Timer::tick($this->queueTickTimer, function ($timerId) {
             $topics = $this->topics;
             $this->status  =$this->getMasterData('status');
@@ -430,5 +436,13 @@ class Process
         }
 
         return $statusStr;
+    }
+
+    private function disableCoroutine()
+    {
+        if (version_compare(swoole_version(), '4.0.0', '>=')) {
+            $this->logger->log("Swoole Version >= 4.0.0 ,disable coroutine.", 'info', $this->logSaveFileWorker);
+            ini_set('swoole.enable_coroutine', 'Off');
+        }
     }
 }

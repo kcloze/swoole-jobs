@@ -185,6 +185,7 @@ sudo systemctl stop swoole-jobs.service
 ## 9. Matters needing attention
 * If you embed your own framework, you can refer to src/Action code to inherit the abstract class Kcloze\Jobs\Action\BaseAction.
 * Various framework services will start slightly different, for specific reference: Code for `example/bin` projects.
+* * swoole >=4 version,need to set php.ini, [disable coroutine ](https://github.com/swoole/swoole-src/issues/2716)
 
 ## 10. Pressure measurement
 * Bottleneck: redis/rabbitmq queue storage itself and job execution speed

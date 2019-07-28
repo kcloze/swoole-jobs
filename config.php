@@ -1,11 +1,18 @@
 <?php
-
 /*
  * This file is part of PHP CS Fixer.
  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
+
+date_default_timezone_set('Asia/Shanghai');
+ini_set('swoole.enable_coroutine', 'Off');
+
+
+
+
+
 
 return $config = [
     //项目/系统标识
@@ -32,8 +39,8 @@ return $config = [
             'minTime'=> 0.0001, //单个job最少执行时间
         ],
         'topics'  => [
-            ['name'=>'MyJob', 'workerMinNum'=>3, 'workerMaxNum'=>30, 'queueMaxNum'=>10000],
-            ['name'=> 'MyJob2', 'workerMinNum'=>3, 'workerMaxNum'=>20],
+            ['name'=>'MyJob', 'workerMinNum'=>1, 'workerMaxNum'=>3, 'queueMaxNum'=>10000],
+            ['name'=> 'MyJob2', 'workerMinNum'=>1, 'workerMaxNum'=>3],
             ['name'=> 'MyJob3', 'workerMinNum'=>1, 'workerMaxNum'=>1],
             ['name'=> 'DefaultClassMethod.test1', 'workerMinNum'=>1, 'workerMaxNum'=>2, 'defaultJobClass'=>'DefaultClassMethod', 'defaultJobMethod'=>'test1'],
             ['name'=> 'DefaultClassMethod.test2', 'workerMinNum'=>1, 'workerMaxNum'=>2, 'defaultJobClass'=>'DefaultClassMethod', 'defaultJobMethod'=>'test2'],
@@ -41,23 +48,23 @@ return $config = [
             //['name'=> 'TojavaConsumer'],
         ],
         // redis
-        'queue'   => [
-            'class'    => '\Kcloze\Jobs\Queue\RedisTopicQueue',
-            'host'     => '127.0.0.1',
-            'port'     => 6379,
-            //'password'=> 'pwd',
-        ],
+        // 'queue'   => [
+        //     'class'    => '\Kcloze\Jobs\Queue\RedisTopicQueue',
+        //     'host'     => '127.0.0.1',
+        //     'port'     => 6379,
+        //     //'password'=> 'pwd',
+        // ],
 
         // rabbitmq
-        // 'queue'   => [
-        //     'class'         => '\Kcloze\Jobs\Queue\RabbitmqTopicQueue',
-        //     'host'          => '192.168.9.24',
-        //     'user'          => 'phpadmin',
-        //     'pass'          => 'phpadmin',
-        //     'port'          => '5671',
-        //     'vhost'         => 'php',
-        //     'exchange'      => 'php.amqp.ext',
-        // ],
+        'queue'   => [
+            'class'         => '\Kcloze\Jobs\Queue\RabbitmqTopicQueue',
+            'host'          => '192.168.3.9',
+            'user'          => 'guest',
+            'pass'          => 'guest',
+            'port'          => '5672',
+            'vhost'         => 'php',
+            'exchange'      => 'php.amqp.ext',
+        ],
    ],
    //框架类型及装载类
    'framework' => [

@@ -178,6 +178,7 @@ sudo systemctl stop swoole-jobs.service
 ## 9. 注意事项
 * 如果嵌入自己的框架，可参考src/Action代码，继承抽象类Kcloze\Jobs\Action\BaseAction
 * 各种框架服务启动会稍有不同，具体参考：`example/bin`项目的代码
+* swoole 4 以上版本需要设置php.ini，[关闭协程 ](https://github.com/swoole/swoole-src/issues/2716)
 
 ## 10. 压测
 * 瓶颈: redis/rabbitmq队列存储本身和job执行速度
