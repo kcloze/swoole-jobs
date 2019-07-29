@@ -18,8 +18,7 @@ class DefaultJobClassMethodConfigTest extends TestCase
 
     public function testBase()
     {
-        $this->assertSame(get_class($this->queue), 'Kcloze\Jobs\Queue\RedisTopicQueue');
-        //$this->assertSame(get_class($this->queue), 'Kcloze\Jobs\Queue\RabbitmqTopicQueue');
+        $this->assertSame('\\'.get_class($this->queue), $this->config['job']['queue']['class']);
         $topicName = 'DefaultClassMethod.test1';
         $this->queue->delete($topicName);
         $jobObject = new \Kcloze\Jobs\JobObject($topicName, '', '', ['functionName'=>__FUNCTION__, 'timestamp'=>time()]);
@@ -58,7 +57,7 @@ class DefaultJobClassMethodConfigTest extends TestCase
 
         $job       = new \Kcloze\Jobs\Jobs('');
         $config    = $job->getConfigByTopic($topicName);
-        $jobObject = $job->formatJobObjectByTopicConfig($jobObject, $topicName);
+        $jobObject = $job->formatJobObjectByTopicConfig($jobObject, $topicName,[]);
         $this->assertNotEmpty($jobObject->topic);
         $this->assertNotEmpty($jobObject->jobClass);
         $this->assertNotEmpty($jobObject->jobMethod);
