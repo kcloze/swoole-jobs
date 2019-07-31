@@ -8,6 +8,7 @@ class TopicConfigObject
     private $workerMinNum;
     private $workerMaxNum;
     private $queueMaxNum;
+    private $queueMaxNumForProcess;
     private $defaultJobClass  = '';
     private $defaultJobMethod = '';
 
@@ -101,6 +102,22 @@ class TopicConfigObject
     public function setQueueMaxNum($queueMaxNum)
     {
         $this->queueMaxNum = $queueMaxNum;
+    }
+
+    /**
+     * @return int
+     */
+    public function getQueueMaxNumForProcess()
+    {
+        return $this->queueMaxNumForProcess;
+    }
+
+    /**
+     * @param int $queueMaxNumForProcess
+     */
+    public function setQueueMaxNumForProcess($queueMaxNumForProcess)
+    {
+        $this->queueMaxNumForProcess = $queueMaxNumForProcess;
     }
 
     /**

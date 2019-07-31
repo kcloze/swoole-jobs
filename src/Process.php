@@ -27,7 +27,8 @@ class Process
 
     private $version                      = '3.0';
     private $excuteTime                   =600; //子进程最长执行时间,单位：秒
-    private $queueMaxNum                  =10; //队列达到一定长度，启动动态子进程个数发和送消息提醒
+    private $queueMaxNum                  =10; //队列达到一定长度，发送消息提醒
+    private $queueMaxNumForProcess        = 10; //队列达到一定长度，启动动态子进程
     private $queueTickTimer               =1000 * 10; //一定时间间隔（毫秒）检查队列长度;默认10秒钟
     private $messageTickTimer             =1000 * 180; //一定时间间隔（毫秒）发送消息提醒;默认3分钟
     private $message                      =[]; //提醒消息内容
@@ -48,14 +49,13 @@ class Process
 
     public function __construct()
     {
-
-
         $this->config                    =  Config::getConfig();
         $this->logger                    = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '', $this->config['system'] ?? '');
         $this->topics                    =$this->config['job']['topics'] ?? [];
         $this->processName               = $this->config['processName'] ?? $this->processName;
         $this->excuteTime                = $this->config['excuteTime'] ?? $this->excuteTime;
         $this->queueMaxNum               = $this->config['queueMaxNum'] ?? $this->queueMaxNum;
+        $this->queueMaxNumForProcess     = $this->config['queueMaxNumForProcess'] ?? $this->queueMaxNumForProcess;
         $this->queueTickTimer            = $this->config['queueTickTimer'] ?? $this->queueTickTimer;
         $this->messageTickTimer          = $this->config['messageTickTimer'] ?? $this->messageTickTimer;
         $this->logSaveFileWorker         = $this->config['logSaveFileWorker'] ?? $this->logSaveFileWorker;
@@ -254,7 +254,6 @@ class Process
     //增加定时器，检查队列积压情况；
     public function registTimer()
     {
-        
         \Swoole\Timer::tick($this->queueTickTimer, function ($timerId) {
             $topics = $this->topics;
             $this->status  =$this->getMasterData('status');
@@ -294,24 +293,24 @@ class Process
                         $this->logger->log('queueError: ' . $e->getMessage(), 'error', 'error');
                     }
                     $this->status=$this->getMasterData('status');
+
+                    //如果当个队列设置了queueMaxNum项，以这个值作为是否警告的阀值；
+                    $queueMaxNum = $topic['queueMaxNum'] ?? $this->queueMaxNum;
                     //消息提醒：消息体收集
-                    if ($len > $this->queueMaxNum && count($this->message) <= count($topics) && count($this->message) <= 5) {
-                        $addMesg=true; //用来控制是否加到警告消息体
-                        //如果当个队列设置了queueMaxNum项，以这个值作为是否警告的标识；
-                        if (isset($topic['queueMaxNum']) && $len < $topic['queueMaxNum']) {
-                            $addMesg=false;
-                        }
-                        $addMesg && $this->message[]= strtr('Hostname: {hostname} Time:{time} Pid:{pid} ProName:{pname} Topic:{topic} Message:{message}' . PHP_EOL . '--------------' . PHP_EOL, [
-                                                '{time}'        => date('Y-m-d H:i:s'),
-                                                '{pid}'         => $this->ppid,
-                                                '{hostname}'    => gethostname(),
-                                                '{pname}'       => $this->processName,
-                                                '{topic}'       => $topic['name'],
-                                                '{message}'     => '积压消息个数:' . $len,
-                                            ]);
+                    if ($len > $queueMaxNum && count($this->message) <= count($topics) && count($this->message) <= 5) {
+                        $this->message[]= strtr('Hostname: {hostname} Time:{time} Pid:{pid} ProName:{pname} Topic:{topic} Message:{message}' . PHP_EOL . '--------------' . PHP_EOL, [
+                                            '{time}'        => date('Y-m-d H:i:s'),
+                                            '{pid}'         => $this->ppid,
+                                            '{hostname}'    => gethostname(),
+                                            '{pname}'       => $this->processName,
+                                            '{topic}'       => $topic['name'],
+                                            '{message}'     => '积压消息个数:' . $len,
+                                        ]);
                     }
 
-                    if ($topic['workerMaxNum'] > $topic['workerMinNum'] && Process::STATUS_RUNNING == $this->status && $len > $this->queueMaxNum && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
+                    //如果当个队列设置了queueMaxNumForProcess项，以这个值作为是否拉起动态子进程的阀值；
+                    $queueMaxNumForProcess = $topic['queueMaxNumForProcess'] ?? $this->queueMaxNumForProcess;
+                    if ($topic['workerMaxNum'] > $topic['workerMinNum'] && Process::STATUS_RUNNING == $this->status && $len > $queueMaxNumForProcess && $this->dynamicWorkerNum[$topic['name']] < $topic['workerMaxNum']) {
                         $max=$topic['workerMaxNum'] - $this->dynamicWorkerNum[$topic['name']];
                         for ($i=0; $i < $max; ++$i) {
                             //队列堆积达到一定数据，拉起一次性子进程,这类进程不会自动重启[没必要]
@@ -446,6 +445,5 @@ class Process
         //     $this->logger->log("Swoole Version >= 4.0.0 ,disable coroutine.", 'info', $this->logSaveFileWorker);
         //     ini_set('swoole.enable_coroutine', 'Off');
         // }
-
     }
 }
