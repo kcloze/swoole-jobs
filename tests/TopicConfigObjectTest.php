@@ -20,18 +20,20 @@ class TopicConfigObjectTest extends TestCase
         $this->assertNull($object->getWorkerMinNum());
         $this->assertNull($object->getWorkerMaxNum());
         $this->assertNull($object->getQueueMaxNum());
+        $this->assertNull($object->getQueueMaxNumForProcess());
     }
 
     public function testAttributes()
     {
         $config = [
-            'name'            => 'nameValue',
-            'defaultJobClass' => 'jobClassValue',
-            'defaultJobMethod'=> 'jobMethodValue',
-            'workerMinNum'    => 1,
-            'workerMaxNum'    => 3,
-            'queueMaxNum'     => 10,
-            'params'          => [
+            'name'                  => 'nameValue',
+            'defaultJobClass'       => 'jobClassValue',
+            'defaultJobMethod'      => 'jobMethodValue',
+            'workerMinNum'          => 1,
+            'workerMaxNum'          => 3,
+            'queueMaxNum'           => 10,
+            'queueMaxNumForProcess' => 10,
+            'params'                => [
                 'a', 'b', 'c',
             ],
             'attribute'=> null,
@@ -44,18 +46,20 @@ class TopicConfigObjectTest extends TestCase
         $this->assertSame($config['workerMinNum'], $object->getWorkerMinNum());
         $this->assertSame($config['workerMaxNum'], $object->getWorkerMaxNum());
         $this->assertSame($config['queueMaxNum'], $object->getQueueMaxNum());
+        $this->assertSame($config['queueMaxNumForProcess'], $object->getQueueMaxNumForProcess());
     }
 
     public function testConstruct()
     {
         $config = [
-            'name'            => 'nameValue',
-            'defaultJobClass' => 'jobClassValue',
-            'defaultJobMethod'=> 'jobMethodValue',
-            'workerMinNum'    => 1,
-            'workerMaxNum'    => 3,
-            'queueMaxNum'     => 10,
-            'params'          => [
+            'name'                  => 'nameValue',
+            'defaultJobClass'       => 'jobClassValue',
+            'defaultJobMethod'      => 'jobMethodValue',
+            'workerMinNum'          => 1,
+            'workerMaxNum'          => 3,
+            'queueMaxNum'           => 10,
+            'queueMaxNumForProcess' => 10,
+            'params'                => [
                 'a', 'b', 'c',
             ],
             'attribute'=> null,
@@ -67,5 +71,6 @@ class TopicConfigObjectTest extends TestCase
         $this->assertSame($config['workerMinNum'], $object->getWorkerMinNum());
         $this->assertSame($config['workerMaxNum'], $object->getWorkerMaxNum());
         $this->assertSame($config['queueMaxNum'], $object->getQueueMaxNum());
+        $this->assertSame($config['queueMaxNumForProcess'], $object->getQueueMaxNumForProcess());
     }
 }
