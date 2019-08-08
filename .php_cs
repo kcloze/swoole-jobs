@@ -1,6 +1,14 @@
 <?php
+
+/*
+ * This file is part of Swoole-jobs
+ * (c) kcloze <pei.greet@qq.com>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 $header = <<<'EOF'
-This file is part of PHP CS Fixer.
+This file is part of Swoole-jobs
 (c) kcloze <pei.greet@qq.com>
 This source file is subject to the MIT license that is bundled
 with this source code in the file LICENSE.
@@ -15,7 +23,7 @@ return PhpCsFixer\Config::create()
         'combine_consecutive_unsets' => true,
         // one should use PHPUnit methods to set up expected exception instead of annotations
         'general_phpdoc_annotation_remove'      => ['expectedException', 'expectedExceptionMessage', 'expectedExceptionMessageRegExp'],
-        //'header_comment'                        => ['header' => $header],
+        'header_comment'                        => ['header' => $header],
         //'heredoc_to_nowdoc'                     => true,
         'no_extra_consecutive_blank_lines'      => ['break', 'continue', 'extra', 'return', 'throw', 'use', 'parenthesis_brace_block', 'square_brace_block', 'curly_brace_block'],
         'no_unreachable_default_argument_value' => true,
@@ -34,7 +42,7 @@ return PhpCsFixer\Config::create()
         'no_empty_statement'                    => true,
         'simplified_null_return'                => true,
         'no_extra_consecutive_blank_lines'      => true,
-        'pre_increment'                         => false
+        'pre_increment'                         => false,
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()

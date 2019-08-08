@@ -10,6 +10,7 @@
         "ext-redis": "*",
         "guzzlehttp/guzzle": "^6.3",
         "bramus/router":"^1.3",
+        "symfony/console": "^4.2",
         "enqueue/amqp-ext": "^0.8"
     },
     "require-dev": {

@@ -70,9 +70,9 @@ return $config = [
         'class'  => '\Kcloze\Jobs\Message\DingMessage',
         'token'  => '6f5bf4dedc7698cdf3567f29ce5ebe5308a02b743d0f21cbe9c78e5417312206',
    ],
-   'httpServer' => [
+   'server' => [
                 'host'    => '0.0.0.0',
-                'port'    => 9501,
+                'port'    => 9502,
                 'settings'=> [
                     'worker_num'    => 3,
                     'daemonize'     => true,
