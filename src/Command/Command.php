@@ -43,6 +43,9 @@ abstract class Command extends SCommand
             case 'stop':
                 $this->stop();
                 break;
+            case 'restart':
+                $this->restart();
+                break;
             case 'status':
                 $this->status();
                 break;

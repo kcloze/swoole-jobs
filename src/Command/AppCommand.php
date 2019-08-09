@@ -39,7 +39,7 @@ class AppCommand extends Command
     protected function restart()
     {
         $this->logger->log('restarting...');
-        $this->kill();
+        $this->stop();
         sleep(3);
         $this->start();
     }

@@ -7,10 +7,11 @@
  * with this source code in the file LICENSE.
  */
 
+define('SWOOLE_JOBS_ROOT_PATH', dirname(__DIR__));
+
 use Kcloze\Jobs\Command\AppCommand;
 use Symfony\Component\Console\Application;
 
-define('SWOOLE_JOBS_ROOT_PATH', dirname(__DIR__));
 
 require SWOOLE_JOBS_ROOT_PATH . '/vendor/autoload.php';
 $config = require_once SWOOLE_JOBS_ROOT_PATH . '/config.php';
