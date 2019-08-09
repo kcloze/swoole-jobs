@@ -19,5 +19,5 @@ $command     = new Command($config);
 
 $application = new Application();
 $application->add($command);
-$application->setDefaultCommand($command->getName());
+$application->setDefaultCommand($command->getName(), true);
 $application->run();
