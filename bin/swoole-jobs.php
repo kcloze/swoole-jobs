@@ -8,7 +8,6 @@
  */
 
 use Kcloze\Jobs\Command\AppCommand;
-use Kcloze\Jobs\Command\HttpCommand;
 use Symfony\Component\Console\Application;
 
 define('SWOOLE_JOBS_ROOT_PATH', dirname(__DIR__));
