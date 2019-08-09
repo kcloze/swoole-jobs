@@ -9,12 +9,16 @@
 
 namespace Kcloze\Jobs\Command;
 
+use Kcloze\Jobs\Config;
+use Kcloze\Jobs\Logs;
 use Symfony\Component\Console\Command\Command as SCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class Command extends SCommand
 {
+    protected $input;
+    protected $output;
     private $config               =[];
 
     public function __construct(array $config)
@@ -27,7 +31,11 @@ abstract class Command extends SCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $command=$input->getArgument('name');
+        $this->input =$input;
+        $this->output=$output;
+        $this->checkSwooleSetting();
+        $command=$this->input->getArgument('name');
+
         switch ($command) {
             case 'start':
                 $this->start();
@@ -56,6 +64,8 @@ abstract class Command extends SCommand
     abstract protected function restart();
 
     abstract protected function status();
+
+    abstract protected function stop();
 
     abstract protected function exit();
 
@@ -163,55 +173,12 @@ abstract class Command extends SCommand
         }
     }
 
-    protected function stop()
-    {
-        $this->sendSignal(SIGUSR1);
-    }
-
-    protected function kill()
-    {
-        $this->sendSignal(SIGTERM);
-    }
-
-    protected function printHelpMessage()
-    {
-        $msg=<<<'EOF'
-NAME
-      php swoole-jobs - manage swoole-jobs
-
-SYNOPSIS
-      php swoole-jobs command [options]
-          Manage swoole-jobs daemons.
-
-WORKFLOWS
-
-      help [command]
-      Show this help, or workflow help for command.
-
-      restart
-      Stop, then start swoole-jobs master and workers.
-
-      start
-      Start swoole-jobs master and workers.
-
-      start http
-      Start swoole http server for apis.
-
-      stop
-      Wait all running workers smooth exit, please check swoole-jobs status for a while.
-      
-      stop http
-      Stop swoole http server for api.
-
-      exit
-      Kill all running workers and master PIDs.
-
-      exit http
-      Stop swoole http server for api.
-
-
-EOF;
-
-        echo $msg;
+    private function checkSwooleSetting()
+    {   
+        if(version_compare(swoole_version(), '4.0.0', '>=') && 'On'===ini_get('swoole.enable_coroutine')){
+            $this->output->writeln("swoole version >=4.0.0,you have to disable coroutine in php.ini");
+            $this->output->writeln("details jump to: https://github.com/swoole/swoole-src/issues/2716");
+            exit;
+        }
     }
 }

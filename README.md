@@ -83,50 +83,34 @@ php ./swoole-jobs.php start >> log/system.log 2>&1
 3.push jobs
 php ./tests/testJobsSerialzie.php
 
-4.start api server
-php ./swoole-jobs.php start http
 
-5.stop api server
-php ./swoole-jobs.php stop http
-```
 
 ### 5.2 Start parameter description
 ```
 NAME
-      php swoole-jobs - manage swoole-jobs
+      - manage swoole-jobs
 
 SYNOPSIS
-      php swoole-jobs command [options]
-          Manage swoole-jobs daemons.
-
+      -php bin/swoole-jobs.php app [options]
+        -Manage swoole-jobs daemons.
 
 WORKFLOWS
 
+      -help [command]
+        -Show this help, or workflow help for command.
 
+      -restart
+        -Stop, then start swoole-jobs master and workers.
 
-      help [command]
-      Show this help, or workflow help for command.
+      -start
+        -Start swoole-jobs master and workers.
 
-      restart
-      Stop, then start swoole-jobs master and workers.
+      -stop
+        -Wait all running workers smooth exit, please check swoole-jobs status for a while.
 
-      start
-      Start swoole-jobs master and workers.
+      -exit
+        -Kill all running workers and master PIDs.
 
-      start http
-      Start swoole http server for apis.
-
-      stop
-      Wait all running workers smooth exit, please check swoole-jobs status for a while.
-      
-      stop http
-      Stop swoole http server for api.
-
-      exit
-      Kill all running workers and master PIDs.
-
-      exit http
-      Stop swoole http server for api.
 
 
 ```

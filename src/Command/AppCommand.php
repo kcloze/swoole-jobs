@@ -33,7 +33,7 @@ class AppCommand extends Command
         //启动
         $process = new Process();
         $process->start();
-        echo 'swoole-jobs is starting.' . PHP_EOL;
+        $this->output->writeln('swoole-jobs is starting.');
     }
 
     protected function restart()
@@ -44,6 +44,11 @@ class AppCommand extends Command
         $this->start();
     }
 
+    protected function stop()
+    {
+        $this->sendSignal(SIGUSR1);
+    }
+
     protected function status()
     {
         $this->sendSignal(SIGUSR2);
@@ -51,8 +56,42 @@ class AppCommand extends Command
 
     protected function exit()
     {
-        $this->kill();
+        $this->sendSignal(SIGTERM);
+
     }
 
+    protected function printHelpMessage()
+    {
+        $msg=<<<'EOF'
+NAME
+      - manage swoole-jobs
+
+SYNOPSIS
+      -php bin/swoole-jobs.php app [options]
+        -Manage swoole-jobs daemons.
+
+WORKFLOWS
+
+      -help [command]
+        -Show this help, or workflow help for command.
+
+      -restart
+        -Stop, then start swoole-jobs master and workers.
+
+      -start
+        -Start swoole-jobs master and workers.
+
+      -stop
+        -Wait all running workers smooth exit, please check swoole-jobs status for a while.
+
+      -exit
+        -Kill all running workers and master PIDs.
+
+
+
+EOF;
+
+        echo $msg;
+    }
    
 }

@@ -69,11 +69,7 @@ php ./swoole-jobs.php start >> log/system.log 2>&1
 3.往队列推送任务
 php ./tests/testJobsSerialzie.php
 
-4.启动api服务
-php ./swoole-jobs.php start http
 
-5.停止api服务
-php ./swoole-jobs.php stop http
 
 
 
@@ -82,53 +78,31 @@ php ./swoole-jobs.php stop http
 ### 5.2 启动参数说明
 ```
 NAME
-      php swoole-jobs - manage swoole-jobs
+      - manage swoole-jobs
 
 SYNOPSIS
-      php swoole-jobs command [options]
-          Manage swoole-jobs daemons.
-
+      -php bin/swoole-jobs.php app [options]
+        -Manage swoole-jobs daemons.
 
 WORKFLOWS
 
+      -help [command]
+        -Show this help, or workflow help for command.
 
-      help [command]
-      Show this help, or workflow help for command.
+      -restart
+        -Stop, then start swoole-jobs master and workers.
 
-      restart
-      Stop, then start swoole-jobs master and workers.
+      -start
+        -Start swoole-jobs master and workers.
 
-      start
-      Start swoole-jobs master and workers.
+      -stop
+        -Wait all running workers smooth exit, please check swoole-jobs status for a while.
 
-      start http
-      Start swoole http server for apis.
-
-      stop
-      Wait all running workers smooth exit, please check swoole-jobs status for a while.
-      
-      stop http
-      Stop swoole http server for api.
-
-      exit
-      Kill all running workers and master PIDs.
-
-      exit http
-      Stop swoole http server for api.
+      -exit
+        -Kill all running workers and master PIDs.
 
 
 ```
-
-### 5.3 api参数说明
-
-#### 5.3.1 api url
-* http://localhost:9501/pushJobs
-
-#### 5.3.2 api params:
-
-| Params       | Type           | Demo  |
-| ------------- |:-------------:| -----:|
-|   jobData    | json | {"topic":"MyJob","jobClass":"\\Kcloze\\Jobs\\Jobs\\MyJob","jobMethod":"test2","jobParams":["kcloze",1532857253,"oop"],"jobExtras":[],"serializeFunc":"php"} |
 
 
 
