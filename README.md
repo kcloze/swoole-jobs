@@ -69,7 +69,8 @@ composer install
 * Building a mirror based on the root directory Dockerfile
 * docker build -t swoole-jobs .
 * docker run  -it  -v ~/data/code/php:/data swoole-jobs /bin/bash
-* After entering the docker container, enter the project directory:php swoole-jobs.php start
+* After entering the docker container, enter the project directory:
+  * `php ./bin/swoole-jobs.php start`
 
 ## 5. How to running
 
@@ -78,7 +79,7 @@ composer install
 1.edit config.php
 
 2.start service
-php ./swoole-jobs.php start >> log/system.log 2>&1
+php ./bin/swoole-jobs.php start >> log/system.log 2>&1
 
 3.push jobs
 php ./tests/testJobsSerialzie.php

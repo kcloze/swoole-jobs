@@ -55,7 +55,8 @@ composer install
 * 根据根目录Dockerfile构建镜像
 * docker build -t swoole-jobs .
 * docker run  -it  -v ~/data/code/php:/data swoole-jobs /bin/bash
-* 进入容器之后，进入项目目录：php swoole-jobs.php start
+* 进入容器之后，进入项目目录：
+  * `php ./bin/swoole-jobs.php start`
 
 ## 5. 运行
 
@@ -64,7 +65,7 @@ composer install
 1.修改配置config.php
 
 2.启动服务
-php ./swoole-jobs.php start >> log/system.log 2>&1
+php ./bin/swoole-jobs.php start >> log/system.log 2>&1
 
 3.往队列推送任务
 php ./tests/testJobsSerialzie.php
@@ -81,7 +82,7 @@ NAME
       - manage swoole-jobs
 
 SYNOPSIS
-      -php bin/swoole-jobs.php app [options]
+      -php ./bin/swoole-jobs.php app [options]
         -Manage swoole-jobs daemons.
 
 WORKFLOWS
