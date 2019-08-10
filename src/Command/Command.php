@@ -19,7 +19,7 @@ abstract class Command extends SCommand
 {
     protected $input;
     protected $output;
-    private $config               =[];
+    protected $config               =[];
 
     public function __construct(array $config)
     {
@@ -150,7 +150,7 @@ abstract class Command extends SCommand
             $httpServerPid                                                                       =null;
             file_exists($this->config['httpServer']['settings']['pid_file']) && $httpServerPid   =file_get_contents($this->config['httpServer']['settings']['pid_file']);
             if (!$httpServerPid) {
-                echo 'http server pid is null' . PHP_EOL;
+                echo 'http server pid is null, maybe http server is not running!' . PHP_EOL;
 
                 return;
             }

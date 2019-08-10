@@ -9,8 +9,8 @@
 
 namespace Kcloze\Jobs\Command;
 
+use Kcloze\Jobs\HttpServer;
 use Symfony\Component\Console\Input\InputArgument;
-
 
 class HttpCommand extends Command
 {
@@ -19,8 +19,8 @@ class HttpCommand extends Command
     public function __construct(array $config)
     {
         parent::__construct($config);
-    
     }
+
     protected function configure()
     {
         $this->setDescription('manager swoole-jobs http api ');
@@ -33,27 +33,29 @@ class HttpCommand extends Command
         if (isset($this->config['httpServer'])) {
             $this->output->writeln('swoole-jobs http server is starting.');
             HttpServer::getInstance($this->config);
-        }else{
+        } else {
             $this->output->writeln('sorrry,swoole-jobs http server config is not setting!');
-
         }
     }
+
     protected function restart()
     {
         $this->logger->log('api server restarting...');
-        $this->killHttpServer();
+        $this->stop();
         sleep(3);
-        $this->startHttpServer();
+        $this->start();
     }
+
     protected function stop()
     {
         $this->sendSignalHttpServer(SIGTERM);
     }
 
-    protected function status(){
+    protected function status()
+    {
         $this->output->writeln('there is no status command.');
-
     }
+
     protected function exit()
     {
         $this->sendSignalHttpServer(SIGTERM);
@@ -88,8 +90,4 @@ EOF;
 
         echo $msg;
     }
-
-
-
-   
 }

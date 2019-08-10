@@ -6,11 +6,13 @@ use Kcloze\Jobs\Api\Services\PushJobs;
 
 class Index
 {
+
+
     public function push()
     {
         $data=$_GET['jobData'] ?? $_POST['jobData'] ?? '';
         $pushJobs=new PushJobs();
-        echo $pushJobs->pushSimple($data);
+        return $pushJobs->pushSimple($data);
     }
 
     public function demo()
@@ -24,6 +26,6 @@ class Index
 
         $dataJob=json_encode($data);
         $pushJobs=new PushJobs();
-        echo $pushJobs->pushSimple($dataJob);
+        return $pushJobs->pushSimple($dataJob);
     }
 }
