@@ -33,6 +33,9 @@ class HttpCommand extends Command
         if (isset($this->config['httpServer'])) {
             $this->output->writeln('swoole-jobs http server is starting.');
             HttpServer::getInstance($this->config);
+        }else{
+            $this->output->writeln('sorrry,swoole-jobs http server config is not setting!');
+
         }
     }
     protected function restart()

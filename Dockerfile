@@ -1,48 +1,112 @@
-#FROM daocloud.io/library/ubuntu:latest
-FROM daocloud.io/library/php:7.1.10-cli-jessie
+FROM alpine:3.9
 
-MAINTAINER Kcloze <pei.greet@qq.com>
+LABEL maintainer="Swoole Jobs <pei.greet@qq.com>" version="1.0" license="MIT"
 
-RUN sed -i "s/archive.ubuntu./mirrors.aliyun./g" /etc/apt/sources.list 
-RUN sed -i "s/deb.debian.org/mirrors.aliyun.com/g" /etc/apt/sources.list 
-RUN sed -i "s/security.debian.org/mirrors.aliyun.com\/debian-security/g" /etc/apt/sources.list
+##
+# ---------- building ----------
+##
+RUN set -ex \
+        # change apk source repo
+        && sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/' /etc/apk/repositories \
+        && apk update \
+        && apk add --no-cache \
+        # Install base packages ('ca-certificates' will install 'nghttp2-libs')
+        ca-certificates \
+        curl \
+        wget \
+        tar \
+        xz \
+        libressl \
+        tzdata \
+        pcre \
+        php7 \
+        php7-pecl-amqp \
+        php7-bcmath \
+        php7-curl \
+        php7-ctype \
+        php7-dom \
+        php7-fileinfo \
+        php7-gd \
+        php7-iconv \
+        php7-json \
+        php7-mbstring \
+        php7-mysqlnd \
+        php7-openssl \
+        php7-pdo \
+        php7-pdo_mysql \
+        php7-pdo_sqlite \
+        php7-phar \
+        php7-posix \
+        php7-redis \
+        php7-simplexml \
+        php7-sockets \
+        php7-sodium \
+        php7-sysvshm \
+        php7-sysvmsg \
+        php7-sysvsem \
+        php7-tokenizer \
+        php7-zip \
+        php7-zlib \
+        php7-xml \
+        php7-xmlreader \
+        php7-xmlwriter \
+        php7-pcntl \
+        && apk del --purge *-dev \
+        && rm -rf /var/cache/apk/* /tmp/* /usr/share/man /usr/share/php7 \
+        && php -v \
+        && php -m 
 
-RUN apt-get update && apt-get install -y \
-        libpng-dev \
-        libpq-dev \
-        g++ \
-        libicu-dev \
-        libxml2-dev \
-        htop \
-        git \
-        vim \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libmcrypt-dev \
-        zlib1g-dev \
-        librabbitmq-dev
 
-RUN docker-php-ext-configure intl \
-    && docker-php-ext-install mbstring \
-    && docker-php-ext-install intl \
-    && docker-php-ext-install zip \
-    && docker-php-ext-install pdo_mysql \
-    && docker-php-ext-install pdo_pgsql \
-    && docker-php-ext-install soap \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install opcache \
-    && docker-php-ext-install mysqli \
-    && pecl install amqp \
-    && docker-php-ext-enable amqp \
-    && pecl install apcu \
-    && docker-php-ext-enable apcu \
-    && pecl install swoole \
-    && docker-php-ext-enable swoole \
-    && pecl install redis \
-    && docker-php-ext-enable redis
+ARG swoole
 
-VOLUME ["/data"]
-WORKDIR /data
+##
+# ---------- env settings ----------
+##
+ENV SWOOLE_VERSION=${swoole:-"4.4.3"} \
+        #  install and remove building packages
+        PHPIZE_DEPS="autoconf dpkg-dev dpkg file g++ gcc libc-dev make php7-dev php7-pear pkgconf re2c pcre-dev zlib-dev libtool automake"
 
-CMD [ "/bin/bash"]
+# update
+RUN set -ex \
+        && apk update \
+        # for swoole extension libaio linux-headers
+        && apk add --no-cache libstdc++ openssl git bash \
+        && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS libaio-dev openssl-dev \
+        # download
+        && cd /tmp \
+        && curl -SL "https://github.com/swoole/swoole-src/archive/v${SWOOLE_VERSION}.tar.gz" -o swoole.tar.gz \
+        && ls -alh \
+        # php extension:swoole
+        && cd /tmp \
+        && mkdir -p swoole \
+        && tar -xf swoole.tar.gz -C swoole --strip-components=1 \
+        && ( \
+        cd swoole \
+        && phpize \
+        && ./configure --enable-mysqlnd --enable-openssl \
+        && make -s -j$(nproc) && make install \
+        ) \
+        && printf "extension=swoole.so\n\
+        swoole.use_shortname = 'Off'\n\
+        swoole.enable_coroutine = 'Off'\n\
+        " >/etc/php7/conf.d/swoole.ini \
+        # clear
+        && php -v \
+        && php -m \
+        && php --ri swoole \
+        # ---------- clear works ----------
+        && apk del .build-deps \
+        && rm -rf /var/cache/apk/* /tmp/* /usr/share/man
+       
+RUN printf "# composer php cli ini settings\n\
+        date.timezone=PRC\n\
+        memory_limit=-1\n\
+        " > /etc/php7/php.ini
+ENV COMPOSER_ALLOW_SUPERUSER 1
+ENV COMPOSER_HOME /tmp
+ENV COMPOSER_VERSION 1.9.0
+
+RUN curl -SL "https://github.com/composer/composer/releases/download/${COMPOSER_VERSION}/composer.phar" -o composer.phar \
+        && mv composer.phar /usr/bin/composer \
+        && chmod u+x /usr/bin/composer \
+        && echo -e "\033[42;37m Build Completed :).\033[0m\n"

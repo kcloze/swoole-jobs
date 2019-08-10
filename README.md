@@ -146,12 +146,15 @@ WORKFLOWS
 2. sudo cp -f systemd/swoole-jobs.service /etc/systemd/system/
 3. sudo systemctl --system daemon-reload
 4. Service management
+
+```
 #start service
 sudo systemctl start swoole-jobs.service
 #reload service
 sudo systemctl reload swoole-jobs.service
 #stop service
 sudo systemctl stop swoole-jobs.service
+
 ```
 
 ## 7.System screenshot

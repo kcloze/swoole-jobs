@@ -134,6 +134,7 @@ sudo systemctl start swoole-jobs.service
 sudo systemctl reload swoole-jobs.service
 #关闭服务
 sudo systemctl stop swoole-jobs.service
+
 ```
 
 ## 7.系统截图
