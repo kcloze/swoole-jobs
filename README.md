@@ -84,7 +84,11 @@ php ./bin/swoole-jobs.php start >> log/system.log 2>&1
 3.push jobs
 php ./tests/testJobsSerialzie.php
 
+4.start api server
+php ./swoole-jobs.php start http
 
+5.stop api server
+php ./swoole-jobs.php stop http
 
 ### 5.2 Start parameter description
 ```
@@ -112,7 +116,11 @@ WORKFLOWS
       -exit
         -Kill all running workers and master PIDs.
 
-
+      -http start 
+        -Start swoole http server for apis.
+      
+      -http stop
+        -Stop swoole http server for api.
 
 ```
 ### 5.3 API parameter description
