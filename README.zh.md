@@ -72,10 +72,10 @@ php ./tests/testJobsSerialzie.php
 
 
 4.启动api服务
-php ./swoole-jobs.php http start
+php ./bin/swoole-jobs.php http start
 
 5.停止api服务
-php ./swoole-jobs.php http stop
+php ./bin/swoole-jobs.php http stop
 
 
 ```
