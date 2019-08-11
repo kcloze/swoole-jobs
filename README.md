@@ -164,7 +164,6 @@ sudo systemctl reload swoole-jobs.service
 #stop service
 sudo systemctl stop swoole-jobs.service
 
-```
 
 ## 7.System screenshot
 #### htop
