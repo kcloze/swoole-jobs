@@ -75,10 +75,10 @@ return $config = [
                 'host'    => '0.0.0.0',
                 'port'    => 9502,
                 'settings'=> [
-                    'worker_num'    => 2,
+                    'worker_num'    => 3,
                     'daemonize'     => true,
-                    'max_request'   => 10,
-                    'dispatch_mode' => 1,
+                    //'max_request'   => 1,
+                    'dispatch_mode' => 2,
                     'pid_file'      => __DIR__ . '/log/server.pid',
                     'log_file'      => __DIR__ . '/log/server.log',
             ],

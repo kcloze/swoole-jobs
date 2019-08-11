@@ -7,9 +7,9 @@ class Router
     {
         $router = new \Bramus\Router\Router();
         // Static route: /hello
-        // $router->get('/', function () {
-        //     echo 'hello,swoole-jobs! '.microtime();
-        // });
+        $router->get('/', function () {
+            echo 'hello,swoole-jobs! '.microtime();
+        });
         $router->get('/hello', function () {
             echo 'hello,swoole-jobs! '.microtime();
         });
