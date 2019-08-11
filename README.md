@@ -69,7 +69,8 @@ composer install
 * Building a mirror based on the root directory Dockerfile
 * docker build -t swoole-jobs .
 * docker run  -it  -v ~/data/code/php:/data swoole-jobs /bin/bash
-* After entering the docker container, enter the project directory:php swoole-jobs.php start
+* After entering the docker container, enter the project directory:
+  * `php ./bin/swoole-jobs.php start`
 
 ## 5. How to running
 
@@ -78,7 +79,7 @@ composer install
 1.edit config.php
 
 2.start service
-php ./swoole-jobs.php start >> log/system.log 2>&1
+php ./bin/swoole-jobs.php start >> log/system.log 2>&1
 
 3.push jobs
 php ./tests/testJobsSerialzie.php
@@ -88,46 +89,38 @@ php ./swoole-jobs.php start http
 
 5.stop api server
 php ./swoole-jobs.php stop http
-```
 
 ### 5.2 Start parameter description
 ```
 NAME
-      php swoole-jobs - manage swoole-jobs
+      - manage swoole-jobs
 
 SYNOPSIS
-      php swoole-jobs command [options]
-          Manage swoole-jobs daemons.
-
+      -php bin/swoole-jobs.php app [options]
+        -Manage swoole-jobs daemons.
 
 WORKFLOWS
 
+      -help [command]
+        -Show this help, or workflow help for command.
 
+      -restart
+        -Stop, then start swoole-jobs master and workers.
 
-      help [command]
-      Show this help, or workflow help for command.
+      -start
+        -Start swoole-jobs master and workers.
 
-      restart
-      Stop, then start swoole-jobs master and workers.
+      -stop
+        -Wait all running workers smooth exit, please check swoole-jobs status for a while.
 
-      start
-      Start swoole-jobs master and workers.
+      -exit
+        -Kill all running workers and master PIDs.
 
-      start http
-      Start swoole http server for apis.
-
-      stop
-      Wait all running workers smooth exit, please check swoole-jobs status for a while.
+      -http start 
+        -Start swoole http server for apis.
       
-      stop http
-      Stop swoole http server for api.
-
-      exit
-      Kill all running workers and master PIDs.
-
-      exit http
-      Stop swoole http server for api.
-
+      -http stop
+        -Stop swoole http server for api.
 
 ```
 ### 5.3 API parameter description
@@ -161,12 +154,15 @@ WORKFLOWS
 2. sudo cp -f systemd/swoole-jobs.service /etc/systemd/system/
 3. sudo systemctl --system daemon-reload
 4. Service management
+
+```
 #start service
 sudo systemctl start swoole-jobs.service
 #reload service
 sudo systemctl reload swoole-jobs.service
 #stop service
 sudo systemctl stop swoole-jobs.service
+
 ```
 
 ## 7.System screenshot

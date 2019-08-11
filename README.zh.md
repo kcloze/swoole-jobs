@@ -55,7 +55,8 @@ composer install
 * 根据根目录Dockerfile构建镜像
 * docker build -t swoole-jobs .
 * docker run  -it  -v ~/data/code/php:/data swoole-jobs /bin/bash
-* 进入容器之后，进入项目目录：php swoole-jobs.php start
+* 进入容器之后，进入项目目录：
+  * `php ./bin/swoole-jobs.php start`
 
 ## 5. 运行
 
@@ -64,17 +65,17 @@ composer install
 1.修改配置config.php
 
 2.启动服务
-php ./swoole-jobs.php start >> log/system.log 2>&1
+php ./bin/swoole-jobs.php start >> log/system.log 2>&1
 
 3.往队列推送任务
 php ./tests/testJobsSerialzie.php
 
+
 4.启动api服务
-php ./swoole-jobs.php start http
+php ./swoole-jobs.php http start
 
 5.停止api服务
-php ./swoole-jobs.php stop http
-
+php ./swoole-jobs.php http stop
 
 
 ```
@@ -82,53 +83,37 @@ php ./swoole-jobs.php stop http
 ### 5.2 启动参数说明
 ```
 NAME
-      php swoole-jobs - manage swoole-jobs
+      - manage swoole-jobs
 
 SYNOPSIS
-      php swoole-jobs command [options]
-          Manage swoole-jobs daemons.
-
+      -php ./bin/swoole-jobs.php app [options]
+        -Manage swoole-jobs daemons.
 
 WORKFLOWS
 
+      -help [command]
+        -Show this help, or workflow help for command.
 
-      help [command]
-      Show this help, or workflow help for command.
+      -restart
+        -Stop, then start swoole-jobs master and workers.
 
-      restart
-      Stop, then start swoole-jobs master and workers.
+      -start
+        -Start swoole-jobs master and workers.
 
-      start
-      Start swoole-jobs master and workers.
+      -stop
+        -Wait all running workers smooth exit, please check swoole-jobs status for a while.
 
-      start http
-      Start swoole http server for apis.
+      -exit
+        -Kill all running workers and master PIDs.
 
-      stop
-      Wait all running workers smooth exit, please check swoole-jobs status for a while.
+      -http start 
+        -Start swoole http server for apis.
       
-      stop http
-      Stop swoole http server for api.
-
-      exit
-      Kill all running workers and master PIDs.
-
-      exit http
-      Stop swoole http server for api.
+      -http stop
+        -Stop swoole http server for api.
 
 
 ```
-
-### 5.3 api参数说明
-
-#### 5.3.1 api url
-* http://localhost:9501/pushJobs
-
-#### 5.3.2 api params:
-
-| Params       | Type           | Demo  |
-| ------------- |:-------------:| -----:|
-|   jobData    | json | {"topic":"MyJob","jobClass":"\\Kcloze\\Jobs\\Jobs\\MyJob","jobMethod":"test2","jobParams":["kcloze",1532857253,"oop"],"jobExtras":[],"serializeFunc":"php"} |
 
 
 
@@ -159,6 +144,7 @@ sudo systemctl start swoole-jobs.service
 sudo systemctl reload swoole-jobs.service
 #关闭服务
 sudo systemctl stop swoole-jobs.service
+
 ```
 
 ## 7.系统截图

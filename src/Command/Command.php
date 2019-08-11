@@ -1,47 +1,76 @@
 <?php
 
 /*
- * This file is part of PHP CS Fixer.
+ * This file is part of Swoole-jobs
  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
 
-namespace Kcloze\Jobs;
+namespace Kcloze\Jobs\Command;
 
-class Console
+use Kcloze\Jobs\Config;
+use Kcloze\Jobs\Logs;
+use Symfony\Component\Console\Command\Command as SCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
+abstract class Command extends SCommand
 {
-    public $logger    = null;
-    private $config   = [];
+    protected $input;
+    protected $output;
+    protected $config               =[];
 
-    public function __construct($config)
+    public function __construct(array $config)
     {
+        parent::__construct();
         Config::setConfig($config);
         $this->config  = Config::getConfig();
         $this->logger  = new Logs($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '', $this->config['system'] ?? '');
     }
 
-    public function run()
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->runOpt();
-    }
+        $this->input =$input;
+        $this->output=$output;
+        $this->checkSwooleSetting();
+        $command=$this->input->getArgument('name');
 
-    public function start()
-    {
-        //启动
-        $process = new Process();
-        $process->start();
-        echo 'swoole-jobs is starting.' . PHP_EOL;
-    }
+        switch ($command) {
+            case 'start':
+                $this->start();
+                break;
+            case 'stop':
+                $this->stop();
+                break;
+            case 'restart':
+                $this->restart();
+                break;
+            case 'status':
+                $this->status();
+                break;
+            case 'exit':
+                $this->exit();
+                break;
+            case 'help':
+                $this->printHelpMessage();
+                break;
 
-    public function startHttpServer()
-    {
-        //启动
-        if (isset($this->config['httpServer'])) {
-            //echo 'swoole-jobs http server is starting.' . PHP_EOL;
-            HttpServer::getInstance($this->config);
+            default:
+                $this->printHelpMessage();
+                break;
         }
     }
+
+    abstract protected function start();
+
+    abstract protected function restart();
+
+    abstract protected function status();
+
+    abstract protected function stop();
+
+    abstract protected function exit();
 
     /**
      *  给主进程发送信号：
@@ -51,7 +80,7 @@ class Console
      *
      * @param [type] $signal
      */
-    public function sendSignal($signal=SIGUSR1)
+    protected function sendSignal($signal=SIGUSR1)
     {
         $this->logger->log($signal . (SIGUSR1 == $signal) ? ' smooth to exit...' : ' force to exit...');
 
@@ -115,13 +144,13 @@ class Console
         echo 'service is not running' . PHP_EOL;
     }
 
-    public function sendSignalHttpServer($signal=SIGTERM)
+    protected function sendSignalHttpServer($signal=SIGTERM)
     {
         if (isset($this->config['httpServer']) && isset($this->config['httpServer']['settings']['pid_file'])) {
             $httpServerPid                                                                       =null;
             file_exists($this->config['httpServer']['settings']['pid_file']) && $httpServerPid   =file_get_contents($this->config['httpServer']['settings']['pid_file']);
             if (!$httpServerPid) {
-                echo 'http server pid is null' . PHP_EOL;
+                echo 'http server pid is null, maybe http server is not running!' . PHP_EOL;
 
                 return;
             }
@@ -147,126 +176,12 @@ class Console
         }
     }
 
-    public function restart()
-    {
-        $this->logger->log('restarting...');
-        $this->kill();
-        sleep(3);
-        $this->start();
-    }
-
-    public function restartHttpServer()
-    {
-        $this->logger->log('api server restarting...');
-        $this->killHttpServer();
-        sleep(3);
-        $this->startHttpServer();
-    }
-
-    public function kill()
-    {
-        $this->sendSignal(SIGTERM);
-    }
-
-    public function killHttpServer()
-    {
-        $this->sendSignalHttpServer(SIGTERM);
-    }
-
-    public function runOpt()
-    {
-        global $argv;
-        if (empty($argv[1])) {
-            $this->printHelpMessage();
-            exit(1);
+    private function checkSwooleSetting()
+    {   
+        if(version_compare(swoole_version(), '4.0.0', '>=') && 'Off'!==ini_get('swoole.enable_coroutine')){
+            $this->output->writeln("swoole version >=4.0.0,you have to disable coroutine in php.ini");
+            $this->output->writeln("details jump to: https://github.com/swoole/swoole-src/issues/2716");
+            exit;
         }
-        $opt=$argv[1];
-        switch ($opt) {
-            case 'start':
-                $op2=$argv[2] ?? '';
-                if ('http' == $op2) {
-                    $this->startHttpServer();
-                    break;
-                }
-                $this->start();
-
-                break;
-            case 'stop':
-                $op2=$argv[2] ?? '';
-                if ('http' == $op2) {
-                    $this->killHttpServer();
-                    break;
-                }
-                $this->sendSignal();
-                break;
-            case 'status':
-                $this->sendSignal(SIGUSR2);
-                break;
-            case 'exit':
-                $op2=$argv[2] ?? '';
-                if ('http' == $op2) {
-                    $this->killHttpServer();
-                    break;
-                }
-                $this->kill();
-                break;
-            case 'restart':
-                $op2=$argv[2] ?? '';
-                if ('http' == $op2) {
-                    $this->restartHttpServer();
-                    break;
-                }
-
-                $this->restart();
-                break;
-            case 'help':
-                $this->printHelpMessage();
-                break;
-
-            default:
-                $this->printHelpMessage();
-                break;
-        }
-    }
-
-    public function printHelpMessage()
-    {
-        $msg=<<<'EOF'
-NAME
-      php swoole-jobs - manage swoole-jobs
-
-SYNOPSIS
-      php swoole-jobs command [options]
-          Manage swoole-jobs daemons.
-
-WORKFLOWS
-
-      help [command]
-      Show this help, or workflow help for command.
-
-      restart
-      Stop, then start swoole-jobs master and workers.
-
-      start
-      Start swoole-jobs master and workers.
-
-      start http
-      Start swoole http server for apis.
-
-      stop
-      Wait all running workers smooth exit, please check swoole-jobs status for a while.
-      
-      stop http
-      Stop swoole http server for api.
-
-      exit
-      Kill all running workers and master PIDs.
-
-      exit http
-      Stop swoole http server for api.
-
-
-EOF;
-        echo $msg;
     }
 }
