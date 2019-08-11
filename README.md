@@ -85,10 +85,10 @@ php ./bin/swoole-jobs.php start >> log/system.log 2>&1
 php ./tests/testJobsSerialzie.php
 
 4.start api server
-php ./bin/swoole-jobs.php start http
+php ./bin/swoole-jobs.php http start
 
 5.stop api server
-php ./bin/swoole-jobs.php stop http
+php ./bin/swoole-jobs.php http start 
 ```
 
 ### 5.2 Start parameter description
