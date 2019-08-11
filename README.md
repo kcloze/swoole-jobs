@@ -89,6 +89,7 @@ php ./bin/swoole-jobs.php start http
 
 5.stop api server
 php ./bin/swoole-jobs.php stop http
+```
 
 ### 5.2 Start parameter description
 ```
