@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PHP CS Fixer.
+ * This file is part of Swoole-jobs
  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -83,6 +83,12 @@ class RedisTopicQueue extends BaseTopicQueue
         $unSerializeFunc=Serialize::isSerial($result) ? 'php' : 'json';
 
         return !empty($result) ? Serialize::unSerialize($result, $unSerializeFunc) : null;
+    }
+
+    //redis不支持ack功能，搞个假的，没办法
+    public function ack()
+    {
+        return true;
     }
 
     public function len($topic): int

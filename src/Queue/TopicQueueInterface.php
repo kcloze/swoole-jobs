@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PHP CS Fixer.
+ * This file is part of Swoole-jobs
  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -44,6 +44,11 @@ interface TopicQueueInterface
      * @return array
      */
     public function pop($topic);
+
+    /** 
+     *  ack确认消息
+    */
+    public function ack(): boolean;
 
     /**
      * @param $topic

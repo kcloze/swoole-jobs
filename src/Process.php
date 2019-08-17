@@ -25,7 +25,7 @@ class Process
     public $processName                   = ':swooleProcessTopicQueueJob'; // 进程重命名, 方便 shell 脚本管理
     public $workers                       = [];
 
-    private $version                      = '3.0';
+    private $version                      = '4.0';
     private $excuteTime                   =600; //子进程最长执行时间,单位：秒
     private $queueMaxNum                  =10; //队列达到一定长度，发送消息提醒
     private $queueMaxNumForProcess        = 10; //队列达到一定长度，启动动态子进程

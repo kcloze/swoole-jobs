@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PHP CS Fixer.
+ * This file is part of Swoole-jobs
  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -62,6 +62,7 @@ class Jobs
                     }
 
                     $this->queue && $data = $this->queue->pop($topic);
+
                     if (empty($data)) {
                         ++$slpTimes;
                         if ($slpTimes > 10) {
@@ -74,6 +75,9 @@ class Jobs
                     }
 
                     $this->logger->log('pop data: ' . json_encode($data), 'info');
+                    if (true === $this->config['autoAckBeforeJob']) {
+                        $this->queue->ack();
+                    }
                     if (!empty($data) && (is_object($data) || is_array($data))) {
                         $beginTime=microtime(true);
                         // 根据自己的业务需求改写此方法
@@ -86,6 +90,10 @@ class Jobs
                         $endTime =microtime(true);
                         $execTime=$endTime - $beginTime;
                         $this->logger->log('pid: ' . getmypid() . ', job id: ' . $jobObject->uuid . ' done, spend time: ' . $execTime, 'info');
+                        //确认消息安全消费完成
+                        if (true !== $this->config['autoAckBeforeJob']) {
+                            $this->queue->ack();
+                        }
                         //黑科技：实践中发现有可能进不到业务代码，造成消息丢失,job执行太快或者太慢(业务出现异常)，worker进程都安全退出
                         $minTimeJob=$this->config['job']['profile']['minTime'] ?? self::MinTimeJob;
                         $maxTimeJob=$this->config['job']['profile']['maxTime'] ?? self::MaxTimeJob;

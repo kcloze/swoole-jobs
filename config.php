@@ -25,6 +25,7 @@ return $config = [
     'messageTickTimer'      => 1000 * 180, //一定时间间隔（毫秒）发送消息提醒;默认3分钟
     'processName'           => ':swooleTopicQueue', // 设置进程名, 方便管理, 默认值 swooleTopicQueue
     //'eachJobExit'        => false, // true 开启； false 关闭；每个job执行完之后，主动exit,防止业务代码出现（正常不需要开启）
+    'autoAckBeforeJob'        => true, // true 开启； false 关闭；job没跑之前是否直接ack,这样业务代码里面有exit、die等致命错误会丢弃消息，防止消息积压
 
     //job任务相关
     'job'         => [

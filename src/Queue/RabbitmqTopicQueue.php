@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PHP CS Fixer.
+ * This file is part of Swoole-jobs
  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -24,8 +24,10 @@ class RabbitmqTopicQueue extends BaseTopicQueue
 {
     const EXCHANGE    ='php.amqp.ext';
 
-    public $context =null;
-    private $logger =null;
+    public $context         =null;
+    private $logger         =null;
+    private $consumer       =null;
+    private $message        =null;
 
     /**
      * RabbitmqTopicQueue constructor.
@@ -134,19 +136,34 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         if (!$this->isConnected()) {
             return;
         }
+        //reset consumer and message properties
+        $this->consumer=null;
+        $this->$message=null;
 
         $queue    = $this->createQueue($topic);
         $consumer = $this->context->createConsumer($queue);
 
         if ($m = $consumer->receive(1)) {
-            $result=$m->getBody();
-            $consumer->acknowledge($m);
-
+            $result         =$m->getBody();
+            $this->consumer =$consumer;
+            $this->$message =$m;
             //判断字符串是否是php序列化的字符串，目前只允许serialzie和json两种
             $unSerializeFunc=Serialize::isSerial($result) ? 'php' : 'json';
 
             return !empty($result) ? Serialize::unserialize($result, $unSerializeFunc) : null;
         }
+    }
+
+    public function ack()
+    {
+        if ($this->$consumer && $this->$message) {
+            $this->consumer->acknowledge($this->$message);
+
+            return true;
+        }
+        throw new \Exception(self::get_class() . ' properties consumer or message is null !');
+
+        return false;
     }
 
     //这里的topic跟rabbitmq不一样，其实就是队列名字
@@ -208,7 +225,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
             $i = 0;
             do {
                 $queue = $this->context->createQueue($topic);
-                $i++;
+                ++$i;
                 if (($queue && $this->isConnected()) || $i >= 3) {
                     //成功 或 链接超过3次则跳出
                     break;

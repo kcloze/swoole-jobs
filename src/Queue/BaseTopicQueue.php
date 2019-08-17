@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PHP CS Fixer.
+ * This file is part of Swoole-jobs
  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -24,10 +24,6 @@ abstract class BaseTopicQueue implements TopicQueueInterface
     public $topics = [];
     public $queue  = null;
 
-    public static function getConnection(array $config, Logs $logger)
-    {
-    }
-
     public function getTopics()
     {
         //根据key大到小排序，并保持索引关系
@@ -41,41 +37,31 @@ abstract class BaseTopicQueue implements TopicQueueInterface
         $this->topics = $topics;
     }
 
-    public function push($topic, JobObject $job): string
-    {
-    }
+    abstract public static function getConnection(array $config, Logs $logger);
 
-    public function pop($topic)
-    {
-    }
+    abstract public function push($topic, JobObject $job): string;
+
+    abstract public function pop($topic);
+
+    abstract public function ack(): boolean;
 
     /**
      * 清空队列，保留队列名.
      *
      * @param [type] $topic
      */
-    public function purge($topic)
-    {
-    }
+    abstract public function purge($topic);
 
     /**
      * 删除队列.
      *
      * @param [type] $topic
      */
-    public function delete($topic)
-    {
-    }
+    abstract public function delete($topic);
 
-    public function len($topic): int
-    {
-    }
+    abstract public function len($topic): int;
 
-    public function close()
-    {
-    }
+    abstract public function close();
 
-    public function isConnected()
-    {
-    }
+    abstract public function isConnected();
 }
