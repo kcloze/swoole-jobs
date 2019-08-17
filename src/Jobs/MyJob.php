@@ -17,7 +17,7 @@ class MyJob
         // $client = new \GuzzleHttp\Client();
         // $res    = $client->request('GET', 'https://www.oschina.net/', ['timeout' => 3]);
         // echo $res->getStatusCode() . ' test1| title: ' . $a . ' time: ' . $b . PHP_EOL;
-
+        die('oh,my gad!');
         echo  ' test1| title: ' . $a . ' time: ' . $b . PHP_EOL;
     }
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PHP CS Fixer.
+ * This file is part of Swoole-jobs
  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -9,6 +9,7 @@
 
 define('SWOOLE_JOBS_ROOT_PATH', __DIR__ . '/..');
 
+use Kcloze\Jobs\Config;
 use Kcloze\Jobs\JobObject;
 use Kcloze\Jobs\Logs;
 use Kcloze\Jobs\Queue\BaseTopicQueue;
@@ -17,18 +18,19 @@ use PHPUnit\Framework\TestCase;
 
 class QueueTest extends TestCase
 {
-    private $queue=null;
+    private $queue =null;
+    private $config=null;
 
     public function __construct()
     {
-        $config              = require SWOOLE_JOBS_ROOT_PATH . '/config.php';
-        $logger              = Logs::getLogger($config['logPath'] ?? '', $config['logSaveFileApp'] ?? '');
-        $this->queue         =Queue::getQueue($config['job']['queue'], $logger);
+        $this->config              = require SWOOLE_JOBS_ROOT_PATH . '/config.php';
+        $logger                    = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '');
+        $this->queue               =Queue::getQueue($this->config['job']['queue'], $logger);
     }
 
     public function testQueue()
     {
-        $this->assertTrue(is_object($this->queue));
+        $this->assertInternalType('object', $this->queue);
 
         $len                   =$this->queue->len('MyJob');
 
@@ -63,5 +65,12 @@ class QueueTest extends TestCase
 
         $this->assertSame('foo', array_pop($stack));
         $this->assertSame(0, count($stack));
+    }
+
+    public function testConfig()
+    {
+        $topics=$this->config['job']['topics'];
+        $this->assertFalse(Config::getTopicConfig($topics, 'MyJob', 'autoAckBeforeJobStart'));
+        $this->assertTrue(Config::getTopicConfig($topics, 'MyJob2', 'autoAckBeforeJobStart'));
     }
 }

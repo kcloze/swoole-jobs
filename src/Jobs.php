@@ -27,11 +27,11 @@ class Jobs
 
     public function __construct($pidInfoFile)
     {
-        $this->config      = Config::getConfig(); //读取配置文件
-        $this->pidInfoFile = $pidInfoFile;
-        $this->sleep       = $this->config['sleep'] ?? $this->sleep;
-        $this->maxPopNum   = $this->config['maxPopNum'] ?? $this->maxPopNum;
-        $this->logger      = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '', $this->config['system'] ?? '');
+        $this->config                     = Config::getConfig(); //读取配置文件
+        $this->pidInfoFile                = $pidInfoFile;
+        $this->sleep                      = $this->config['sleep'] ?? $this->sleep;
+        $this->maxPopNum                  = $this->config['maxPopNum'] ?? $this->maxPopNum;
+        $this->logger                     = Logs::getLogger($this->config['logPath'] ?? '', $this->config['logSaveFileApp'] ?? '', $this->config['system'] ?? '');
     }
 
     public function run($topic='')
@@ -75,7 +75,8 @@ class Jobs
                     }
 
                     $this->logger->log('pop data: ' . json_encode($data), 'info');
-                    if (true === $this->config['autoAckBeforeJob']) {
+                    $autoAckBeforeJobStart=Config::getTopicConfig($this->config['job']['topics'], $topic, 'autoAckBeforeJobStart');
+                    if (true === $autoAckBeforeJobStart) {
                         $this->queue->ack();
                     }
                     if (!empty($data) && (is_object($data) || is_array($data))) {
@@ -91,7 +92,7 @@ class Jobs
                         $execTime=$endTime - $beginTime;
                         $this->logger->log('pid: ' . getmypid() . ', job id: ' . $jobObject->uuid . ' done, spend time: ' . $execTime, 'info');
                         //确认消息安全消费完成
-                        if (true !== $this->config['autoAckBeforeJob']) {
+                        if (true !== $autoAckBeforeJobStart) {
                             $this->queue->ack();
                         }
                         //黑科技：实践中发现有可能进不到业务代码，造成消息丢失,job执行太快或者太慢(业务出现异常)，worker进程都安全退出

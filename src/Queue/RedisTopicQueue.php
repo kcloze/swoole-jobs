@@ -86,7 +86,7 @@ class RedisTopicQueue extends BaseTopicQueue
     }
 
     //redis不支持ack功能，搞个假的，没办法
-    public function ack()
+    public function ack(): boolean
     {
         return true;
     }

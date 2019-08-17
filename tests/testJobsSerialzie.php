@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PHP CS Fixer.
+ * This file is part of Swoole-jobs
  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -33,16 +33,16 @@ if (!$queue) {
 //jobs的topic需要在配置文件里面定义，并且一次性注册进去
 $topics = $queue->getTopics();
 //var_dump($topics); exit;
-
-addTest1($queue);
-addTest2($queue);
-addTest3($queue);
-addTest4($queue);
+$times=10;
+addTest1($queue, $times);
+addTest2($queue, $times);
+addTest3($queue, $times);
+addTest4($queue, $times);
 
 //往topic为MyJob的任务增加执行job
-function addTest1($queue)
+function addTest1($queue, $times)
 {
-    for ($i = 0; $i < 1000; ++$i) {
+    for ($i = 0; $i < $times; ++$i) {
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_1;
@@ -56,9 +56,9 @@ function addTest1($queue)
     }
 }
 
-function addTest2($queue)
+function addTest2($queue, $times)
 {
-    for ($i = 0; $i < 100; ++$i) {
+    for ($i = 0; $i < $times; ++$i) {
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_2;
@@ -70,9 +70,9 @@ function addTest2($queue)
     }
 }
 
-function addTest3($queue)
+function addTest3($queue, $times)
 {
-    for ($i = 0; $i < 100; ++$i) {
+    for ($i = 0; $i < $times; ++$i) {
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_3;
@@ -84,9 +84,9 @@ function addTest3($queue)
     }
 }
 
-function addTest4($queue)
+function addTest4($queue, $times)
 {
-    for ($i = 0; $i < 100; ++$i) {
+    for ($i = 0; $i < $times; ++$i) {
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_2;
@@ -96,7 +96,7 @@ function addTest4($queue)
         $result                =$queue->push('MyJob2', $job, 1, 'php');
         var_dump($result);
     }
-    for ($i = 0; $i < 100; ++$i) {
+    for ($i = 0; $i < $times; ++$i) {
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_2;
@@ -106,7 +106,7 @@ function addTest4($queue)
         $result                =$queue->push('MyJob2', $job, 1, 'php');
         var_dump($result);
     }
-    for ($i = 0; $i < 100; ++$i) {
+    for ($i = 0; $i < $times; ++$i) {
         $rand                  =mt_rand(0, 100);
         $delay                 =$rand * 1000;
         $priority              =BaseTopicQueue::HIGH_LEVEL_2;
