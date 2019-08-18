@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of PHP CS Fixer.
+ * This file is part of Swoole-jobs
  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
@@ -36,11 +36,10 @@ class Config
      * @param mixed $topic
      * @param mixed $name
      *  */
-
     public static function getTopicConfig($config, $topic, $name)
     {
         $key=array_search($topic, array_column($config, 'name'), true);
 
-        return $config[$key][$name] ?? false;
+        return $config[$key][$name] ?? true;
     }
 }

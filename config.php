@@ -35,8 +35,8 @@ return $config = [
             'minTime'=> 0.0001, //单个job最少执行时间
         ],
         'topics'  => [
-            //'autoAckBeforeJobStart'    => true, // true 开启； false 关闭；job没跑之前是否直接ack,这样业务代码里面有exit、die等致命错误会丢弃消息，防止消息积压
-            ['name'=>'MyJob', 'workerMinNum'=>1, 'workerMaxNum'=>3, 'queueMaxNum'=>10000, 'queueMaxNumForProcess' => 100, 'autoAckBeforeJobStart'=>false],
+            //'autoAckBeforeJobStart'    => true, // true 开启； false 关闭；默认为true，job没跑之前是否直接ack,这样业务代码里面有exit、die等致命错误会丢弃消息，防止消息积压
+            ['name'=>'MyJob', 'workerMinNum'=>1, 'workerMaxNum'=>3, 'queueMaxNum'=>10000, 'queueMaxNumForProcess' => 100, 'autoAckBeforeJobStart'=>true],
             ['name'=> 'MyJob2', 'workerMinNum'=>1, 'workerMaxNum'=>3, 'autoAckBeforeJobStart'=>true],
             ['name'=> 'MyJob3', 'workerMinNum'=>1, 'workerMaxNum'=>1],
             ['name'=> 'DefaultClassMethod.test1', 'workerMinNum'=>1, 'workerMaxNum'=>2, 'defaultJobClass'=>'DefaultClassMethod', 'defaultJobMethod'=>'test1'],

@@ -17,7 +17,7 @@ class MyJob
         // $client = new \GuzzleHttp\Client();
         // $res    = $client->request('GET', 'https://www.oschina.net/', ['timeout' => 3]);
         // echo $res->getStatusCode() . ' test1| title: ' . $a . ' time: ' . $b . PHP_EOL;
-        die('oh,my gad!');
+        die('oh,my gad!').PHP_EOL;//模拟job异常退出，如果设置autoAckBeforeJobStart为false，则消息出队列之后会回到队列，消息不丢失
         echo  ' test1| title: ' . $a . ' time: ' . $b . PHP_EOL;
     }
 

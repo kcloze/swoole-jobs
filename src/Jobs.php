@@ -75,7 +75,7 @@ class Jobs
                     }
 
                     $this->logger->log('pop data: ' . json_encode($data), 'info');
-                    $autoAckBeforeJobStart=Config::getTopicConfig($this->config['job']['topics'], $topic, 'autoAckBeforeJobStart');
+                    $autoAckBeforeJobStart=Config::getTopicConfig($this->config['job']['topics'], $topic, 'autoAckBeforeJobStart') ?? true;
                     if (true === $autoAckBeforeJobStart) {
                         $this->queue->ack();
                     }
