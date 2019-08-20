@@ -79,7 +79,7 @@ class Jobs
                     if (true === $autoAckBeforeJobStart) {
                         $this->queue->ack();
                     }
-                    if (!empty($data) && (is_object($data) || is_array($data))) {
+                    if (!empty($data) && (\is_object($data) || \is_array($data))) {
                         $beginTime=microtime(true);
                         // 根据自己的业务需求改写此方法
                         $jobObject               =  $this->loadObject($data);
@@ -105,19 +105,18 @@ class Jobs
                             //进程安全退出
                             exit;
                         }
-
-                        unset($jobObject, $baseAction);
                     } else {
                         $this->logger->log('pop error data: ' . print_r($data, true), 'error', 'error');
                     }
                     //防止内存泄漏，每次执行一个job就退出[极端情况才需要开启]
                     if (isset($this->config['eachJobExit']) && true == $this->config['eachJobExit']) {
-                        $this->logger->log('Each Job Exit' . PHP_EOL);
+                        $this->logger->log('Each Job Exit, job id: ' . $jobObject->uuid . PHP_EOL);
                         exit;
                     }
                     // if ($this->queue->len($topic) <= 0) {
                     //     break;
                     // }
+                    unset($jobObject, $baseAction);
                 } while ($this->popNum <= $this->maxPopNum);
             } else {
                 sleep($this->sleep);
@@ -202,9 +201,9 @@ class Jobs
     //实例化job对象
     private function loadObject($data)
     {
-        if (is_object($data)) {
+        if (\is_object($data)) {
             return new JobObject($data->topic ?? '', $data->jobClass ?? '', $data->jobMethod ?? '', $data->jobParams ?? [], $data->jobExtras ?? [], $data->uuid ?? '');
-        } elseif (is_array($data)) {
+        } elseif (\is_array($data)) {
             return new JobObject($data['topic'] ?? '', $data['jobClass'] ?? '', $data['jobMethod'] ?? '', $data['jobParams'] ?? [], $data['jobExtras'] ?? [], $data['uuid'] ?? '');
         }
 
