@@ -11,6 +11,7 @@ namespace Kcloze\Jobs\Command;
 
 use Kcloze\Jobs\Config;
 use Kcloze\Jobs\Logs;
+use Kcloze\Jobs\Utils;
 use Symfony\Component\Console\Command\Command as SCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -85,8 +86,9 @@ abstract class Command extends SCommand
         $this->logger->log($signal . (SIGUSR1 == $signal) ? ' smooth to exit...' : ' force to exit...');
 
         if (isset($this->config['pidPath']) && !empty($this->config['pidPath'])) {
-            $masterPidFile=$this->config['pidPath'] . '/master.pid';
-            $pidStatusFile=$this->config['pidPath'] . '/status.info';
+            $this->config['pidPath']=$this->config['pidPath'] . '/' . Utils::getHostName();
+            $masterPidFile          =$this->config['pidPath'] . '/master.pid';
+            $pidStatusFile          =$this->config['pidPath'] . '/status.info';
         } else {
             echo 'config pidPath must be set!' . PHP_EOL;
 
@@ -177,10 +179,10 @@ abstract class Command extends SCommand
     }
 
     private function checkSwooleSetting()
-    {   
-        if(version_compare(swoole_version(), '4.0.0', '>=') && 'Off'!==ini_get('swoole.enable_coroutine')){
-            $this->output->writeln("swoole version >=4.0.0,you have to disable coroutine in php.ini");
-            $this->output->writeln("details jump to: https://github.com/swoole/swoole-src/issues/2716");
+    {
+        if (version_compare(swoole_version(), '4.0.0', '>=') && 'Off' !== ini_get('swoole.enable_coroutine')) {
+            $this->output->writeln('swoole version >=4.0.0,you have to disable coroutine in php.ini');
+            $this->output->writeln('details jump to: https://github.com/swoole/swoole-src/issues/2716');
             exit;
         }
     }
