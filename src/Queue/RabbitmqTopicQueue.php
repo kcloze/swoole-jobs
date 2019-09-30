@@ -94,7 +94,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         }
 
         $queue        = $this->createQueue($topic);
-        if (!is_object($queue)) {
+        if (!\is_object($queue)) {
             //对象有误 则直接返回空
             return '';
         }
@@ -138,7 +138,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         }
         //reset consumer and message properties
         $this->consumer=null;
-        $this->message=null;
+        $this->message =null;
 
         $queue    = $this->createQueue($topic);
         $consumer = $this->context->createConsumer($queue);
@@ -146,7 +146,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         if ($m = $consumer->receive(1)) {
             $result         =$m->getBody();
             $this->consumer =$consumer;
-            $this->message =$m;
+            $this->message  =$m;
             //判断字符串是否是php序列化的字符串，目前只允许serialzie和json两种
             $unSerializeFunc=Serialize::isSerial($result) ? 'php' : 'json';
 
@@ -154,7 +154,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         }
     }
 
-    public function ack(): boolean
+    public function ack(): bool
     {
         if ($this->consumer && $this->message) {
             $this->consumer->acknowledge($this->message);
@@ -174,7 +174,7 @@ class RabbitmqTopicQueue extends BaseTopicQueue
         }
 
         $queue = $this->createQueue($topic);
-        if (!is_object($queue)) {
+        if (!\is_object($queue)) {
             //对象有误 则直接返回空
             return -1;
         }

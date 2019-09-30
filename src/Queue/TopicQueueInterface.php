@@ -45,10 +45,10 @@ interface TopicQueueInterface
      */
     public function pop($topic);
 
-    /** 
-     *  ack确认消息
-    */
-    public function ack(): boolean;
+    /**
+     *  ack确认消息.
+     */
+    public function ack(): bool;
 
     /**
      * @param $topic
