@@ -43,7 +43,7 @@ abstract class BaseTopicQueue implements TopicQueueInterface
 
     abstract public function pop($topic);
 
-    abstract public function ack(): boolean;
+    abstract public function ack(): bool;
 
     /**
      * 清空队列，保留队列名.
