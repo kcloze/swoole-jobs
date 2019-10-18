@@ -1,13 +1,15 @@
 <?php
 
 /*
- * This file is part of PHP CS Fixer.
+ * This file is part of Swoole-jobs
  * (c) kcloze <pei.greet@qq.com>
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
 
 namespace Kcloze\Jobs;
+
+use Exception;
 
 class Logs
 {
@@ -37,7 +39,7 @@ class Logs
     public function __construct($logPath, $logSaveFileApp='', $logSystem = '')
     {
         if (empty($logPath)) {
-            die('config logPath must be set!' . PHP_EOL);
+            throw new Exception('config logPath must be set!' . PHP_EOL);
         }
         Utils::mkdir($logPath);
         $this->logPath = $logPath;
@@ -220,9 +222,9 @@ class Logs
      */
     private static function mkdir($dst, array $options, $recursive)
     {
-        $prevDir = dirname($dst);
+        $prevDir = \dirname($dst);
         if ($recursive && !is_dir($dst) && !is_dir($prevDir)) {
-            self::mkdir(dirname($dst), $options, true);
+            self::mkdir(\dirname($dst), $options, true);
         }
         $mode = isset($options['newDirMode']) ? $options['newDirMode'] : 0777;
         $res  = mkdir($dst, $mode);
