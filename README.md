@@ -88,7 +88,7 @@ php ./tests/testJobsSerialzie.php
 php ./bin/swoole-jobs.php http start
 
 5.stop api server
-php ./bin/swoole-jobs.php http start 
+php ./bin/swoole-jobs.php http stop 
 ```
 
 ### 5.2 Start parameter description
