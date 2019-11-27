@@ -441,11 +441,15 @@ class Process
 
     private function disableCoroutine()
     {
-        //swoole 4 下只能通过php.ini 全局关闭协程，官方回复 https://github.com/swoole/swoole-src/issues/2716
-
-        // if (version_compare(swoole_version(), '4.0.0', '>=')) {
-        //     $this->logger->log("Swoole Version >= 4.0.0 ,disable coroutine.", 'info', $this->logSaveFileWorker);
-        //     ini_set('swoole.enable_coroutine', 'Off');
-        // }
+        //swoole 4.4.4
+        if (version_compare(swoole_version(), '4.4.4', '>=')) {
+            \Swoole\Timer::set([
+                'enable_coroutine' => false,
+            ]);
+            // \Swoole\Process::set([
+            //     'enable_coroutine' => false,
+            // ]);
+            $this->logger->log('Swoole Version >= 4.4.4 ,disable coroutine.', 'info', $this->logSaveFileWorker);
+        }
     }
 }
