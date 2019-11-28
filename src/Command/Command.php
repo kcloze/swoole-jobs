@@ -180,8 +180,8 @@ abstract class Command extends SCommand
 
     private function checkSwooleSetting()
     {
-        if (version_compare(swoole_version(), '4.0.0', '>=') && 'Off' !== ini_get('swoole.enable_coroutine')) {
-            $this->output->writeln('swoole version >=4.0.0,you have to disable coroutine in php.ini');
+        if (version_compare(swoole_version(), '4.4.4', '<=') && version_compare(swoole_version(), '4.0.0', '>=') && 'Off' !== ini_get('swoole.enable_coroutine')) {
+            $this->output->writeln('4.0.0 <= swoole version <=4.4.4,you have to disable coroutine in php.ini, or you can update swoole version >=4.4.4');
             $this->output->writeln('details jump to: https://github.com/swoole/swoole-src/issues/2716');
             exit;
         }

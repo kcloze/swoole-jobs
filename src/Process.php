@@ -133,7 +133,6 @@ class Process
      */
     public function reserveQueue($num, $topic, $type=self::CHILD_PROCESS_CAN_RESTART)
     {
-        $this->disableCoroutine();
         $reserveProcess = new \Swoole\Process(function ($worker) use ($num, $topic, $type) {
             $this->checkMpid($worker);
             $beginTime=microtime(true);
@@ -156,6 +155,9 @@ class Process
             $this->logger->log($type . ' ' . $topic . ' worker id: ' . $num . ', pid: ' . getmypid() . ' is done!!! popNum: ' . $jobs->popNum . ', Timing: ' . ($endTime - $beginTime), 'info', $this->logSaveFileWorker);
             unset($num, $topic, $type);
         });
+
+        $this->disableCoroutine($reserveProcess);
+    
         $pid                                        = $reserveProcess->start();
         $this->workers[$pid]                        = $reserveProcess;
         $this->workersInfo[$pid]['type']            = $type;
@@ -439,13 +441,17 @@ class Process
         return $statusStr;
     }
 
-    private function disableCoroutine()
+    private function disableCoroutine(\Swoole\Process $reserveProcess=null)
     {
-        //swoole 4 下只能通过php.ini 全局关闭协程，官方回复 https://github.com/swoole/swoole-src/issues/2716
-
-        // if (version_compare(swoole_version(), '4.0.0', '>=')) {
-        //     $this->logger->log("Swoole Version >= 4.0.0 ,disable coroutine.", 'info', $this->logSaveFileWorker);
-        //     ini_set('swoole.enable_coroutine', 'Off');
-        // }
+        //swoole 4.4.4
+        if (version_compare(swoole_version(), '4.4.4', '>=')) {
+            if($reserveProcess instanceof \Swoole\Process){
+                $reserveProcess->set(['enable_coroutine' => false]);
+            }
+            \Swoole\Timer::set([
+                'enable_coroutine' => false,
+            ]);
+            $this->logger->log('Swoole Version >= 4.4.4 ,disable coroutine.', 'info', $this->logSaveFileWorker);
+        }
     }
 }
