@@ -97,7 +97,7 @@ class RedisTopicQueue extends BaseTopicQueue
             return 0;
         }
 
-        return (int) $this->queue->lSize($topic) ?? 0;
+        return (int) $this->queue->lLen($topic) ?? 0;
     }
 
     public function purge($topic)
