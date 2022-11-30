@@ -61,6 +61,7 @@ abstract class Command extends SCommand
                 $this->printHelpMessage();
                 break;
         }
+        return 0;
     }
 
     abstract protected function start();

@@ -156,7 +156,7 @@ class Process
             unset($num, $topic, $type);
         });
 
-        $this->disableCoroutine($reserveProcess);
+        //$this->disableCoroutine($reserveProcess);
     
         $pid                                        = $reserveProcess->start();
         $this->workers[$pid]                        = $reserveProcess;
